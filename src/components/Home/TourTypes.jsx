@@ -1,0 +1,44 @@
+import React from 'react';
+import { Mountain, Palmtree, Tent, Binoculars, Map, Bike } from 'lucide-react';
+
+const types = [
+    { icon: <Mountain size={32} />, name: 'Paragliding', desc: 'Lorem ipsum types' },
+    { icon: <Palmtree size={32} />, name: 'Wildlife', desc: 'Lorem ipsum types' },
+    { icon: <Tent size={32} />, name: 'Hang Gliding', desc: 'Lorem ipsum types' },
+    { icon: <Binoculars size={32} />, name: 'Adventure', desc: 'Lorem ipsum types' },
+    { icon: <Map size={32} />, name: 'Hunting', desc: 'Lorem ipsum types' },
+    { icon: <Bike size={32} />, name: 'Nature', desc: 'Lorem ipsum types' }
+];
+
+export default function TourTypes() {
+    return (
+        <section className="py-20 bg-slate-50 relative">
+            {/* Background Pattern */}
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                <svg width="200" height="200" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M50 0 L100 100 L0 100 Z" className="text-[#FFA500]" />
+                </svg>
+            </div>
+
+            <div className="container mx-auto px-4 md:px-6 text-center">
+                <p className="text-[#FFA500] font-bold uppercase tracking-wider text-sm mb-2">Activities</p>
+                <h2 className="text-4xl font-bold text-[#0F1E32] mb-12">
+                    Choose Our Tour Types <br />
+                    <span className="text-[#FFA500] font-serif italic">& Enjoy Now</span>
+                </h2>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                    {types.map((type, index) => (
+                        <div key={index} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-slate-50 text-[#0F1E32] flex items-center justify-center mb-4 group-hover:bg-[#FFA500] group-hover:text-white transition-colors">
+                                {type.icon}
+                            </div>
+                            <h3 className="font-bold text-[#0F1E32] mb-1">{type.name}</h3>
+                            <p className="text-xs text-slate-400">{type.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}

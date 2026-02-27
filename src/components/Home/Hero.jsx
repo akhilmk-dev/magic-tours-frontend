@@ -163,7 +163,7 @@ export default function Hero() {
                             />
                         </div>
 
-                        <div className="flex items-end text-white font-['Outfit']">
+                        <div className="flex items-end text-white">
                             <span className="text-3xl lg:text-4xl xl:text-7xl font-bold leading-none tracking-tighter">0{currentSlide + 1}</span>
                         </div>
                     </div>
@@ -186,9 +186,9 @@ export default function Hero() {
                                 <span className="text-[#FDB338] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[11px] sm:text-xs md:text-sm mb-3 sm:mb-4 block">
                                     {slides[currentSlide].location}
                                 </span>
-                                <h1 className="text-[40px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.05] mb-4 sm:mb-6 tracking-tight font-['Outfit']">
+                                <h1 className="text-[40px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.05] mb-4 sm:mb-6 tracking-tight">
                                     {slides[currentSlide].title} <br />
-                                    <span className="text-[#FDB338] font-['Playfair_Display'] italic font-medium">
+                                    <span className="text-[#FDB338] italic font-medium">
                                         {slides[currentSlide].subtitle}
                                     </span>
                                 </h1>
@@ -241,7 +241,7 @@ export default function Hero() {
                             <div className="flex-1 relative h-[1px] bg-white/20">
                                 <motion.div animate={{ left: `${(currentSlide / (slides.length - 1)) * 80}%` }} className="absolute top-0 h-full w-16 sm:w-20 bg-[#FDB338]" />
                             </div>
-                            <div className="text-white font-bold text-2xl sm:text-3xl md:text-4xl font-['Outfit']">0{currentSlide + 1}</div>
+                            <div className="text-white font-bold text-2xl sm:text-3xl md:text-4xl">0{currentSlide + 1}</div>
                         </div>
                     </div>
                 </div>

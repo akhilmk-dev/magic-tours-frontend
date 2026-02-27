@@ -41,9 +41,9 @@ const VisaServices = () => {
                     </div>
 
                     {/* Heading */}
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-bold text-[#0F1E32] leading-[1.1] mb-3 sm:mb-4 font-['Outfit']">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-bold text-[#0F1E32] leading-[1.1] mb-3 sm:mb-4">
                         Simplified{' '}
-                        <span className="text-[#FDB338] font-['Playfair_Display'] italic font-medium">Visa Solutions</span>
+                        <span className="text-[#FDB338] italic font-medium">Visa Solutions</span>
                     </h2>
 
                     <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-xl">
@@ -73,7 +73,7 @@ const VisaServices = () => {
                                             <Icon size={16} className="text-[#FDB338]" />
                                         </div>
                                         <div>
-                                            <h4 className="text-[#0F1E32] font-bold text-xs sm:text-sm font-['Playfair_Display'] italic mb-1">
+                                            <h4 className="text-[#0F1E32] font-bold text-xs sm:text-sm italic mb-1">
                                                 {feature.title}
                                             </h4>
                                             <p className="text-gray-400 text-[11px] sm:text-xs leading-relaxed">

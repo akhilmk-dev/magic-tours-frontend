@@ -110,8 +110,8 @@ export default function CruiseCategories() {
                         </div>
 
                         <h2 className="text-[36px] md:text-[48px] lg:text-[64px] font-bold text-[#022C54] leading-[1.1] mb-6">
-                            Explore Our <span className="text-[#FFA500] font-['Playfair_Display'] italic">Cruise</span><br />
-                            <span className="text-[#FFA500] font-['Playfair_Display'] italic">Experiences</span>
+                            Explore Our <span className="text-[#FFA500] italic">Cruise</span><br />
+                            <span className="text-[#FFA500] italic">Experiences</span>
                         </h2>
 
                         <p className="text-[#022C54]/80 text-base md:text-lg mb-8 lg:mb-10 max-w-md mx-auto lg:mx-0 font-medium">
@@ -162,7 +162,7 @@ export default function CruiseCategories() {
                                                         />
                                                     </div>
                                                     <div className="py-5 text-center">
-                                                        <h3 className="text-[#022C54] text-xl font-bold font-['Outfit']">
+                                                        <h3 className="text-[#022C54] text-xl font-bold">
                                                             {category.title}
                                                         </h3>
                                                     </div>

@@ -79,7 +79,7 @@ export default function WondersOfQatar() {
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ duration: 0.4 }}
                                         >
-                                            <h3 className="text-[#0F1E32] text-lg sm:text-xl font-['Playfair_Display'] font-bold mb-1">
+                                            <h3 className="text-[#0F1E32] text-lg sm:text-xl font-bold mb-1">
                                                 {slides[currentSlide].title}
                                             </h3>
                                             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">
@@ -115,7 +115,7 @@ export default function WondersOfQatar() {
                             </span>
                         </div>
 
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-[64px] font-['Playfair_Display'] font-extrabold text-white leading-[1.1] mb-5 sm:mb-6 md:mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-[64px] font-extrabold text-white leading-[1.1] mb-5 sm:mb-6 md:mb-8">
                             Explore the <br />
                             Wonders of Qatar
                         </h2>

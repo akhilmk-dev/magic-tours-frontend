@@ -43,7 +43,7 @@ const SpecialOffer = () => {
                             <span className="text-[#FDB338] font-bold text-sm lg:text-base uppercase tracking-wider mb-4 block">
                                 Special Offer for You
                             </span>
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[52px] font-bold text-white leading-[1.1] mb-6 font-['Outfit']">
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[52px] font-bold text-white leading-[1.1] mb-6">
                                 Let's Make Your Travel <br className="hidden sm:block" />
                                 Dreams <span className="text-white">Come True</span>
                             </h2>
@@ -101,7 +101,7 @@ const SpecialOffer = () => {
                                 <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20 rounded-full border border-gray-100 bg-white flex items-center justify-center mb-5 shadow-sm group hover:border-[#FDB338] transition-all">
                                     <stat.icon className="text-[#FDB338] transition-transform group-hover:scale-110" size={24} />
                                 </div>
-                                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-[#0F1E32] mb-2 font-['Outfit'] tracking-tight">
+                                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-[#0F1E32] mb-2 tracking-tight">
                                     {stat.value}
                                 </h3>
                                 <p className="text-[12px] sm:text-[13px] lg:text-sm text-gray-400 font-medium tracking-wide">

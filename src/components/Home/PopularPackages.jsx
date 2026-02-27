@@ -127,7 +127,7 @@ export default function PopularPackages() {
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0F1E32]">Packages</span>
                     </div>
                     <h2 className="text-[28px] md:text-[42px] font-bold text-[#0F1E32] leading-tight mb-4">
-                        Popular Travel <span className="text-[#FFA500] font-['Playfair_Display'] italic">Packages</span>
+                        Popular Travel <span className="text-[#FFA500] italic">Packages</span>
                     </h2>
                 </div>
 

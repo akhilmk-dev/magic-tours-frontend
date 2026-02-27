@@ -22,6 +22,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'], // Standard modern font
+        heading: ['Philosopher', 'sans-serif'], // Elegant font for headings
       }
     },
   },

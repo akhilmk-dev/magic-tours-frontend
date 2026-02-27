@@ -50,9 +50,9 @@ const PrivateJet = () => {
                         </div>
 
                         {/* Heading */}
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-[#0F1E32] leading-[1.1] mb-5 sm:mb-6 font-['Outfit']">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-[#0F1E32] leading-[1.1] mb-5 sm:mb-6">
                             Elite Private{' '}
-                            <span className="text-[#FDB338] font-['Playfair_Display'] italic font-medium">Jet Charters</span>
+                            <span className="text-[#FDB338] italic font-medium">Jet Charters</span>
                         </h2>
 
                         <p className="text-gray-500 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-xl">
@@ -67,7 +67,7 @@ const PrivateJet = () => {
                                     <MapPin size={18} className="text-[#FDB338]" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] font-['Playfair_Display'] italic mb-1">Safe Traveling</h4>
+                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] italic mb-1">Safe Traveling</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
                                     </p>
@@ -78,7 +78,7 @@ const PrivateJet = () => {
                                     <Shield size={18} className="text-[#FDB338]" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] font-['Playfair_Display'] italic mb-1">Comfort Accommodation</h4>
+                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] italic mb-1">Comfort Accommodation</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
                                     </p>
@@ -131,7 +131,7 @@ const PrivateJet = () => {
                                                     <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
                                                         <Plane size={14} className="text-[#0F1E32]" />
                                                     </div>
-                                                    <h3 className="text-white font-bold text-lg sm:text-xl font-['Playfair_Display']">
+                                                    <h3 className="text-white font-bold text-lg sm:text-xl">
                                                         {slides[currentSlide].title}
                                                     </h3>
                                                 </div>
@@ -177,7 +177,7 @@ const PrivateJet = () => {
                     <span className="text-white/80 text-sm sm:text-base md:text-lg font-medium block mb-1 sm:mb-2">
                         Experience Our
                     </span>
-                    <h3 className="text-[#FDB338] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[56px] font-extrabold font-['Outfit'] uppercase tracking-wide leading-[1.1]">
+                    <h3 className="text-[#FDB338] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[56px] font-extrabold uppercase tracking-wide leading-[1.1]">
                         Private Jet Categories
                     </h3>
                 </div>

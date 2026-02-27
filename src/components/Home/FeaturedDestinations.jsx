@@ -102,7 +102,7 @@ export default function FeaturedDestinations() {
                 <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-8">
                     <div className="w-full md:w-1/2 pt-3 relative z-20">
                         <h4 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
-                            <span className="text-[#FFA500] font-['Playfair_Display'] italic">Most Favorite</span> <span className="text-white font-['Outfit']">Tour <br className="hidden md:block" />
+                            <span className="text-[#FFA500] italic">Most Favorite</span> <span className="text-white">Tour <br className="hidden md:block" />
                                 Places!</span>
                         </h4>
 
@@ -118,7 +118,7 @@ export default function FeaturedDestinations() {
 
                     {/* Right Side - TOP! DESTINATION text */}
                     <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end mt-5 md:mt-0">
-                        <div className="font-black flex flex-col gap-2 md:gap-9 font-['Playfair_Display'] mt-5 text-start ">
+                        <div className="font-black flex flex-col gap-2 md:gap-9 mt-5 text-start ">
                             <span className="text-[#FFA500] block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem]">TOP!</span>
                             <span className="uppercase block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem] text-white"
                                 style={{

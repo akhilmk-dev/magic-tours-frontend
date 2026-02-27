@@ -4,15 +4,17 @@ import Destinations from '../components/Home/Destinations';
 import About from '../components/Home/About';
 import PopularPackages from '../components/Home/PopularPackages';
 import CruiseCategories from '../components/Home/CruiseCategories';
+import HotelPackages from '../components/Home/HotelPackages';
 import WondersOfQatar from '../components/Home/WondersOfQatar';
 import PrivateJet from '../components/Home/PrivateJet';
 import VisaServices from '../components/Home/VisaServices';
 import FeaturedDestinations from '../components/Home/FeaturedDestinations';
 import Gallery from '../components/Home/Gallery';
-import TourTypes from '../components/Home/TourTypes';
 import Testimonials from '../components/Home/Testimonials';
 import SpecialOffer from '../components/Home/SpecialOffer';
-import CTA from '../components/Home/CTA';
+import BlogNews from '../components/Home/BlogNews';
+import AdventureSection from '../components/Home/AdventureSection';
+import GalleryLoop from '../components/Home/GalleryLoop';
 
 export default function Home() {
     return (
@@ -22,15 +24,17 @@ export default function Home() {
             <About />
             <PopularPackages />
             <CruiseCategories />
+            <HotelPackages />
             <WondersOfQatar />
             <PrivateJet />
             <VisaServices />
             <FeaturedDestinations />
             <Gallery />
-            <TourTypes />
             <Testimonials />
             <SpecialOffer />
-            <CTA />
+            <BlogNews />
+            <AdventureSection />
+            <GalleryLoop />
         </main>
     );
 }

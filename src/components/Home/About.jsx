@@ -73,7 +73,7 @@ export default function About() {
                             </div>
 
                             {/* Heading */}
-                            <h2 className="text-[36px] md:text-[54px] font-['Playfair_Display'] font-extrabold text-[#0F1E32] leading-[1.1] mb-6">
+                            <h2 className="text-[36px] md:text-[54px] font-extrabold text-[#0F1E32] leading-[1.1] mb-6">
                                 Experience the World <br />
                                 <span className="text-[#FFA500]">with Our Company</span>
                             </h2>

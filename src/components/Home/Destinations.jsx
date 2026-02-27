@@ -39,7 +39,7 @@ export default function Destinations() {
                             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#0F1E32]">Trips List</span>
                         </div>
 
-                        <h2 className="text-[44px] md:text-[60px] font-['Playfair_Display'] font-extrabold text-[#0F1E32] leading-[1.05] mb-8">
+                        <h2 className="text-[44px] md:text-[60px] font-extrabold text-[#0F1E32] leading-[1.05] mb-8">
                             Explore the <br />
                             Trips <br />
                             <span className="text-[#FFA500]">Places Around World</span>
@@ -71,7 +71,7 @@ export default function Destinations() {
                                         </div>
 
                                         <div className="pb-8 pt-5 px-4 text-center bg-white group-hover:bg-[#0F1E32] transition-all duration-500">
-                                            <h3 className="text-[22px] font-['Playfair_Display'] font-bold mb-1 text-[#0F1E32] transition-colors group-hover:text-white">
+                                            <h3 className="text-[22px] font-bold mb-1 text-[#0F1E32] transition-colors group-hover:text-white">
                                                 {trip.name}
                                             </h3>
                                             <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 group-hover:text-white/60 transition-colors duration-500">

@@ -18,11 +18,16 @@ export default {
         },
         brand: {
           navy: '#0f172a',    // Footer/Header dark background
+          magic: '#113A74',   // Magic Navy from design
+          heading: '#16243D', // Header text color from design
         }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'], // Standard modern font
         heading: ['Philosopher', 'sans-serif'], // Elegant font for headings
+        display: ['El Messiri', 'sans-serif'], // New font for mini slider
+        jakarta: ['Plus Jakarta Sans', 'sans-serif'], // Modern sans for section badges
+        figtree: ['Figtree', 'sans-serif'], // Bold modern font for decorative text
       }
     },
   },

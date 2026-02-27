@@ -108,7 +108,7 @@ const HotelCard = ({ hotel, className = "" }) => (
 
         {/* Discount Badge */}
         {hotel.discount && (
-            <div className="absolute top-6 left-0 bg-[#FDB338] text-[#0F1E32] px-4 py-1.5 rounded-r-lg font-bold text-xs">
+            <div className="absolute top-6 left-0 bg-[#FDB338] text-brand-heading px-4 py-1.5 rounded-r-lg font-bold text-xs">
                 {hotel.discount}
             </div>
         )}
@@ -156,13 +156,15 @@ export default function HotelPackages() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                     <div>
-                        <div className="inline-flex items-center gap-2 bg-blue-50 px-5 py-2 rounded-full mb-6 border border-blue-100">
-                            <Plane className="text-primary rotate-45" size={16} />
-                            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+                        <div className="inline-flex items-center gap-3 bg-blue-50 px-6 py-3 rounded-full mb-6 border border-blue-100">
+                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
                                 Premium Hotels
                             </span>
                         </div>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-secondary mb-3 font-heading leading-tight">
+                        <h2 className="text-4xl sm:text-5xl font-bold text-brand-heading mb-3 font-heading leading-tight">
                             Discover Exclusive Hotel Packages
                         </h2>
                         <h3 className="text-3xl sm:text-4xl font-bold text-[#FDB338] font-heading">
@@ -170,7 +172,7 @@ export default function HotelPackages() {
                         </h3>
                     </div>
 
-                    <button className="bg-secondary hover:bg-secondary/90 text-white px-8 py-4 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg w-fit h-fit">
+                    <button className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg w-fit h-fit">
                         Explore More
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </button>
@@ -211,7 +213,7 @@ export default function HotelPackages() {
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
                                 className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
-                                    ? 'bg-secondary w-8'
+                                    ? 'bg-brand-magic w-8'
                                     : 'bg-gray-200 hover:bg-gray-300'
                                     }`}
                             />

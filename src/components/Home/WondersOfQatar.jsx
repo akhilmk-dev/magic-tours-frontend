@@ -79,7 +79,7 @@ export default function WondersOfQatar() {
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ duration: 0.4 }}
                                         >
-                                            <h3 className="text-[#0F1E32] text-lg sm:text-xl font-bold mb-1">
+                                            <h3 className="text-brand-magic text-lg sm:text-xl font-bold mb-1">
                                                 {slides[currentSlide].title}
                                             </h3>
                                             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">
@@ -96,7 +96,7 @@ export default function WondersOfQatar() {
                                             key={index}
                                             onClick={() => setCurrentSlide(index)}
                                             className={`rounded-full transition-all duration-300 ${index === currentSlide
-                                                ? 'w-7 h-2.5 bg-[#0F1E32]'
+                                                ? 'w-7 h-2.5 bg-brand-magic'
                                                 : 'w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400'
                                                 }`}
                                         />
@@ -108,9 +108,11 @@ export default function WondersOfQatar() {
 
                     {/* Right Side - Content */}
                     <div className="flex-1 text-center flex flex-col items-center">
-                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-full mb-6 sm:mb-8 border border-white/15">
-                            <Plane className="text-white/80" size={16} />
-                            <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.2em] text-white/90">
+                        <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-6 sm:mb-8 border border-white/15">
+                            <svg className="text-white/80" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.2em] text-white/90 font-jakarta">
                                 Destination Spotlight
                             </span>
                         </div>
@@ -125,7 +127,7 @@ export default function WondersOfQatar() {
                             There are many variations of passages of Lorem Ipsum availab but .
                         </p>
 
-                        <button className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-[#0F1E32] font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
+                        <button className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
                             Explore More
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </button>

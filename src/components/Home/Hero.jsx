@@ -101,7 +101,7 @@ export default function Hero() {
             </AnimatePresence>
 
             {/* Right Side Fixed Content: Social & Slider Controls (lg+ only) */}
-            <div className="absolute right-4 lg:right-6 xl:right-8 top-28 lg:top-32 bottom-20 lg:bottom-28 z-30 hidden lg:flex flex-col items-end justify-between pointer-events-none">
+            <div className="absolute right-4 lg:right-6 xl:right-8 top-28 lg:top-32 bottom-40 lg:bottom-56 z-30 hidden lg:flex flex-col items-end justify-between pointer-events-none">
                 {/* Social Media Icons */}
                 <div className="flex flex-col gap-4 lg:gap-5 xl:gap-6 pointer-events-auto">
                     {[Facebook, Twitter, Instagram].map((Icon, i) => (
@@ -131,7 +131,7 @@ export default function Hero() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 lg:p-3 xl:p-4 flex flex-col justify-end">
                                     <p className="text-white/60 text-[7px] lg:text-[8px] xl:text-[10px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
-                                    <h4 className="text-white font-bold text-[9px] lg:text-[10px] xl:text-sm leading-tight">{slides[slideIndex].title} {slides[slideIndex].subtitle}</h4>
+                                    <h4 className="text-white font-bold text-[9px] lg:text-[10px] xl:text-sm leading-tight font-display uppercase">{slides[slideIndex].title} {slides[slideIndex].subtitle}</h4>
                                 </div>
                             </motion.div>
                         ))}
@@ -171,7 +171,7 @@ export default function Hero() {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-28 sm:pt-32 md:pt-36 lg:pt-20 pb-20 sm:pb-24 lg:pb-32 h-full flex flex-col justify-center">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-20 sm:pt-24 md:pt-28 lg:pt-20 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center">
                 <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
                     {/* Left Content */}
                     <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%] text-center lg:text-left">
@@ -183,25 +183,25 @@ export default function Hero() {
                                 exit={{ opacity: 0, x: 30 }}
                                 transition={{ duration: 0.8 }}
                             >
-                                <span className="text-[#FDB338] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[11px] sm:text-xs md:text-sm mb-3 sm:mb-4 block">
+                                <span className="text-[#FDB338] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[10px] sm:text-xs md:text-sm mb-2 sm:mb-4 block">
                                     {slides[currentSlide].location}
                                 </span>
-                                <h1 className="text-[40px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.05] mb-4 sm:mb-6 tracking-tight">
+                                <h1 className="text-[32px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.1] mb-3 sm:mb-6 tracking-tight">
                                     {slides[currentSlide].title} <br />
-                                    <span className="text-[#FDB338] italic font-medium">
+                                    <span className="text-[#FDB338] font-medium">
                                         {slides[currentSlide].subtitle}
                                     </span>
                                 </h1>
 
-                                <p className="text-white/80 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 md:mb-10 lg:mb-12 max-w-md sm:max-w-lg lg:max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                                <p className="text-white/80 text-xs sm:text-base md:text-lg lg:text-xl mb-4 sm:mb-8 md:mb-10 lg:mb-12 max-w-md sm:max-w-lg lg:max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                                     {slides[currentSlide].description}
                                 </p>
 
                                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-5">
-                                    <button className="bg-[#022C54] hover:bg-[#033a6e] text-white font-bold h-12 sm:h-14 md:h-[60px] xl:h-[64px] px-8 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(2,44,84,0.4)] group">
-                                        <span className="text-[13px] sm:text-[14px] xl:text-[16px] tracking-wide uppercase">Let's Go</span>
-                                        <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 rounded-full bg-white/10 flex items-center justify-center transition-transform group-hover:translate-x-1">
-                                            <ArrowRight size={16} />
+                                    <button className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
+                                        <span className="text-[12px] sm:text-[14px] xl:text-[16px] tracking-wide">Plan My Trip</span>
+                                        <div className="flex items-center justify-center transition-transform group-hover:translate-x-1">
+                                            <ArrowRight size={14} className="sm:size-[16px]" />
                                         </div>
                                     </button>
                                 </div>
@@ -210,9 +210,9 @@ export default function Hero() {
                     </div>
 
                     {/* Small screen Mini Slider & Navigation (below lg) */}
-                    <div className="lg:hidden flex flex-col items-center gap-5 sm:gap-6 w-full z-20 mt-4 sm:mt-6">
+                    <div className="lg:hidden flex flex-col items-center gap-4 sm:gap-6 w-full z-20 mt-2 sm:mt-6">
                         {/* Mini Slider for Mobile/Tablet */}
-                        <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto w-full px-2 sm:px-4 no-scrollbar pb-2 snap-x">
+                        <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto w-full px-2 sm:px-4 no-scrollbar pb-1 snap-x">
                             {getNextSlides().map((slideIndex, i) => (
                                 <motion.div
                                     key={`mobile-mini-${slides[slideIndex].id}`}
@@ -226,7 +226,7 @@ export default function Hero() {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 sm:p-3 flex flex-col justify-end">
                                         <p className="text-white/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
-                                        <h4 className="text-white font-bold text-[9px] sm:text-[10px] leading-tight">{slides[slideIndex].title}</h4>
+                                        <h4 className="text-white font-bold text-[9px] sm:text-[10px] leading-tight font-display uppercase">{slides[slideIndex].title}</h4>
                                     </div>
                                 </motion.div>
                             ))}

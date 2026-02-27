@@ -19,13 +19,13 @@ export default function CTA() {
                         <p className="text-[#FFA500] font-bold uppercase tracking-wider text-sm mb-4">Special Offer For You</p>
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
                             Let's Make Your Travel <br />
-                            <span className="font-serif italic">Dreams Come True</span>
+                            <span>Dreams Come True</span>
                         </h2>
                         <p className="text-white/80 max-w-xl mx-auto mb-10 text-lg">
                             There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration.
                         </p>
 
-                        <button className="bg-white text-[#0F1E32] px-8 py-4 rounded-full font-bold hover:bg-[#FFA500] hover:text-white transition-all shadow-lg inline-flex items-center gap-2">
+                        <button className="bg-white text-brand-heading px-8 py-4 rounded-full font-bold hover:bg-[#FFA500] hover:text-white transition-all shadow-lg inline-flex items-center gap-2">
                             Started Now
                             <Send size={18} />
                         </button>

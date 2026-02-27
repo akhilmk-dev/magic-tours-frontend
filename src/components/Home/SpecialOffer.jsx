@@ -32,7 +32,7 @@ const SpecialOffer = () => {
     return (
         <section className="relative mt-12 mb-[450px] sm:mb-[350px] lg:mb-56 xl:mb-64">
             {/* Top Blue Banner - Radial Gradient */}
-            <div className="bg-[#0F1E32] bg-[radial-gradient(circle_at_60%_50%,_#1e4b8a_0%,_#0F1E32_100%)] rounded-[2rem] sm:rounded-[3rem] mx-4 sm:mx-8 md:mx-12 lg:mx-16 pt-12 lg:pt-0 pb-36 sm:pb-44 lg:pb-36 xl:pb-44 overflow-hidden relative">
+            <div className="bg-brand-magic bg-[radial-gradient(circle_at_60%_50%,_#1e4b8a_0%,_#113A74_100%)] rounded-[2rem] sm:rounded-[3rem] mx-4 sm:mx-8 md:mx-12 lg:mx-16 pt-12 lg:pt-0 pb-36 sm:pb-44 lg:pb-36 xl:pb-44 overflow-hidden relative">
 
 
                 <div className="container mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
@@ -51,7 +51,7 @@ const SpecialOffer = () => {
                                 There are many variations of passages of Lorem Ipsum available but the majority.
                             </p>
 
-                            <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-[#0F1E32] font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
+                            <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
                                 Start Booking
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </button>
@@ -101,7 +101,7 @@ const SpecialOffer = () => {
                                 <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20 rounded-full border border-gray-100 bg-white flex items-center justify-center mb-5 shadow-sm group hover:border-[#FDB338] transition-all">
                                     <stat.icon className="text-[#FDB338] transition-transform group-hover:scale-110" size={24} />
                                 </div>
-                                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-[#0F1E32] mb-2 tracking-tight">
+                                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-brand-magic mb-2 tracking-tight">
                                     {stat.value}
                                 </h3>
                                 <p className="text-[12px] sm:text-[13px] lg:text-sm text-gray-400 font-medium tracking-wide">

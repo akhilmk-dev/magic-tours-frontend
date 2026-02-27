@@ -45,12 +45,14 @@ export default function Gallery() {
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="text-center mb-8 md:mb-10">
-                    <div className="inline-flex items-center gap-2 bg-[#F8FAFC] px-4 py-2 rounded-full mb-4 border border-gray-100 shadow-sm">
-                        <Plane className="text-[#3B82F6] rotate-45" size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Get to Know Us</span>
+                    <div className="inline-flex items-center gap-3 bg-[#F8FAFC] px-6 py-2.5 rounded-full mb-4 border border-gray-100 shadow-sm">
+                        <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                        </svg>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">Get to Know Us</span>
                     </div>
                     <h2 className="text-2xl md:text-4xl font-black text-secondary">
-                        Recent <span className="text-[#FFA500] font-serif italic">Gallery</span>
+                        Recent <span className="text-[#FFA500]">Gallery</span>
                     </h2>
                 </div>
 

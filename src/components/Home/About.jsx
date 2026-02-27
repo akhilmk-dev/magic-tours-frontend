@@ -67,13 +67,15 @@ export default function About() {
                     <div className="w-full lg:w-[54%] pl-0 lg:pl-10 relative">
                         <div className="max-w-2xl relative z-20 flex flex-col items-center lg:items-start text-center lg:text-left mx-auto lg:mx-0">
                             {/* Status Badge */}
-                            <div className="inline-flex items-center gap-2 bg-[#F2F6FF] px-5 py-2.5 rounded-full mb-6 shadow-sm">
-                                <Plane className="text-[#0F1E32] rotate-45" size={14} />
-                                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#0F1E32]">Get to Know Us</span>
+                            <div className="inline-flex items-center gap-3 bg-[#F2F6FF] px-6 py-3 rounded-full mb-6 shadow-sm">
+                                <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                                </svg>
+                                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-magic font-jakarta">Get to Know Us</span>
                             </div>
 
                             {/* Heading */}
-                            <h2 className="text-[36px] md:text-[54px] font-extrabold text-[#0F1E32] leading-[1.1] mb-6">
+                            <h2 className="text-[36px] md:text-[54px] font-extrabold text-brand-heading leading-[1.1] mb-6">
                                 Experience the World <br />
                                 <span className="text-[#FFA500]">with Our Company</span>
                             </h2>
@@ -86,11 +88,11 @@ export default function About() {
                             {/* Features Row */}
                             <div className="flex flex-col sm:flex-row items-center lg:items-center gap-8 md:gap-10 mb-10 pb-10 border-b border-gray-100 w-full lg:w-auto">
                                 <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full sm:w-auto">
-                                    <div className="w-16 h-16 rounded-full bg-[#0F1E32] flex items-center justify-center text-white shadow-xl shadow-[#0F1E32]/20 flex-shrink-0">
+                                    <div className="w-16 h-16 rounded-full bg-brand-magic flex items-center justify-center text-white shadow-xl shadow-brand-magic/20 flex-shrink-0">
                                         <UserRound size={30} strokeWidth={2.5} />
                                     </div>
                                     <div className="flex flex-col justify-center sm:text-left">
-                                        <h4 className="text-[#0F1E32] font-black text-lg mb-1 whitespace-nowrap">Friendly Guide</h4>
+                                        <h4 className="text-brand-heading font-black text-lg mb-1 whitespace-nowrap">Friendly Guide</h4>
                                         <p className="text-gray-400 text-[12px] leading-relaxed max-w-[200px] sm:max-w-[140px] mx-auto sm:mx-0">
                                             There are many variations of passages of lorem Ipsum.
                                         </p>
@@ -100,11 +102,11 @@ export default function About() {
                                 <div className="hidden sm:block w-px h-12 bg-gray-100" />
 
                                 <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full sm:w-auto">
-                                    <div className="w-16 h-16 rounded-full bg-[#0F1E32] flex items-center justify-center text-white shadow-xl shadow-[#0F1E32]/20 flex-shrink-0">
+                                    <div className="w-16 h-16 rounded-full bg-brand-magic flex items-center justify-center text-white shadow-xl shadow-brand-magic/20 flex-shrink-0">
                                         <Luggage size={30} strokeWidth={2.5} />
                                     </div>
                                     <div className="flex flex-col justify-center sm:text-left">
-                                        <h4 className="text-[#0F1E32] font-black text-lg mb-1 whitespace-nowrap">Safety Travel</h4>
+                                        <h4 className="text-brand-heading font-black text-lg mb-1 whitespace-nowrap">Safety Travel</h4>
                                         <p className="text-gray-400 text-[12px] leading-relaxed max-w-[200px] sm:max-w-[140px] mx-auto sm:mx-0">
                                             There are many variations of passages of lorem Ipsum.
                                         </p>
@@ -115,8 +117,8 @@ export default function About() {
                             {/* Bottom Row */}
                             <div className="flex flex-col md:flex-row gap-10 items-center lg:items-start w-full lg:w-auto">
                                 <div className="bg-[#FAF7F3] p-8 rounded-[3rem] flex flex-col items-center justify-center border border-orange-100/50 group transition-all duration-500 hover:shadow-2xl hover:bg-white w-full max-w-[200px] md:w-48 text-center aspect-square md:aspect-auto h-auto">
-                                    <Trophy size={56} className="text-[#0F1E32] mb-4 group-hover:scale-110 transition-transform" />
-                                    <h5 className="text-[#0F1E32] font-black uppercase text-xs tracking-tight leading-tight">
+                                    <Trophy size={56} className="text-brand-magic mb-4 group-hover:scale-110 transition-transform" />
+                                    <h5 className="text-brand-heading font-black uppercase text-xs tracking-tight leading-tight">
                                         Award Winning Agency
                                     </h5>
                                 </div>
@@ -129,7 +131,7 @@ export default function About() {
                                             "Expert many variations teacher."
                                         ].map((item, idx) => (
                                             <li key={idx} className="flex items-center gap-3 text-gray-700 font-bold text-sm justify-start">
-                                                <div className="w-6 h-6 rounded-full bg-[#0F1E32] flex items-center justify-center text-white flex-shrink-0 text-[10px]">
+                                                <div className="w-6 h-6 rounded-full bg-brand-magic flex items-center justify-center text-white flex-shrink-0 text-[10px]">
                                                     <Check size={14} strokeWidth={4} />
                                                 </div>
                                                 {item}
@@ -137,7 +139,7 @@ export default function About() {
                                         ))}
                                     </ul>
 
-                                    <button className="flex items-center gap-4 bg-[#0F1E32] text-white px-8 py-4 rounded-full font-bold text-sm hover:translate-y-[-2px] transition-all group shadow-2xl shadow-[#0F1E32]/30 active:scale-95 w-full sm:w-fit justify-center">
+                                    <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
                                         Explore More
                                         <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
                                     </button>

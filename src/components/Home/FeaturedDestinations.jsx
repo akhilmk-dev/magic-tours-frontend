@@ -76,7 +76,7 @@ export default function FeaturedDestinations() {
 
     if (loading) {
         return (
-            <div className="py-24 bg-[#0F1E32] flex justify-center items-center">
+            <div className="py-24 bg-brand-magic flex justify-center items-center">
                 <Loader2 className="animate-spin text-[#FFA500]" size={40} />
             </div>
         );
@@ -85,7 +85,7 @@ export default function FeaturedDestinations() {
     if (destinations.length === 0) return null;
 
     return (
-        <section className="py-8 sm:py-10 md:py-12 bg-[#11233A] relative overflow-hidden text-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] mx-2 sm:mx-4 md:mx-10 my-6 md:my-10">
+        <section className="py-8 sm:py-10 md:py-12 bg-brand-magic relative overflow-hidden text-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] mx-2 sm:mx-4 md:mx-10 my-6 md:my-10">
             {/* Background Man Climbing Image (Right Side - hidden on mobile) */}
             <div className="absolute top-0 right-0 hidden md:block md:w-[40%] h-[65%] z-0 pointer-events-none md:opacity-90">
                 <img
@@ -102,7 +102,7 @@ export default function FeaturedDestinations() {
                 <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-8">
                     <div className="w-full md:w-1/2 pt-3 relative z-20">
                         <h4 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
-                            <span className="text-[#FFA500] italic">Most Favorite</span> <span className="text-white">Tour <br className="hidden md:block" />
+                            <span className="text-[#FFA500]">Most Favorite</span> <span className="text-white">Tour <br className="hidden md:block" />
                                 Places!</span>
                         </h4>
 
@@ -119,8 +119,8 @@ export default function FeaturedDestinations() {
                     {/* Right Side - TOP! DESTINATION text */}
                     <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end mt-5 md:mt-0">
                         <div className="font-black flex flex-col gap-2 md:gap-9 mt-5 text-start ">
-                            <span className="text-[#FFA500] block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem]">TOP!</span>
-                            <span className="uppercase block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem] text-white"
+                            <span className="text-[#FFA500] block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem] font-figtree">TOP!</span>
+                            <span className="uppercase block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem] text-white font-figtree"
                                 style={{
                                     letterSpacing: '-0.02em'
                                 }}>DESTINATION</span>
@@ -152,7 +152,7 @@ export default function FeaturedDestinations() {
                                             />
                                         </div>
                                         <div className="text-center pb-1 md:pb-2 mt-auto">
-                                            <h3 className="text-base md:text-lg font-bold mb-0.5 text-white group-hover:text-[#0F1E32] transition-colors font-serif px-2">
+                                            <h3 className="text-base md:text-lg font-bold mb-0.5 text-white group-hover:text-brand-heading transition-colors px-2">
                                                 {dest.name}
                                             </h3>
                                             <p className="text-xs text-slate-400 group-hover:text-slate-600 transition-colors">
@@ -191,7 +191,7 @@ export default function FeaturedDestinations() {
                     transform: scale(1.02);
                 }
                 .active-card h3 {
-                    color: #0F1E32;
+                    color: #16243D;
                 }
                 .active-card p {
                     color: #475569;

@@ -42,17 +42,19 @@ const PrivateJet = () => {
                     {/* Left Side - Content */}
                     <div className="flex-1">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full mb-6 sm:mb-8 shadow-sm border border-gray-100">
-                            <Plane className="text-[#0F1E32]" size={16} />
-                            <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.2em] text-[#0F1E32]">
+                        <div className="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full mb-6 sm:mb-8 shadow-sm border border-gray-100">
+                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
                                 Premium Jet
                             </span>
                         </div>
 
                         {/* Heading */}
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-[#0F1E32] leading-[1.1] mb-5 sm:mb-6">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-[1.1] mb-5 sm:mb-6">
                             Elite Private{' '}
-                            <span className="text-[#FDB338] italic font-medium">Jet Charters</span>
+                            <span className="text-[#FDB338] font-medium">Jet Charters</span>
                         </h2>
 
                         <p className="text-gray-500 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-xl">
@@ -63,22 +65,22 @@ const PrivateJet = () => {
                         {/* Features */}
                         <div className="flex flex-col gap-6 sm:gap-8 mb-8 sm:mb-10">
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0F1E32] flex items-center justify-center shrink-0">
-                                    <MapPin size={18} className="text-[#FDB338]" />
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-magic flex items-center justify-center shrink-0">
+                                    <MapPin size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] italic mb-1">Safe Traveling</h4>
+                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Safe Traveling</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0F1E32] flex items-center justify-center shrink-0">
-                                    <Shield size={18} className="text-[#FDB338]" />
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-magic flex items-center justify-center shrink-0">
+                                    <Shield size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] italic mb-1">Comfort Accommodation</h4>
+                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Comfort Accommodation</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
                                     </p>
@@ -87,7 +89,7 @@ const PrivateJet = () => {
                         </div>
 
                         {/* CTA Button */}
-                        <button className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-[#0F1E32] font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
+                        <button className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
                             Explore More
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
@@ -128,10 +130,12 @@ const PrivateJet = () => {
                                                 transition={{ duration: 0.4 }}
                                             >
                                                 <div className="flex items-center gap-2.5 mb-2">
-                                                    <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
-                                                        <Plane size={14} className="text-[#0F1E32]" />
+                                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                        <svg className="text-brand-magic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                                                        </svg>
                                                     </div>
-                                                    <h3 className="text-white font-bold text-lg sm:text-xl">
+                                                    <h3 className="text-white text-lg sm:text-xl font-bold mb-1">
                                                         {slides[currentSlide].title}
                                                     </h3>
                                                 </div>
@@ -152,7 +156,7 @@ const PrivateJet = () => {
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
                                     className={`rounded-full transition-all duration-300 ${index === currentSlide
-                                        ? 'w-7 h-2.5 bg-[#0F1E32]'
+                                        ? 'w-7 h-2.5 bg-brand-magic'
                                         : 'w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400'
                                         }`}
                                 />
@@ -177,7 +181,7 @@ const PrivateJet = () => {
                     <span className="text-white/80 text-sm sm:text-base md:text-lg font-medium block mb-1 sm:mb-2">
                         Experience Our
                     </span>
-                    <h3 className="text-[#FDB338] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[56px] font-extrabold uppercase tracking-wide leading-[1.1]">
+                    <h3 className="text-[#FDB338] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[56px] font-extrabold uppercase tracking-wide leading-[1.1] font-figtree">
                         Private Jet Categories
                     </h3>
                 </div>

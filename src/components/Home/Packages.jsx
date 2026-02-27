@@ -49,12 +49,14 @@ export default function Packages() {
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 {/* Header Section */}
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full mb-6 border border-gray-100 shadow-sm">
-                        <Plane className="text-secondary rotate-45" size={16} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Packages</span>
+                    <div className="inline-flex items-center gap-3 bg-white px-6 py-2.5 rounded-full mb-6 border border-gray-100 shadow-sm">
+                        <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                        </svg>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">Packages</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-secondary">
-                        Popular Travel <span className="text-[#FFA500] font-serif italic">Packages</span>
+                        Popular Travel <span className="text-[#FFA500]">Packages</span>
                     </h2>
                 </div>
 

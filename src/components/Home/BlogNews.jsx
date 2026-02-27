@@ -43,9 +43,11 @@ export default function BlogNews() {
             <div className="container mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12 sm:mb-16">
-                    <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full mb-6 shadow-sm border border-blue-50">
-                        <Plane className="text-primary rotate-45" size={16} />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+                    <div className="inline-flex items-center gap-3 bg-white px-6 py-2.5 rounded-full mb-6 shadow-sm border border-blue-50">
+                        <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                        </svg>
+                        <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
                             Articles
                         </span>
                     </div>
@@ -112,9 +114,11 @@ export default function BlogNews() {
                 {/* Subscribe Section */}
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-10">
-                        <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full mb-6 shadow-sm border border-blue-50">
-                            <Plane className="text-primary rotate-45" size={16} />
-                            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+                        <div className="inline-flex items-center gap-3 bg-white px-6 py-2.5 rounded-full mb-6 shadow-sm border border-blue-50">
+                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
                                 Subscribe Now
                             </span>
                         </div>
@@ -130,7 +134,7 @@ export default function BlogNews() {
                             placeholder="Enter email"
                             className="w-full h-full bg-transparent text-gray-500 px-6 sm:px-10 focus:outline-none text-sm sm:text-base"
                         />
-                        <button className="flex items-center justify-center text-[#0F1E32] hover:opacity-70 transition-all pr-6 sm:pr-10">
+                        <button className="flex items-center justify-center text-brand-heading hover:opacity-70 transition-all pr-6 sm:pr-10">
                             <Send size={20} className="-rotate-12" />
                         </button>
                     </div>

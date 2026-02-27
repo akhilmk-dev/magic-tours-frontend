@@ -87,7 +87,7 @@ export default function CruiseCategories() {
 
     return (
         <section
-            className="relative min-h-[700px] lg:min-h-[900px] flex items-center overflow-hidden py-12 lg:py-20 bg-cover bg-center"
+            className="relative min-h-[500px] lg:min-h-[700px] flex items-center overflow-hidden py-10 lg:py-16 bg-cover bg-center"
             style={{ backgroundImage: `url(${cruiseBg})` }}
         >
             {/* Overlay */}
@@ -104,17 +104,19 @@ export default function CruiseCategories() {
                         viewport={{ once: true }}
                         className="w-full lg:w-2/5 text-center lg:text-left mb-12"
                     >
-                        <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full mb-6 lg:mb-8 shadow-sm">
-                            <Plane className="text-[#022C54] rotate-45" size={14} />
-                            <span className="text-[12px] font-black uppercase tracking-widest text-[#022C54]">Cruises</span>
+                        <div className="inline-flex items-center gap-3 bg-white px-6 py-2.5 rounded-full mb-6 lg:mb-8 shadow-sm">
+                            <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">Cruises</span>
                         </div>
 
-                        <h2 className="text-[36px] md:text-[48px] lg:text-[64px] font-bold text-[#022C54] leading-[1.1] mb-6">
-                            Explore Our <span className="text-[#FFA500] italic">Cruise</span><br />
-                            <span className="text-[#FFA500] italic">Experiences</span>
+                        <h2 className="text-[32px] md:text-[42px] lg:text-[52px] font-bold text-brand-heading leading-[1.1] mb-6">
+                            Explore Our <span className="text-[#FFA500]">Cruise</span><br />
+                            <span className="text-[#FFA500]">Experiences</span>
                         </h2>
 
-                        <p className="text-[#022C54]/80 text-base md:text-lg mb-8 lg:mb-10 max-w-md mx-auto lg:mx-0 font-medium">
+                        <p className="text-brand-heading/80 text-sm md:text-base mb-6 lg:mb-8 max-w-md mx-auto lg:mx-0 font-medium">
                             Experience luxury on the open sea with our unforgettable cruise journeys.
                         </p>
 
@@ -192,11 +194,11 @@ export default function CruiseCategories() {
                                 </button>
                             </div>
                         </div>
-                        <div className="mt-20 lg:mt-12 pt-10 text-right z-0 pointer-events-none">
-                            <p className="text-white text-lg md:text-xl lg:text-2xl font-bold mb-4 lg:mb-6 drop-shadow-md opacity-90 lg:opacity-100">
+                        <div className="mt-12 lg:mt-8 pt-6 text-right z-0 pointer-events-none">
+                            <p className="text-white text-base md:text-lg lg:text-xl font-bold mb-3 lg:mb-4 drop-shadow-md opacity-90 lg:opacity-100">
                                 Experience the Joy of Cruising
                             </p>
-                            <h2 className="text-[32px] md:text-[56px] lg:text-[84px] font-black leading-none text-[#FFA500] opacity-90 lg:opacity-70 uppercase tracking-tight">
+                            <h2 className="text-[28px] md:text-[48px] lg:text-[64px] font-extrabold leading-none text-[#FFA500] opacity-90 lg:opacity-70 uppercase tracking-tight font-figtree">
                                 CRUISE CATEGORIES
                             </h2>
                         </div>

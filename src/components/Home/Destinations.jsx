@@ -34,12 +34,14 @@ export default function Destinations() {
 
                     {/* Left Content - Header */}
                     <div className="xl:w-[30%] text-left">
-                        <div className="inline-flex items-center gap-2 bg-[#F2F5FF] px-5 py-2.5 rounded-full mb-8 shadow-sm">
-                            <Plane className="text-[#0F1E32]" size={16} />
-                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#0F1E32]">Trips List</span>
+                        <div className="inline-flex items-center gap-3 bg-[#F2F5FF] px-6 py-3 rounded-full mb-8 shadow-sm">
+                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                            </svg>
+                            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">Trips List</span>
                         </div>
 
-                        <h2 className="text-[44px] md:text-[60px] font-extrabold text-[#0F1E32] leading-[1.05] mb-8">
+                        <h2 className="text-[44px] md:text-[60px] font-extrabold text-brand-heading leading-[1.05] mb-8">
                             Explore the <br />
                             Trips <br />
                             <span className="text-[#FFA500]">Places Around World</span>
@@ -49,7 +51,7 @@ export default function Destinations() {
                             Flexible classes refers to the process of acquiring is knowledge free.
                         </p>
 
-                        <button className="flex items-center gap-4 bg-[#0F1E32] text-white px-10 py-5 rounded-full font-bold text-sm hover:bg-[#1a3355] transition-all group shadow-2xl shadow-[#0F1E32]/20">
+                        <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-bold text-sm hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
                             Discover More
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </button>
@@ -70,8 +72,8 @@ export default function Destinations() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                         </div>
 
-                                        <div className="pb-8 pt-5 px-4 text-center bg-white group-hover:bg-[#0F1E32] transition-all duration-500">
-                                            <h3 className="text-[22px] font-bold mb-1 text-[#0F1E32] transition-colors group-hover:text-white">
+                                        <div className="pb-8 pt-5 px-4 text-center bg-white group-hover:bg-brand-magic transition-all duration-500">
+                                            <h3 className="text-[22px] font-bold mb-1 text-brand-heading transition-colors group-hover:text-white">
                                                 {trip.name}
                                             </h3>
                                             <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 group-hover:text-white/60 transition-colors duration-500">

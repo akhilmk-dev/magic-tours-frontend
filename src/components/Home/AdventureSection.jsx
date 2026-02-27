@@ -28,7 +28,7 @@ export default function AdventureSection() {
                     </h3>
 
                     <div className="flex justify-center">
-                        <button className="bg-[#FDB338] hover:bg-[#e5a232] text-[#0F1E32] px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-sm sm:text-base">
+                        <button className="bg-[#FDB338] hover:bg-[#e5a232] text-brand-heading px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-sm sm:text-base">
                             Plan My Trip
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </button>

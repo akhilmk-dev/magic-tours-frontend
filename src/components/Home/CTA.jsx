@@ -3,7 +3,7 @@ import { Send } from 'lucide-react';
 
 export default function CTA() {
     return (
-        <section className="relative py-24 mb-12">
+        <section className="relative py-24 mb-6">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="rounded-3xl bg-gradient-to-r from-blue-900 to-indigo-900 overflow-hidden relative shadow-2xl">
                     {/* Background Image Overlay */}

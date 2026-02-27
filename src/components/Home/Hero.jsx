@@ -1,69 +1,257 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import backgroundImage from '../../assets/Background new.png';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
+
+// Import assets
+import image1 from '../../assets/Link → image-01.jpg.png';
+import image2 from '../../assets/Link → image-02.jpg.png';
+import image3 from '../../assets/Rectangle 640.png';
+import backgroundNew from '../../assets/Background new.png';
+import shapeImg from '../../assets/shape.png';
+
+const slides = [
+    {
+        id: 1,
+        image: image1,
+        location: "SAHARA DESERT - MOROCCO",
+        title: "Bespoke",
+        subtitle: "Journeys",
+        description: "Beautifully Crafted and Fairly Priced. Experience the world in unparalleled luxury.",
+    },
+    {
+        id: 2,
+        image: image2,
+        location: "MALDIVES - SOUTH ASIA",
+        title: "Tropical",
+        subtitle: "Escapes",
+        description: "Discover hidden paradises and pristine beaches. Your dream vacation awaits.",
+    },
+    {
+        id: 3,
+        image: image3,
+        location: "MOUNT BROMO - INDONESIA",
+        title: "Global",
+        subtitle: "Adventures",
+        description: "Explore the majestic beauty of volcanic landscapes and misty valleys.",
+    },
+    {
+        id: 4,
+        image: backgroundNew,
+        location: "SANTORINI - GREECE",
+        title: "Serene",
+        subtitle: "Getaways",
+        description: "Unwind in the most exclusive resorts surrounded by crystal-clear waters.",
+    }
+];
 
 export default function Hero() {
-    const scrollToNextSection = () => {
-        window.scrollTo({
-            top: window.innerHeight,
-            behavior: 'smooth'
-        });
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+    useEffect(() => {
+        if (!isAutoPlaying) return;
+        const interval = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 6000);
+        return () => clearInterval(interval);
+    }, [isAutoPlaying]);
+
+    const nextSlide = () => {
+        setIsAutoPlaying(false);
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+    };
+
+    const prevSlide = () => {
+        setIsAutoPlaying(false);
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    };
+
+    const goToSlide = (index) => {
+        setIsAutoPlaying(false);
+        setCurrentSlide(index);
+    };
+
+    // Calculate next slides for the mini cards
+    const getNextSlides = () => {
+        const nextIndices = [];
+        for (let i = 1; i <= 3; i++) {
+            nextIndices.push((currentSlide + i) % slides.length);
+        }
+        return nextIndices;
     };
 
     return (
-        <section className="relative h-[90vh] md:h-screen flex items-center justify-center overflow-hidden pt-24">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src={backgroundImage}
-                    alt="Bespoke Journeys"
-                    className="w-full h-full object-cover"
-                />
-                {/* Subtle overlay */}
-                <div className="absolute inset-0 bg-black/[0.05]" />
-            </div>
-
-            {/* Content Container */}
-            <div className="relative z-10 text-center px-4 md:px-6 w-full">
-                <div className="max-w-5xl mx-auto">
-                    <h1 className="text-5xl md:text-8xl lg:text-[110px] font-bold text-white mb-2 tracking-tight drop-shadow-2xl">
-                        Bespoke Journeys
-                    </h1>
-                    <p className="text-lg md:text-4xl text-white font-light tracking-wide lg:text-[42px] drop-shadow-xl opacity-95">
-                        Beautifully Crafted and Fairly Priced
-                    </p>
-                </div>
-            </div>
-
-            {/* Let's Go Button */}
-            <div className="absolute bottom-24 md:bottom-28 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
-                <button
-                    onClick={scrollToNextSection}
-                    className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex flex-col items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all group"
+        <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
+            {/* Background Slideshow */}
+            <AnimatePresence initial={false}>
+                <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0 z-0"
                 >
-                    <span className="text-[10px] font-bold text-gray-500 leading-none uppercase tracking-widest mb-0.5">Let's</span>
-                    <span className="text-[14px] font-black text-gray-900 leading-none uppercase">Go</span>
-                </button>
-                <div className="text-white opacity-60">
-                    <ChevronDown size={28} className="animate-bounce" />
-                </div>
-            </div>
-
-            {/* Wavy Divider */}
-            <div className="absolute bottom-[-1px] left-0 w-full z-10">
-                <svg
-                    className="w-full h-[40px] md:h-[80px] lg:h-[120px]"
-                    viewBox="0 0 1440 120"
-                    fill="none"
-                    preserveAspectRatio="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        d="M0 120V60C240 100 480 100 720 60C960 20 1200 20 1440 60V120H0Z"
-                        fill="white"
+                    <div
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: `url("${slides[currentSlide].image}")` }}
                     />
-                </svg>
+                    <div className="absolute inset-0 bg-black/40" />
+                </motion.div>
+            </AnimatePresence>
+
+            {/* Right Side Fixed Content: Social & Slider Controls (lg+ only) */}
+            <div className="absolute right-4 lg:right-6 xl:right-8 top-28 lg:top-32 bottom-20 lg:bottom-28 z-30 hidden lg:flex flex-col items-end justify-between pointer-events-none">
+                {/* Social Media Icons */}
+                <div className="flex flex-col gap-4 lg:gap-5 xl:gap-6 pointer-events-auto">
+                    {[Facebook, Twitter, Instagram].map((Icon, i) => (
+                        <button key={i} className="w-8 h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white backdrop-blur-sm transition-all hover:scale-110">
+                            <Icon size={16} />
+                        </button>
+                    ))}
+                </div>
+
+                {/* Slider Controls */}
+                <div className="flex flex-col items-end gap-4 lg:gap-6 xl:gap-10 w-full pointer-events-auto">
+                    {/* Mini Cards Row */}
+                    <div className="flex gap-2 lg:gap-3 xl:gap-4 overflow-visible">
+                        {getNextSlides().map((slideIndex, i) => (
+                            <motion.div
+                                key={slides[slideIndex].id}
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5, delay: i * 0.1 }}
+                                onClick={() => goToSlide(slideIndex)}
+                                className="w-28 lg:w-32 xl:w-44 h-36 lg:h-44 xl:h-56 rounded-xl lg:rounded-2xl overflow-hidden relative cursor-pointer group shrink-0 shadow-2xl border border-white/10"
+                            >
+                                <img
+                                    src={slides[slideIndex].image}
+                                    alt={slides[slideIndex].title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 lg:p-3 xl:p-4 flex flex-col justify-end">
+                                    <p className="text-white/60 text-[7px] lg:text-[8px] xl:text-[10px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
+                                    <h4 className="text-white font-bold text-[9px] lg:text-[10px] xl:text-sm leading-tight">{slides[slideIndex].title} {slides[slideIndex].subtitle}</h4>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Navigation Row */}
+                    <div className="flex items-center gap-3 lg:gap-4 xl:gap-8 w-full max-w-xl">
+                        <div className="flex gap-2 xl:gap-3">
+                            <button
+                                onClick={prevSlide}
+                                className="w-8 h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[#022C54] transition-all duration-300"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <button
+                                onClick={nextSlide}
+                                className="w-8 h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[#022C54] transition-all duration-300"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 relative h-[2px] bg-white/20 overflow-hidden">
+                            <motion.div
+                                initial={false}
+                                animate={{ left: `${(currentSlide / (slides.length - 1)) * 80}%` }}
+                                transition={{ duration: 0.8 }}
+                                className="absolute top-0 h-full w-16 lg:w-20 bg-[#FDB338]"
+                            />
+                        </div>
+
+                        <div className="flex items-end text-white font-['Outfit']">
+                            <span className="text-3xl lg:text-4xl xl:text-7xl font-bold leading-none tracking-tighter">0{currentSlide + 1}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-28 sm:pt-32 md:pt-36 lg:pt-20 pb-20 sm:pb-24 lg:pb-32 h-full flex flex-col justify-center">
+                <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
+                    {/* Left Content */}
+                    <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%] text-center lg:text-left">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentSlide}
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 30 }}
+                                transition={{ duration: 0.8 }}
+                            >
+                                <span className="text-[#FDB338] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[11px] sm:text-xs md:text-sm mb-3 sm:mb-4 block">
+                                    {slides[currentSlide].location}
+                                </span>
+                                <h1 className="text-[40px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.05] mb-4 sm:mb-6 tracking-tight font-['Outfit']">
+                                    {slides[currentSlide].title} <br />
+                                    <span className="text-[#FDB338] font-['Playfair_Display'] italic font-medium">
+                                        {slides[currentSlide].subtitle}
+                                    </span>
+                                </h1>
+
+                                <p className="text-white/80 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 md:mb-10 lg:mb-12 max-w-md sm:max-w-lg lg:max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                                    {slides[currentSlide].description}
+                                </p>
+
+                                <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-5">
+                                    <button className="bg-[#022C54] hover:bg-[#033a6e] text-white font-bold h-12 sm:h-14 md:h-[60px] xl:h-[64px] px-8 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(2,44,84,0.4)] group">
+                                        <span className="text-[13px] sm:text-[14px] xl:text-[16px] tracking-wide uppercase">Let's Go</span>
+                                        <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 rounded-full bg-white/10 flex items-center justify-center transition-transform group-hover:translate-x-1">
+                                            <ArrowRight size={16} />
+                                        </div>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Small screen Mini Slider & Navigation (below lg) */}
+                    <div className="lg:hidden flex flex-col items-center gap-5 sm:gap-6 w-full z-20 mt-4 sm:mt-6">
+                        {/* Mini Slider for Mobile/Tablet */}
+                        <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto w-full px-2 sm:px-4 no-scrollbar pb-2 snap-x">
+                            {getNextSlides().map((slideIndex, i) => (
+                                <motion.div
+                                    key={`mobile-mini-${slides[slideIndex].id}`}
+                                    onClick={() => goToSlide(slideIndex)}
+                                    className="w-24 h-32 sm:w-28 sm:h-36 md:w-36 md:h-44 rounded-lg sm:rounded-xl overflow-hidden relative cursor-pointer group shrink-0 shadow-lg border border-white/10 snap-center"
+                                >
+                                    <img
+                                        src={slides[slideIndex].image}
+                                        alt={slides[slideIndex].title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 sm:p-3 flex flex-col justify-end">
+                                        <p className="text-white/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
+                                        <h4 className="text-white font-bold text-[9px] sm:text-[10px] leading-tight">{slides[slideIndex].title}</h4>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* Navigation Row */}
+                        <div className="flex items-center gap-4 sm:gap-6 w-full max-w-md sm:max-w-xl px-2 sm:px-4">
+                            <div className="flex gap-2 sm:gap-3">
+                                <button onClick={prevSlide} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/20 flex items-center justify-center text-white active:bg-white active:text-[#022C54]"><ChevronLeft size={16} /></button>
+                                <button onClick={nextSlide} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/20 flex items-center justify-center text-white active:bg-white active:text-[#022C54]"><ChevronRight size={16} /></button>
+                            </div>
+                            <div className="flex-1 relative h-[1px] bg-white/20">
+                                <motion.div animate={{ left: `${(currentSlide / (slides.length - 1)) * 80}%` }} className="absolute top-0 h-full w-16 sm:w-20 bg-[#FDB338]" />
+                            </div>
+                            <div className="text-white font-bold text-2xl sm:text-3xl md:text-4xl font-['Outfit']">0{currentSlide + 1}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Shape Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none translate-y-1/2">
+                <img src={shapeImg} alt="" className="w-full h-auto block" />
             </div>
         </section>
     );
 }
+

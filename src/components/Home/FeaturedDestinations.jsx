@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Star, Loader2 } from 'lucide-react';
 import { api } from '../../api/client';
+import manClimbing from '../../assets/manClimbing.png';
 
 export default function FeaturedDestinations() {
     const [destinations, setDestinations] = useState([]);
@@ -84,59 +85,55 @@ export default function FeaturedDestinations() {
     if (destinations.length === 0) return null;
 
     return (
-        <section className="py-20 md:py-24 bg-[#11233A] relative overflow-hidden text-white rounded-[2rem] md:rounded-[4rem] mx-2 md:mx-10 my-10 min-h-[700px] md:min-h-[900px]">
-            {/* Background Professional Climber Image (Right Side) */}
-            <div className="absolute top-0 right-0 w-full md:w-[45%] h-full z-0 pointer-events-none opacity-20 md:opacity-90">
+        <section className="py-8 sm:py-10 md:py-12 bg-[#11233A] relative overflow-hidden text-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] mx-2 sm:mx-4 md:mx-10 my-6 md:my-10">
+            {/* Background Man Climbing Image (Right Side - hidden on mobile) */}
+            <div className="absolute top-0 right-0 hidden md:block md:w-[40%] h-[65%] z-0 pointer-events-none md:opacity-90">
                 <img
-                    src="https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1200&auto=format&fit=crop"
-                    alt="Climber"
-                    className="w-full h-full object-cover"
-                    style={{ clipPath: window.innerWidth > 768 ? 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' : 'none' }}
+                    src={manClimbing}
+                    alt="Man Climbing"
+                    className="w-full h-full object-contain object-right-top"
                 />
             </div>
 
+            {/* Remove absolutely positioned text - moved into flow below */}
+
             <div className="container mx-auto px-4 md:px-10 lg:px-16 relative z-10">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row items-start justify-between">
-                    <div className="w-full md:w-1/2 pt-5 relative z-20">
-                        <h4 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
-                            <span className="text-[#FFA500]">Most Favorite</span> <span className="text-white font-serif italic md:not-italic">Tour <br className="hidden md:block" />
+                {/* Header Section - Left content + Right TOP DESTINATION */}
+                <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-8">
+                    <div className="w-full md:w-1/2 pt-3 relative z-20">
+                        <h4 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
+                            <span className="text-[#FFA500] font-['Playfair_Display'] italic">Most Favorite</span> <span className="text-white font-['Outfit']">Tour <br className="hidden md:block" />
                                 Places!</span>
                         </h4>
 
-                        <p className="text-slate-300 text-sm md:text-base mb-10 max-w-sm leading-relaxed">
+                        <p className="text-slate-300 text-xs md:text-sm mb-6 max-w-sm leading-relaxed">
                             Choosing a destination can be exciting but also a bit overwhelming with so many amazing places out there! Let's narrow it down a little. Are you dreaming of peaceful nature, buzzing cities, historical wonders, or relaxing beaches?
                         </p>
 
-                        <button className="inline-flex items-center gap-3 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-6 md:px-8 py-3.5 md:py-4 rounded-full font-semibold transition-all shadow-lg group text-sm md:text-base">
-                            View More Destinations
-                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        <button className="inline-flex items-center gap-2 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-5 md:px-6 py-2.5 md:py-3 rounded-full font-semibold transition-all shadow-lg group text-xs md:text-sm">
+                            Explore More Destinations
+                            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
 
-                    <div className="w-full md:w-1/2 relative mt-8 md:mt-16 flex justify-center md:justify-end">
-                        {/* Large Background Text (TOP! DESTINATIONS) */}
-                        <div className="pointer-events-none select-none relative h-40 md:h-64 w-full text-center md:text-right">
-                            <h2 className="text-5xl md:text-[6rem] font-black leading-none flex flex-col items-center md:items-end">
-                                <span className="text-[#FFA500] z-20">TOP!</span>
-                                <span className="text-white uppercase tracking-tighter"
-                                    style={{
-                                        WebkitTextStroke: '1.5px rgba(255,255,255,0.4)',
-                                        color: 'transparent',
-                                        transform: 'translateY(-1rem)',
-                                        letterSpacing: '-0.02em'
-                                    }}>DESTINATIONS</span>
-                            </h2>
+                    {/* Right Side - TOP! DESTINATION text */}
+                    <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end mt-5 md:mt-0">
+                        <div className="font-black flex flex-col gap-2 md:gap-9 font-['Playfair_Display'] mt-5 text-start ">
+                            <span className="text-[#FFA500] block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem]">TOP!</span>
+                            <span className="uppercase block text-3xl sm:text-4xl md:text-[3rem] lg:text-[4rem] xl:text-[5rem] text-white"
+                                style={{
+                                    letterSpacing: '-0.02em'
+                                }}>DESTINATION</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Slider Section */}
-                <div className="w-full relative mt-12 md:mt-20 z-10">
+                <div className="w-full relative mt-6 md:mt-10 z-10">
                     {/* Slider Container */}
-                    <div className="overflow-hidden py-10 md:py-16 -mx-4 px-4">
+                    <div className="overflow-hidden py-4 md:py-6 -mx-4 px-4">
                         <div
-                            className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-in-out' : 'transition-none'} gap-4 md:gap-8`}
+                            className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-in-out' : 'transition-none'} gap-3 md:gap-5`}
                             style={{ transform: `translateX(-${currentIndex * colWidth}%)` }}
                             onTransitionEnd={handleTransitionEnd}
                         >
@@ -146,19 +143,19 @@ export default function FeaturedDestinations() {
                                     className={`min-w-[calc(100%/1.2)] sm:min-w-[calc(100%/2.5)] lg:min-w-[calc(100%/4.2)] transition-all duration-300 ${index === currentIndex + 3 ? 'active-card' : ''}`}
                                     style={{ width: `${colWidth}%` }}
                                 >
-                                    <div className="bg-[#152944]/60 backdrop-blur-md rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-5 border border-white/10 group h-full hover:bg-white transition-all cursor-pointer shadow-2xl flex flex-col group-hover:scale-105">
-                                        <div className="rounded-[1.5rem] md:rounded-[1.8rem] overflow-hidden mb-4 md:mb-6 aspect-[4/5] flex-shrink-0">
+                                    <div className="bg-[#152944]/60 backdrop-blur-md rounded-[1.5rem] md:rounded-[2rem] p-3 md:p-4 border border-white/10 group h-full hover:bg-white transition-all cursor-pointer shadow-2xl flex flex-col group-hover:scale-105">
+                                        <div className="rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden mb-3 md:mb-4 aspect-[4/4.5] flex-shrink-0">
                                             <img
                                                 src={dest.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop'}
                                                 alt={dest.name}
                                                 className="w-full h-full object-cover"
                                             />
                                         </div>
-                                        <div className="text-center pb-2 md:pb-4 mt-auto">
-                                            <h3 className="text-xl md:text-2xl font-bold mb-1 text-white group-hover:text-[#0F1E32] transition-colors font-serif px-2">
+                                        <div className="text-center pb-1 md:pb-2 mt-auto">
+                                            <h3 className="text-base md:text-lg font-bold mb-0.5 text-white group-hover:text-[#0F1E32] transition-colors font-serif px-2">
                                                 {dest.name}
                                             </h3>
-                                            <p className="text-sm text-slate-400 group-hover:text-slate-600 transition-colors">
+                                            <p className="text-xs text-slate-400 group-hover:text-slate-600 transition-colors">
                                                 {Math.floor(Math.random() * 50) + 10} Listing
                                             </p>
                                         </div>
@@ -169,20 +166,20 @@ export default function FeaturedDestinations() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <div className="absolute top-[50%] -left-3 md:-left-6 -translate-y-1/2 z-30">
+                    <div className="absolute top-[50%] left-1 sm:-left-1 md:-left-6 -translate-y-1/2 z-30">
                         <button
                             onClick={handlePrev}
-                            className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
                         >
-                            <ArrowLeft size={20} className="md:w-7 md:h-7" />
+                            <ArrowLeft size={16} className="md:w-5 md:h-5" />
                         </button>
                     </div>
-                    <div className="absolute top-[50%] -right-3 md:-right-6 -translate-y-1/2 z-30">
+                    <div className="absolute top-[50%] right-1 sm:-right-1 md:-right-6 -translate-y-1/2 z-30">
                         <button
                             onClick={handleNext}
-                            className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
                         >
-                            <ArrowRight size={20} className="md:w-7 md:h-7" />
+                            <ArrowRight size={16} className="md:w-5 md:h-5" />
                         </button>
                     </div>
                 </div>

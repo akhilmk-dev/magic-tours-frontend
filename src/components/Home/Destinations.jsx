@@ -27,7 +27,7 @@ const tripCategories = [
 
 export default function Destinations() {
     return (
-        <section className="py-24 bg-white relative overflow-hidden font-sans">
+        <section className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden font-sans">
 
             <div className="px-6 sm:px-8 md:px-12 lg:px-16 relative z-10 w-full">
                 <div className="flex flex-col xl:flex-row gap-12 xl:gap-16 items-center">

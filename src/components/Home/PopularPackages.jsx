@@ -137,7 +137,7 @@ export default function PopularPackages() {
                     </p>
                 </div>
 
-                <div className="relative max-w-[1050px] mx-auto px-4 md:px-12 flex items-center justify-center min-h-[750px] overflow-hidden">
+                <div className="relative max-w-[1050px] mx-auto px-4 md:px-12 flex items-center justify-center min-h-[750px] overflow-visible">
                     {/* Carousel Track */}
                     <motion.div
                         className="flex gap-6 absolute left-1/2 items-center"
@@ -237,17 +237,16 @@ export default function PopularPackages() {
                             );
                         })}
                     </motion.div>
-
                     {/* Navigation buttons */}
                     <button
                         onClick={handlePrev}
-                        className="absolute left-0 md:left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-50 hover:scale-110 active:scale-95 transition-all outline-none"
+                        className="absolute left-[-20px] md:left-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] hover:scale-110 active:scale-95 transition-all outline-none"
                     >
                         <ArrowLeft size={24} strokeWidth={2.5} />
                     </button>
                     <button
                         onClick={handleNext}
-                        className="absolute right-0 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-50 hover:scale-110 active:scale-95 transition-all outline-none"
+                        className="absolute right-[-20px] md:right-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] hover:scale-110 active:scale-95 transition-all outline-none"
                     >
                         <ArrowRight size={24} strokeWidth={2.5} />
                     </button>

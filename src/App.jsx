@@ -11,6 +11,13 @@ import VisaApplication from './pages/VisaApplication';
 import Corporate from './pages/Corporate';
 import VendorPackages from './pages/VendorPackages';
 import Profile from './pages/Profile';
+import Cruise from './pages/Cruise';
+import Hotels from './pages/Hotels';
+import Tours from './pages/Tours';
+import PrivateJets from './pages/PrivateJets';
+import Sports from './pages/Sports';
+import ContactUs from './pages/ContactUs';
+
 import { CustomerAuthProvider, ProtectedRoute } from './context/CustomerAuthContext';
 import { ToastProvider } from './context/ToastContext';
 import ChatWidget from './components/Chat/ChatWidget';
@@ -45,6 +52,12 @@ function App() {
                 <Route path="/destinations" element={<Navigate to="/packages" replace />} />
                 <Route path="/corporate" element={<Corporate />} />
                 <Route path="/vendor-packages/:vendorId" element={<VendorPackages />} />
+                <Route path="/cruise" element={<Cruise />} />
+                <Route path="/hotels" element={<Hotels />} />
+                <Route path="/tours" element={<Tours />} />
+                <Route path="/private-jets" element={<PrivateJets />} />
+                <Route path="/sports" element={<Sports />} />
+                <Route path="/contact" element={<ContactUs />} />
 
                 {/* Protected Routes */}
                 <Route path="/visa-application" element={

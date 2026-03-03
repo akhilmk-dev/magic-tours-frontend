@@ -131,7 +131,7 @@ export default function FeaturedDestinations() {
                 {/* Slider Section */}
                 <div className="w-full relative mt-6 md:mt-10 z-10">
                     {/* Slider Container */}
-                    <div className="overflow-hidden py-4 md:py-6 -mx-4 px-4">
+                    <div className="overflow-visible py-4 md:py-6 -mx-4 px-4">
                         <div
                             className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-in-out' : 'transition-none'} gap-3 md:gap-5`}
                             style={{ transform: `translateX(-${currentIndex * colWidth}%)` }}
@@ -166,20 +166,20 @@ export default function FeaturedDestinations() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <div className="absolute top-[50%] left-1 sm:-left-1 md:-left-6 -translate-y-1/2 z-30">
+                    <div className="absolute top-[50%] -left-4 sm:-left-10 md:-left-16 -translate-y-1/2 z-50">
                         <button
                             onClick={handlePrev}
-                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500] outline-none"
                         >
-                            <ArrowLeft size={16} className="md:w-5 md:h-5" />
+                            <ArrowLeft size={18} className="md:w-5 md:h-5" strokeWidth={2.5} />
                         </button>
                     </div>
-                    <div className="absolute top-[50%] right-1 sm:-right-1 md:-right-6 -translate-y-1/2 z-30">
+                    <div className="absolute top-[50%] -right-4 sm:-right-10 md:-right-16 -translate-y-1/2 z-50">
                         <button
                             onClick={handleNext}
-                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500]"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500] outline-none"
                         >
-                            <ArrowRight size={16} className="md:w-5 md:h-5" />
+                            <ArrowRight size={18} className="md:w-5 md:h-5" strokeWidth={2.5} />
                         </button>
                     </div>
                 </div>

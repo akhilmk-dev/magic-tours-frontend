@@ -7,15 +7,20 @@ import gutter from '../../assets/gutter.png';
 
 export default function AdventureSection() {
     return (
-        <section className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src={sectionBg}
-                    alt="Adventure Background"
-                    className="w-full h-full object-cover"
-                />
-            </div>
+        <section className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden w-full">
+            {/* Background Image - scaled up to crop out built-in white padding in Section.png */}
+            <div
+                className="absolute z-0"
+                style={{
+                    inset: '-5%',
+                    width: '110%',
+                    height: '110%',
+                    backgroundImage: `url(${sectionBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center bottom',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            />
 
             {/* Content Container */}
             <div className="container mx-auto px-4 relative z-10 text-center flex flex-col items-center">

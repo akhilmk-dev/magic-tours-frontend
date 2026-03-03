@@ -39,7 +39,7 @@ const blogPosts = [
 
 export default function BlogNews() {
     return (
-        <section className="bg-[#E9F7FF] py-20 px-4 sm:px-8 md:px-12 lg:px-16">
+        <section className="bg-[#E9F7FF] py-10 sm:py-14 lg:py-20 px-4 sm:px-8 md:px-12 lg:px-16">
             <div className="container mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12 sm:mb-16">

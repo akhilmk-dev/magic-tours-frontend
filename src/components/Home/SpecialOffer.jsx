@@ -30,7 +30,7 @@ const stats = [
 
 const SpecialOffer = () => {
     return (
-        <section className="relative mt-12 mb-[450px] sm:mb-[350px] lg:mb-56 xl:mb-64">
+        <section className="relative mt-12 mb-[320px] sm:mb-[280px] lg:mb-56 xl:mb-64">
             {/* Top Blue Banner - Radial Gradient */}
             <div className="bg-brand-magic bg-[radial-gradient(circle_at_60%_50%,_#1e4b8a_0%,_#113A74_100%)] rounded-[2rem] sm:rounded-[3rem] mx-4 sm:mx-8 md:mx-12 lg:mx-16 pt-12 lg:pt-0 pb-36 sm:pb-44 lg:pb-36 xl:pb-44 overflow-hidden relative">
 

@@ -75,10 +75,10 @@ const VisaServices = () => {
                                             <Icon size={22} className="text-white" />
                                         </div>
                                         <div>
-                                            <h4 className="text-brand-heading font-bold text-xs sm:text-sm mb-1">
+                                            <h4 className="text-brand-heading font-bold text-base sm:text-[18px] mb-1">
                                                 {feature.title}
                                             </h4>
-                                            <p className="text-gray-400 text-[11px] sm:text-xs leading-relaxed">
+                                            <p className="text-gray-400 text-[13px] sm:text-sm leading-relaxed">
                                                 {feature.description}
                                             </p>
                                         </div>

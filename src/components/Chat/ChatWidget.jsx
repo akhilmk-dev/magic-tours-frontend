@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import logo from '../../assets/logo.png';
+import aiIcon from '../../assets/humbleicons_ai.png';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -72,8 +73,8 @@ const ChatWidget = () => {
                         {/* Header */}
                         <div className="p-4 bg-indigo-600 text-white flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border border-indigo-100 p-1">
-                                    <img src={logo} alt="Magic Tours Logo" className="w-full h-full object-contain" />
+                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border border-indigo-100 p-1.5 shadow-inner">
+                                    <img src={aiIcon} alt="AI Assistant" className="w-full h-full object-contain" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-sm">Magic Assistant</h3>
@@ -182,7 +183,7 @@ const ChatWidget = () => {
                 {isOpen ? (
                     <X size={28} />
                 ) : (
-                    <img src={logo} alt="Magic Tours Logo" className="w-full h-full object-contain" />
+                    <img src={aiIcon} alt="AI Chat" className="w-full h-full object-contain" />
                 )}
             </motion.button>
         </div>

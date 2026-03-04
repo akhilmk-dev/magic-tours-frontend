@@ -1,9 +1,10 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import FilterSidebar from '../components/Outbound/FilterSidebar';
-import PackageGrid from '../components/Outbound/PackageGrid';
-import PackageCardSkeleton from '../components/skeletons/PackageCardSkeleton';
-import { Search, Filter, X } from 'lucide-react';
-import { api } from '../api/client';
+import FilterSidebar from '../../components/Outbound/FilterSidebar';
+import PackageGrid from '../../components/Outbound/PackageGrid';
+import PackageCardSkeleton from '../../components/skeletons/PackageCardSkeleton';
+import { Filter, X } from 'lucide-react';
+import { api } from '../../api/client';
 
 const Outbound = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -74,7 +75,9 @@ const Outbound = () => {
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     return (

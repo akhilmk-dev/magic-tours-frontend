@@ -1,5 +1,7 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut, MapPin, Phone, ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
@@ -32,11 +34,11 @@ const TopBar = ({ isTransparent }) => {
                         <ChevronDown size={12} />
                     </div>
                     <div className={clsx("w-px h-3 hidden sm:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
-                    <Link to="/faq" className={clsx("transition-colors hidden sm:block", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>FAQ</Link>
+                    <Link href="/faq" className={clsx("transition-colors hidden sm:block", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>FAQ</Link>
                     <div className={clsx("w-px h-3 hidden md:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
-                    <Link to="/support" className={clsx("transition-colors hidden md:block", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>Support</Link>
+                    <Link href="/support" className={clsx("transition-colors hidden md:block", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>Support</Link>
                     <div className={clsx("w-px h-3 hidden lg:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
-                    <Link to="/login" className={clsx("items-center gap-1.5 transition-colors hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>
+                    <Link href="/login" className={clsx("items-center gap-1.5 transition-colors hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-gray-900")}>
                         Sign In / Register
                         <User size={14} />
                     </Link>
@@ -50,12 +52,12 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
     const { user, logout } = useCustomerAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
 
     // Check if we are on the home page
-    const isHomePage = location.pathname === '/';
+    const isHomePage = pathname === '/';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -75,13 +77,12 @@ export default function Navbar() {
         { name: 'Tours', path: '/tours' },
         { name: 'Visa Services', path: '/visa-application' },
         { name: 'Private Jets', path: '/private-jets' },
-        { name: 'Sports', path: '/sports' },
         { name: 'Contact Us', path: '/contact' },
     ];
 
     const handleLogout = async () => {
         await logout();
-        navigate('/login');
+        router.push('/login');
         setIsMobileMenuOpen(false);
     };
 
@@ -96,8 +97,8 @@ export default function Navbar() {
             <nav className="py-3 sm:py-4 md:py-5">
                 <div className="px-3 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-                        <img src={isTransparent ? logoWhite : logo} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+                    <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+                        <img src={isTransparent ? logoWhite.src : logo.src} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
                     </Link>
 
                     {/* Desktop Menu */}
@@ -105,17 +106,17 @@ export default function Navbar() {
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
-                                to={link.path}
+                                href={link.path}
                                 className={clsx(
                                     "text-[14px] font-medium transition-all flex items-center gap-1 py-1 relative",
                                     isTransparent
                                         ? "text-white/90 hover:text-white"
-                                        : (location.pathname === link.path ? "text-gray-900" : "text-gray-600 hover:text-gray-900")
+                                        : (pathname === link.path ? "text-gray-900" : "text-gray-600 hover:text-gray-900")
                                 )}
                             >
                                 {link.name}
                                 {link.dropdown && <ChevronDown size={12} />}
-                                {(location.pathname === link.path && !isTransparent) && (
+                                {(pathname === link.path && !isTransparent) && (
                                     <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gray-800" />
                                 )}
                             </Link>
@@ -141,11 +142,11 @@ export default function Navbar() {
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}
-                                    to={link.path}
+                                    href={link.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={clsx(
                                         "text-gray-600 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors text-[14px]",
-                                        location.pathname === link.path && "bg-gray-50 text-gray-900 font-bold"
+                                        pathname === link.path && "bg-gray-50 text-gray-900 font-bold"
                                     )}
                                 >
                                     {link.name}
@@ -154,9 +155,9 @@ export default function Navbar() {
                         </div>
                         {/* Utility Links for Mobile */}
                         <div className="border-t border-gray-100 p-3 sm:p-4 flex flex-col gap-0.5">
-                            <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">FAQ</Link>
-                            <Link to="/support" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">Support</Link>
-                            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2">
+                            <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">FAQ</Link>
+                            <Link href="/support" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">Support</Link>
+                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2">
                                 <User size={14} />
                                 Sign In / Register
                             </Link>

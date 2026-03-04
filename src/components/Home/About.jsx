@@ -1,8 +1,8 @@
 import React from 'react';
 import { Plane, Trophy, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
-import image01 from '../../assets/Link → image-01.jpg.png';
-import image02 from '../../assets/Link → image-02.jpg.png';
-import image03 from '../../assets/Link → image-03.png.png';
+import image01 from '../../assets/link_image_01.png';
+import image02 from '../../assets/link_image_02.png';
+import image03 from '../../assets/link_image_03.png';
 import discountImg from '../../assets/discount.png.png';
 import towerImg from '../../assets/Image.png';
 
@@ -12,7 +12,7 @@ export default function About() {
             {/* Background Decorative Element (Eiffel Tower Silhouette from Image.png) */}
             <div className="absolute right-[-2%] bottom-0 opacity-[0.25] pointer-events-none select-none z-0">
                 <img
-                    src={towerImg}
+                    src={towerImg.src || towerImg}
                     alt="Eiffel Tower Decoration"
                     className="h-[800px] w-auto object-contain"
                 />
@@ -28,7 +28,7 @@ export default function About() {
                             {/* 1. Main Couple Image (Background layer - Link → image-01) */}
                             <div className="absolute top-0 right-[5%] w-[82%] z-10 rounded-[3rem] md:rounded-[4.5rem] lg:rounded-[6rem] overflow-hidden shadow-2xl border-[6px] md:border-[10px] border-white">
                                 <img
-                                    src={image01}
+                                    src={image01.src || image01}
                                     alt="Traveling Couple"
                                     className="w-full aspect-[1/1.15] object-cover"
                                 />
@@ -37,7 +37,7 @@ export default function About() {
                             {/* 2. Discount Badge (Link → discount.png.png) - Overlaps face */}
                             <div className="absolute top-[20%] md:top-[22%] right-[-5%] md:right-[2%] lg:right-[5%] z-30 w-28 md:w-36 lg:w-48 pointer-events-none">
                                 <img
-                                    src={discountImg}
+                                    src={discountImg.src || discountImg}
                                     alt="50% Discount"
                                     className="w-full h-auto drop-shadow-2xl"
                                 />
@@ -46,7 +46,7 @@ export default function About() {
                             {/* 3. Tropical Elements Cutout (Foreground - Link → image-03) */}
                             <div className="absolute bottom-[-15px] md:bottom-[-25px] lg:bottom-[-30px] left-[-15px] md:left-[-30px] lg:left-[-30px] z-40 w-[60%] md:w-[68%] pointer-events-none drop-shadow-2xl">
                                 <img
-                                    src={image03}
+                                    src={image03.src || image03}
                                     alt="Tropical Elements"
                                     className="w-full h-auto animate-float"
                                 />
@@ -55,7 +55,7 @@ export default function About() {
                             {/* 4. Beach Image (Overlap Bottom Right - Link → image-02) */}
                             <div className="absolute bottom-[2%] md:bottom-[-5%] lg:bottom-[2%] right-[-8%] md:right-[-6%] lg:right-[-2%] w-[58%] z-20 rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border-[6px] md:border-[10px] border-white shadow-2xl">
                                 <img
-                                    src={image02}
+                                    src={image02.src || image02}
                                     alt="Beach View"
                                     className="w-full aspect-[1.4/1] object-cover"
                                 />

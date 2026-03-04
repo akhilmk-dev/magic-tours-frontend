@@ -11,12 +11,12 @@ const cruiseCategories = [
     {
         id: 1,
         title: "Luxury Cruise",
-        image: luxuryCruiseImg
+        image: luxuryCruiseImg.src || luxuryCruiseImg
     },
     {
         id: 2,
         title: "Adventure Cruise",
-        image: adventureCruiseImg
+        image: adventureCruiseImg.src || adventureCruiseImg
     }
 ];
 
@@ -88,7 +88,7 @@ export default function CruiseCategories() {
     return (
         <section
             className="relative min-h-[500px] lg:min-h-[700px] flex items-center overflow-hidden py-10 lg:py-16 bg-cover bg-center"
-            style={{ backgroundImage: `url(${cruiseBg})` }}
+            style={{ backgroundImage: `url(${cruiseBg.src || cruiseBg})` }}
         >
             {/* Overlay */}
             <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]"></div>

@@ -98,7 +98,7 @@ const VisaServices = () => {
                 {/* Right Side - Globe Image */}
                 <div className="w-full lg:w-[42%] xl:w-[38%] shrink-0 flex items-center justify-center">
                     <img
-                        src={globalImg}
+                        src={globalImg.src || globalImg}
                         alt="Global Visa Services"
                         className="w-full max-w-[400px] lg:max-w-none h-auto object-contain"
                     />

@@ -8,7 +8,7 @@ import slide1Image from '../../assets/Image 4.png';
 const slides = [
     {
         id: 1,
-        image: slide1Image,
+        image: slide1Image.src || slide1Image,
         title: 'Museum of Islamic',
         subtitle: 'See More',
     },
@@ -38,7 +38,7 @@ export default function WondersOfQatar() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img
-                    src={bgImage}
+                    src={bgImage.src || bgImage}
                     alt="Qatar Skyline"
                     className="w-full h-full object-cover"
                 />

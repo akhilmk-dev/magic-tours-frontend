@@ -1,7 +1,9 @@
+"use client";
 import React, { useState } from 'react';
-import { api } from '../api/client';
+import { api } from '../../api/client';
 import { Mail, Lock, User, Phone, MapPin, Loader2, Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -9,6 +11,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [success, setSuccess] = useState(false);
+    const router = useRouter();
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -47,7 +50,7 @@ const Register = () => {
                 await api.post('/customers/register', payload);
                 setSuccess(true);
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    router.push('/login');
                 }, 2000);
             } catch (err) {
                 setStatus(err.message || 'Registration failed');
@@ -204,7 +207,7 @@ const Register = () => {
 
                     <div className="text-center text-sm">
                         <span className="text-gray-500">Already have an account? </span>
-                        <Link to="/login" className="font-bold text-primary hover:underline">Sign in</Link>
+                        <Link href="/login" className="font-bold text-primary hover:underline">Sign in</Link>
                     </div>
                 </form>
             </div>

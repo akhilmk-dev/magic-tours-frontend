@@ -1,13 +1,16 @@
+"use client";
 import React, { useState } from 'react';
-import { api } from '../api/client';
+import { api } from '../../api/client';
 import { Mail, Lock, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const router = useRouter();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -17,13 +20,15 @@ const Login = () => {
             // Customers login specifically at /customers/login
             const data = await api.post('/customers/login', { email, password });
             api.setTokens(data.accessToken, data.refreshToken);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
 
             // Redirect based on role
             if (data.user.role === 'Admin') {
                 window.location.href = 'http://localhost:5173';
             } else {
-                window.location.href = '/outbound'; // Go to packages after login
+                router.push('/packages'); // Go to packages after login
             }
         } catch (err) {
             setError(err.message);
@@ -86,7 +91,7 @@ const Login = () => {
 
                     <div className="text-center text-sm">
                         <span className="text-gray-500">Don't have an account? </span>
-                        <Link to="/register" className="font-bold text-primary hover:underline">Register now</Link>
+                        <Link href="/register" className="font-bold text-primary hover:underline">Register now</Link>
                     </div>
                 </form>
             </div>

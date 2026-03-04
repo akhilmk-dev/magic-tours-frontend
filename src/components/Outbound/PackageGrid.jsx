@@ -1,6 +1,7 @@
+"use client";
 import React from 'react';
 import { MapPin, Clock, User, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }) => {
 
@@ -57,7 +58,7 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                     <div key={pkg.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
                         {/* Image Container */}
                         <div className="relative h-64 overflow-hidden">
-                            <Link to={`/packages/${pkg.id}`}>
+                            <Link href={`/packages/${pkg.id}`}>
                                 <img
                                     src={pkg.image}
                                     alt={pkg.title}
@@ -80,7 +81,7 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                 {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                             </div>
 
-                            <Link to={`/packages/${pkg.id}`}>
+                            <Link href={`/packages/${pkg.id}`}>
                                 <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors line-clamp-2">
                                     {pkg.title}
                                 </h3>
@@ -97,7 +98,7 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                     <span>{pkg.duration || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-primary group-hover:underline">
-                                    <Link to={`/packages/${pkg.id}`} className="font-bold text-xs uppercase tracking-wider">
+                                    <Link href={`/packages/${pkg.id}`} className="font-bold text-xs uppercase tracking-wider">
                                         View Details
                                     </Link>
                                 </div>

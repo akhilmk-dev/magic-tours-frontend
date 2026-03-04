@@ -1,0 +1,14 @@
+name = "magic-tours-frontend"
+compatibility_date = "2024-11-18"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# NEXT_PUBLIC_API_URL = "https://your-api.com"
+
+[[kv_namespaces]]
+# binding = "MY_KV"
+# id = "xxxxxxxxxxxx"
+
+[[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"

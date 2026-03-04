@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
 
 // Import assets
-import image1 from '../../assets/Link → image-01.jpg.png';
-import image2 from '../../assets/Link → image-02.jpg.png';
+import image1 from '../../assets/link_image_01.png';
+import image2 from '../../assets/link_image_02.png';
 import image3 from '../../assets/Rectangle 640.png';
 import backgroundNew from '../../assets/Background new.png';
 import shapeImg from '../../assets/shape.png';
@@ -94,7 +94,7 @@ export default function Hero() {
                 >
                     <div
                         className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url("${slides[currentSlide].image}")` }}
+                        style={{ backgroundImage: `url("${slides[currentSlide].image.src || slides[currentSlide].image}")` }}
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </motion.div>
@@ -125,7 +125,7 @@ export default function Hero() {
                                 className="w-28 lg:w-32 xl:w-44 h-36 lg:h-44 xl:h-56 rounded-xl lg:rounded-2xl overflow-hidden relative cursor-pointer group shrink-0 shadow-2xl border border-white/10"
                             >
                                 <img
-                                    src={slides[slideIndex].image}
+                                    src={slides[slideIndex].image.src || slides[slideIndex].image}
                                     alt={slides[slideIndex].title}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
@@ -220,7 +220,7 @@ export default function Hero() {
                                     className="w-24 h-32 sm:w-28 sm:h-36 md:w-36 md:h-44 rounded-lg sm:rounded-xl overflow-hidden relative cursor-pointer group shrink-0 shadow-lg border border-white/10 snap-center"
                                 >
                                     <img
-                                        src={slides[slideIndex].image}
+                                        src={slides[slideIndex].image.src || slides[slideIndex].image}
                                         alt={slides[slideIndex].title}
                                         className="w-full h-full object-cover"
                                     />
@@ -249,7 +249,7 @@ export default function Hero() {
 
             {/* Bottom Shape Overlay */}
             <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none translate-y-1/2">
-                <img src={shapeImg} alt="" className="w-full h-auto block" />
+                <img src={shapeImg.src || shapeImg} alt="" className="w-full h-auto block" />
             </div>
         </section>
     );

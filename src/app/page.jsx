@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import Hero from '../components/Home/Hero';
 import Destinations from '../components/Home/Destinations';

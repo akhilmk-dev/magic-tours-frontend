@@ -15,7 +15,7 @@ import hotel8 from '../../assets/hotel8.png';
 const hotels = [
     {
         id: 1,
-        image: hotel1,
+        image: hotel1.src || hotel1,
         location: 'Tokyo City Japan',
         title: 'Oceanview Villa Premier Deluxe Room',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s',
@@ -24,7 +24,7 @@ const hotels = [
     },
     {
         id: 2,
-        image: hotel2,
+        image: hotel2.src || hotel2,
         location: 'Swiss Alps',
         title: 'Premier Deluxe Room',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -32,7 +32,7 @@ const hotels = [
     },
     {
         id: 3,
-        image: hotel3,
+        image: hotel3.src || hotel3,
         location: 'Paris, France',
         title: 'Mountain View Room',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -40,7 +40,7 @@ const hotels = [
     },
     {
         id: 4,
-        image: hotel4,
+        image: hotel4.src || hotel4,
         location: 'Maldives',
         title: 'Premier Oceanview Villa',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -48,7 +48,7 @@ const hotels = [
     },
     {
         id: 5,
-        image: hotel5,
+        image: hotel5.src || hotel5,
         location: 'New York, USA',
         title: 'Waldorf Astoria Hotels',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -56,7 +56,7 @@ const hotels = [
     },
     {
         id: 6,
-        image: hotel6,
+        image: hotel6.src || hotel6,
         location: 'London, UK',
         title: 'Royal Heritage Suite',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s',
@@ -65,7 +65,7 @@ const hotels = [
     },
     {
         id: 7,
-        image: hotel7,
+        image: hotel7.src || hotel7,
         location: 'Dubai, UAE',
         title: 'Skyline Penthouse',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -73,7 +73,7 @@ const hotels = [
     },
     {
         id: 8,
-        image: hotel8,
+        image: hotel8.src || hotel8,
         location: 'Santorini, Greece',
         title: 'Infinite Blue Villa',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -81,7 +81,7 @@ const hotels = [
     },
     {
         id: 9,
-        image: hotel1, // Reuse for demo
+        image: hotel1.src || hotel1, // Reuse for demo
         location: 'Kyoto, Japan',
         title: 'Zen Garden Heritage',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
@@ -89,7 +89,7 @@ const hotels = [
     },
     {
         id: 10,
-        image: hotel2, // Reuse for demo
+        image: hotel2.src || hotel2, // Reuse for demo
         location: 'Aspen, USA',
         title: 'Snow Peak Lodge',
         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',

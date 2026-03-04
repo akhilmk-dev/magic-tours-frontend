@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useCustomerAuth } from '../context/CustomerAuthContext';
-import { api } from '../api/client';
-import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText } from 'lucide-react';
-import { Link } from 'react-router-dom';
+"use client";
 
-const Profile = () => {
-    const { user, logout } = useCustomerAuth();
+import React, { useEffect, useState } from 'react';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { api } from '../../api/client';
+import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+const ProfilePage = () => {
+    const { user, logout, loading: authLoading } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -23,13 +27,26 @@ const Profile = () => {
 
         if (user) {
             fetchBookings();
+        } else if (!authLoading) {
+            setLoading(false);
         }
-    }, [user]);
+    }, [user, authLoading]);
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin text-primary" size={40} />
+            </div>
+        );
+    }
 
     if (!user) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p>Please log in to view your profile.</p>
+            <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+                <p className="text-gray-500">Please log in to view your profile.</p>
+                <Link href="/login" className="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm">
+                    Go to Login
+                </Link>
             </div>
         );
     }
@@ -49,7 +66,7 @@ const Profile = () => {
                                 <p className="text-sm text-gray-500 mb-6">{user.email}</p>
 
                                 <Link
-                                    to="/visa-application"
+                                    href="/visa-application"
                                     className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-primary/20 text-primary rounded-xl hover:bg-primary/5 transition-colors font-medium text-sm mb-3"
                                 >
                                     <FileText size={16} /> Apply for Visa
@@ -78,7 +95,7 @@ const Profile = () => {
                                 <Package className="mx-auto text-gray-300 mb-4" size={48} />
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">No bookings yet</h3>
                                 <p className="text-gray-500 mb-6">You haven't made any bookings yet. Start your journey today!</p>
-                                <Link to="/outbound" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all">
+                                <Link href="/packages" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all">
                                     Browse Packages
                                 </Link>
                             </div>
@@ -145,4 +162,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default ProfilePage;

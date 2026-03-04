@@ -1,7 +1,8 @@
+"use client";
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Construction, Home, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 const UnderConstruction = ({ title }) => {
   return (
@@ -43,7 +44,7 @@ const UnderConstruction = ({ title }) => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/"
+              href="/"
               className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 group"
             >
               <Home size={20} />

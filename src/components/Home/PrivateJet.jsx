@@ -8,7 +8,7 @@ import flightImg from '../../assets/flight.png';
 const slides = [
     {
         id: 1,
-        image: flightImg,
+        image: flightImg.src || flightImg,
         title: 'Bombardier Global 7500',
         description: 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet.',
     },
@@ -169,7 +169,7 @@ const PrivateJet = () => {
             {/* Bottom Background Image */}
             <div className="relative w-full -mt-4 sm:-mt-6">
                 <img
-                    src={airplaneBg}
+                    src={airplaneBg.src || airplaneBg}
                     alt="Private Jet"
                     className="w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] xl:h-[750px] object-cover object-bottom"
                 />

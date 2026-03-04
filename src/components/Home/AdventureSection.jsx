@@ -15,7 +15,7 @@ export default function AdventureSection() {
                     inset: '-5%',
                     width: '110%',
                     height: '110%',
-                    backgroundImage: `url(${sectionBg})`,
+                    backgroundImage: `url(${sectionBg.src || sectionBg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center bottom',
                     backgroundRepeat: 'no-repeat',
@@ -44,7 +44,7 @@ export default function AdventureSection() {
             {/* Bottom Gutter/Cutter */}
             <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none">
                 <img
-                    src={gutter}
+                    src={gutter.src || gutter}
                     alt="Section Gutter"
                     className="w-full h-auto object-cover min-h-[50px] sm:min-h-[80px]"
                 />

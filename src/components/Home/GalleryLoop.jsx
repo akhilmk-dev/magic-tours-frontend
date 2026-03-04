@@ -10,9 +10,12 @@ import gallery5 from '../../assets/gallery5.jpg';
 import gallery6 from '../../assets/gallery6.jpg';
 
 const galleryImages = [
-    gallery1, gallery2, gallery3, gallery4, gallery5, gallery6,
-    gallery1, gallery2, gallery3, gallery4, gallery5, gallery6,
-    gallery1, gallery2, gallery3, gallery4, gallery5, gallery6
+    gallery1.src || gallery1, gallery2.src || gallery2, gallery3.src || gallery3,
+    gallery4.src || gallery4, gallery5.src || gallery5, gallery6.src || gallery6,
+    gallery1.src || gallery1, gallery2.src || gallery2, gallery3.src || gallery3,
+    gallery4.src || gallery4, gallery5.src || gallery5, gallery6.src || gallery6,
+    gallery1.src || gallery1, gallery2.src || gallery2, gallery3.src || gallery3,
+    gallery4.src || gallery4, gallery5.src || gallery5, gallery6.src || gallery6
 ];
 
 export default function GalleryLoop() {

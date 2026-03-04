@@ -1,20 +1,21 @@
+"use client";
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCustomerAuth } from '../context/CustomerAuthContext';
-import { api } from '../api/client';
-import { useToast } from '../context/ToastContext';
+import { useRouter } from 'next/navigation';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { api } from '../../api/client';
+import { useToast } from '../../context/ToastContext';
 import { CheckCircle, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
-import VisaSteps from '../components/visa/VisaSteps';
-import FeeSummary from '../components/visa/FeeSummary';
-import PersonalForm from '../components/visa/forms/PersonalForm';
-import PassportForm from '../components/visa/forms/PassportForm';
-import TravelForm from '../components/visa/forms/TravelForm';
-import DocumentsForm from '../components/visa/forms/DocumentsForm';
-import ReviewForm from '../components/visa/forms/ReviewForm';
+import VisaSteps from '../../components/visa/VisaSteps';
+import FeeSummary from '../../components/visa/FeeSummary';
+import PersonalForm from '../../components/visa/forms/PersonalForm';
+import PassportForm from '../../components/visa/forms/PassportForm';
+import TravelForm from '../../components/visa/forms/TravelForm';
+import DocumentsForm from '../../components/visa/forms/DocumentsForm';
+import ReviewForm from '../../components/visa/forms/ReviewForm';
 
 const validationSchemas = [
     // Step 0: Personal Information
@@ -46,10 +47,10 @@ const validationSchemas = [
     Yup.object().shape({})
 ];
 
-const VisaApplication = () => {
+const VisaApplicationPage = () => {
     const { user } = useCustomerAuth();
     const { success, error: toastError } = useToast();
-    const navigate = useNavigate();
+    const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
 
@@ -76,7 +77,6 @@ const VisaApplication = () => {
         const currentSchema = validationSchemas[currentStep];
 
         // Manually check if fields in current step has errors
-        // We do this by checking if any key in errors exists in the current schema shape
         const schemaKeys = Object.keys(currentSchema.fields);
         const hasStepErrors = schemaKeys.some(key => errors[key]);
 
@@ -86,7 +86,6 @@ const VisaApplication = () => {
             // Touch all fields in current step to show errors
             const touchedFields = {};
             schemaKeys.forEach(key => { touchedFields[key] = true; });
-            // Formik setTouched expects an object, not a function updater
             setTouched({ ...touchedFields });
             toastError("Please fill in all required fields accurately.");
         }
@@ -99,7 +98,7 @@ const VisaApplication = () => {
         try {
             await api.post('/visa', values);
             success('Visa Application Submitted Successfully!');
-            navigate('/profile'); // Or a thank you page
+            router.push('/profile');
         } catch (err) {
             toastError(err.message || 'Submission failed');
         } finally {
@@ -113,7 +112,7 @@ const VisaApplication = () => {
             case 1: return <PassportForm {...formikProps} />;
             case 2: return <TravelForm {...formikProps} />;
             case 3: return <DocumentsForm {...formikProps} />;
-            case 4: return <ReviewForm formData={formikProps.values} />; // Review only receives values
+            case 4: return <ReviewForm formData={formikProps.values} />;
             default: return null;
         }
     };
@@ -198,4 +197,4 @@ const VisaApplication = () => {
     );
 };
 
-export default VisaApplication;
+export default VisaApplicationPage;

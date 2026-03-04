@@ -89,7 +89,7 @@ export default function FeaturedDestinations() {
             {/* Background Man Climbing Image (Right Side - hidden on mobile) */}
             <div className="absolute top-0 right-0 hidden md:block md:w-[40%] h-[65%] z-0 pointer-events-none md:opacity-90">
                 <img
-                    src={manClimbing}
+                    src={manClimbing.src}
                     alt="Man Climbing"
                     className="w-full h-full object-contain object-right-top"
                 />

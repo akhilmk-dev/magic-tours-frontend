@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Star, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const FeaturedPackages = () => {
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -53,7 +53,7 @@ const FeaturedPackages = () => {
                     {packages.map((pkg, index) => (
                         <div
                             key={pkg.id || index}
-                            onClick={() => navigate(`/package/${pkg.id}`)}
+                            onClick={() => router.push(`/packages/${pkg.id}`)}
                             className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
                         >
                             <div className="relative h-64 overflow-hidden">

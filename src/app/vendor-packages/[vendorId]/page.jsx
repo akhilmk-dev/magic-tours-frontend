@@ -1,12 +1,15 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { api } from '../api/client';
-import PackageGrid from '../components/Outbound/PackageGrid';
-import FilterSidebar from '../components/Outbound/FilterSidebar';
+import { useParams } from 'next/navigation';
+import { api } from '../../../api/client';
+import PackageGrid from '../../../components/Outbound/PackageGrid';
+import FilterSidebar from '../../../components/Outbound/FilterSidebar';
 import { Loader2 } from 'lucide-react';
 
-const VendorPackages = () => {
-    const { vendorId } = useParams();
+const VendorPackagesPage = () => {
+    const params = useParams();
+    const vendorId = params.vendorId;
     const [packages, setPackages] = useState([]);
     const [vendor, setVendor] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -37,10 +40,11 @@ const VendorPackages = () => {
     }, []);
 
     useEffect(() => {
+        if (!vendorId) return;
         const fetchVendorPackages = async () => {
             setLoading(true);
             try {
-                const params = new URLSearchParams({
+                const queryParams = new URLSearchParams({
                     page: page.toString(),
                     limit: '9',
                     max_price: filters.budget.toString(),
@@ -49,14 +53,14 @@ const VendorPackages = () => {
                 });
 
                 if (filters.region !== 'All Regions') {
-                    params.append('destination_id', filters.region);
+                    queryParams.append('destination_id', filters.region);
                 }
 
                 if (filters.travelType.length > 0) {
-                    params.append('categories', filters.travelType.join(','));
+                    queryParams.append('categories', filters.travelType.join(','));
                 }
 
-                const response = await api.get(`/packages?${params.toString()}`);
+                const response = await api.get(`/packages?${queryParams.toString()}`);
                 setPackages(response.data);
                 setTotalPages(response.pagination.totalPages);
 
@@ -75,7 +79,7 @@ const VendorPackages = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <div className="bg-secondary py-16 px-4">
+            <div className="bg-secondary py-16 px-4 pt-32">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         {vendor ? `Packages by ${vendor.name}` : 'Vendor Packages'}
@@ -118,4 +122,4 @@ const VendorPackages = () => {
     );
 };
 
-export default VendorPackages;
+export default VendorPackagesPage;

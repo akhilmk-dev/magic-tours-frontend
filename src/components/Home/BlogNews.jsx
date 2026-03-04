@@ -71,7 +71,7 @@ export default function BlogNews() {
                             {/* Image Container */}
                             <div className="relative h-[200px] sm:h-[220px] overflow-hidden">
                                 <img
-                                    src={post.image}
+                                    src={post.image.src || post.image}
                                     alt={post.title}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />

@@ -1,16 +1,19 @@
+"use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useCustomerAuth } from '../context/CustomerAuthContext';
-import { api } from '../api/client';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useCustomerAuth } from '../../../context/CustomerAuthContext';
+import { api } from '../../../api/client';
 import {
     Calendar, Users, MapPin, Check, X, Clock,
     ChevronRight, Loader2, Star, Shield, Info,
     Plane, Utensils, Hotel, Camera, ChevronDown, ChevronUp, Car
 } from 'lucide-react';
 
-const PackageDetails = () => {
-    const { id } = useParams();
+const PackageDetailsPage = () => {
+    const params = useParams();
+    const id = params.id;
     const [pkg, setPkg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,9 +34,10 @@ const PackageDetails = () => {
         infant: 0
     });
     const { user } = useCustomerAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
+        if (!id) return;
         const fetchDetails = async () => {
             try {
                 const response = await api.get(`/packages/${id}`);
@@ -73,7 +77,7 @@ const PackageDetails = () => {
         e.preventDefault();
 
         if (!user) {
-            navigate('/login');
+            router.push('/login');
             return;
         }
 
@@ -92,7 +96,9 @@ const PackageDetails = () => {
             setBookingSuccess(true);
         } catch (err) {
             console.error(err);
-            alert('Failed to book. Please try again.');
+            if (typeof window !== 'undefined') {
+                alert('Failed to book. Please try again.');
+            }
         } finally {
             setBookingLoading(false);
         }
@@ -105,6 +111,7 @@ const PackageDetails = () => {
     );
 
     if (error) return <div className="p-20 text-center text-red-500">{error}</div>;
+    if (!pkg) return <div className="p-20 text-center">Package not found</div>;
 
     const inclusions = pkg.inclusions ? (typeof pkg.inclusions === 'string' ? JSON.parse(pkg.inclusions) : pkg.inclusions) : [];
     const exclusions = pkg.exclusions ? (typeof pkg.exclusions === 'string' ? JSON.parse(pkg.exclusions) : pkg.exclusions) : [];
@@ -467,7 +474,7 @@ const PackageDetails = () => {
                                     <div className="flex-grow">
                                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Presented by</span>
                                         <Link
-                                            to={`/vendor-packages/${pkg.vendor.id}`}
+                                            href={`/vendor-packages/${pkg.vendor.id}`}
                                             className="text-secondary font-black hover:text-primary transition-colors flex items-center gap-1"
                                         >
                                             {pkg.vendor.name}
@@ -484,4 +491,4 @@ const PackageDetails = () => {
     );
 };
 
-export default PackageDetails;
+export default PackageDetailsPage;

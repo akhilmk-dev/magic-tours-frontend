@@ -1,6 +1,6 @@
 import React from 'react';
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin, Twitter } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 // Import assets
 import logo from '../../assets/logo.png';
@@ -19,8 +19,8 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand */}
                     <div className="flex flex-col gap-8">
-                        <Link to="/" className="flex items-center">
-                            <img src={logo} alt="Magic Tours Logo" className="h-16 w-auto object-contain" />
+                        <Link href="/" className="flex items-center">
+                            <img src={logo.src} alt="Magic Tours Logo" className="h-16 w-auto object-contain" />
                         </Link>
 
                         <div className="flex gap-3">
@@ -57,11 +57,11 @@ export default function Footer() {
                     <div>
                         <h4 className="text-xl font-bold text-secondary mb-8 font-heading">Quick Links</h4>
                         <ul className="space-y-4">
-                            <li><Link to="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Company Registration</Link></li>
-                            <li><Link to="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Hotels</Link></li>
-                            <li><Link to="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Transport</Link></li>
-                            <li><Link to="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Tour Operators</Link></li>
-                            <li><Link to="/contact" className="text-gray-500 hover:text-primary transition-colors text-sm">Get In Touch</Link></li>
+                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Company Registration</Link></li>
+                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Hotels</Link></li>
+                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Transport</Link></li>
+                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Tour Operators</Link></li>
+                            <li><Link href="/contact" className="text-gray-500 hover:text-primary transition-colors text-sm">Get In Touch</Link></li>
                         </ul>
                     </div>
 
@@ -78,7 +78,7 @@ export default function Footer() {
                                 <p className="text-secondary font-bold text-sm">+974 445 77 300</p>
                             </div>
                             <div className="pt-2">
-                                <img src={iataLogo} alt="IATA logo" className="h-10 w-auto object-contain opacity-80" />
+                                <img src={iataLogo.src} alt="IATA logo" className="h-10 w-auto object-contain opacity-80" />
                             </div>
                         </div>
                     </div>
@@ -90,11 +90,11 @@ export default function Footer() {
                         Copyright - ©2026 Design & Developed with intertoons
                     </p>
                     <div className="flex flex-wrap justify-center gap-6 text-[11px] font-bold text-secondary uppercase tracking-wider">
-                        <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-                        <Link to="/about" className="hover:text-primary transition-colors">About</Link>
-                        <Link to="/services" className="hover:text-primary transition-colors">Services</Link>
-                        <Link to="/faq" className="hover:text-primary transition-colors">Faq</Link>
-                        <Link to="/blog" className="hover:text-primary transition-colors">Blog</Link>
+                        <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+                        <Link href="/about" className="hover:text-primary transition-colors">About</Link>
+                        <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
+                        <Link href="/faq" className="hover:text-primary transition-colors">Faq</Link>
+                        <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
                     </div>
                 </div>
             </div>

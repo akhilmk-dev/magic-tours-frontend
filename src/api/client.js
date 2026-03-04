@@ -2,8 +2,13 @@ const API_URL = 'https://magic-apis.staff-b0c.workers.dev';
 
 class ApiClient {
     constructor() {
-        this.accessToken = localStorage.getItem('accessToken');
-        this.refreshToken = localStorage.getItem('refreshToken');
+        if (typeof window !== 'undefined') {
+            this.accessToken = localStorage.getItem('accessToken');
+            this.refreshToken = localStorage.getItem('refreshToken');
+        } else {
+            this.accessToken = null;
+            this.refreshToken = null;
+        }
     }
 
     async request(endpoint, options = {}) {
@@ -61,13 +66,17 @@ class ApiClient {
     setTokens(accessToken, refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+        }
     }
 
     setAccessToken(accessToken) {
         this.accessToken = accessToken;
-        localStorage.setItem('accessToken', accessToken);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', accessToken);
+        }
     }
 
     async logout() {
@@ -84,10 +93,12 @@ class ApiClient {
         }
         this.accessToken = null;
         this.refreshToken = null;
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
     }
 
     get(endpoint) { return this.request(endpoint, { method: 'GET' }); }

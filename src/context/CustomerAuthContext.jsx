@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { api } from '../api/client';
 
 const CustomerAuthContext = createContext(null);
@@ -98,16 +99,16 @@ export const useCustomerAuth = () => {
 
 export const ProtectedRoute = ({ children }) => {
     const { user, loading } = useCustomerAuth();
+    const router = useRouter();
 
-    // We need to handle the loading state, otherwise we might redirect before auth check completes
-    if (loading) {
+    useEffect(() => {
+        if (!loading && !user) {
+            router.replace('/login');
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user) {
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
-    }
-
-    if (!user) {
-        // Redirect to login but save the current location they were trying to go to
-        // We can access this via location.state in the login page if needed
-        return <Navigate to="/login" replace />;
     }
 
     return children;

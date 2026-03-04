@@ -61,7 +61,7 @@ const SpecialOffer = () => {
                         <div className="w-full lg:w-1/2 relative flex items-start justify-center pt-0 self-start min-h-[250px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[450px]">
 
                             <img
-                                src={planeRoute}
+                                src={planeRoute.src || planeRoute}
                                 alt=""
                                 className="absolute -left-[20%] sm:-left-[30%] lg:-left-[40%] xl:-left-[50%] -bottom-[10%] lg:-bottom-[15%] xl:-bottom-[20%] w-[100%] sm:w-[90%] opacity-100 pointer-events-none z-0"
                                 aria-hidden="true"
@@ -69,21 +69,21 @@ const SpecialOffer = () => {
 
                             {/* Offer Badge - Positioned accurately on traveler's shoulder */}
                             <img
-                                src={offerBadge}
+                                src={offerBadge.src || offerBadge}
                                 alt="Great Deals"
                                 className="absolute top-[5%] left-0 sm:left-[5%] w-20 sm:w-24 md:w-28 lg:w-32 xl:w-36 z-30 animate-pulse-subtle"
                             />
 
                             {/* Travel Bag (Background part) */}
                             <img
-                                src={travelBag}
+                                src={travelBag.src || travelBag}
                                 alt="Travel Bag"
                                 className="absolute right-0 top-0 w-[30%] sm:w-[35%] md:w-[40%] lg:w-[45%] xl:w-[50%] z-10"
                             />
 
                             {/* Travel Boy (Foreground, Overlapping) */}
                             <img
-                                src={travelBoy}
+                                src={travelBoy.src || travelBoy}
                                 alt="Happy Traveler"
                                 className="relative z-20 w-[60%] sm:w-[65%] md:w-[70%] lg:w-[85%] xl:w-[90%] transform translate-y-0"
                             />

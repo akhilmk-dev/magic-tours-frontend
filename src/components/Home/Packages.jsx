@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Loader2, Plane, Calendar, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 export default function Packages() {
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -65,7 +65,7 @@ export default function Packages() {
                     {packages.map((pkg) => (
                         <div
                             key={pkg.id}
-                            onClick={() => navigate(`/packages/${pkg.id}`)}
+                            onClick={() => router.push(`/packages/${pkg.id}`)}
                             className="bg-white rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden group hover:-translate-y-3 transition-all duration-500 cursor-pointer border border-white"
                         >
                             {/* Card Image */}

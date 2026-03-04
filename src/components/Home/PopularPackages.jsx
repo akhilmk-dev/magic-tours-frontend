@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plane, Star, Calendar, MapPin } from 'lucide-react';

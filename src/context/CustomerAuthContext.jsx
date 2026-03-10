@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../api/client';
 
@@ -15,10 +15,6 @@ export const CustomerAuthProvider = ({ children }) => {
         // align with api/client.js which clears 'user' on logout
         const storedUser = localStorage.getItem('user');
 
-        // We don't need to manually check tokens here because api/client.js 
-        // initializes itself from localStorage. 
-        // If the token is invalid, the first API call will trigger logout().
-
         if (storedUser) {
             try {
                 setUser(JSON.parse(storedUser));
@@ -30,17 +26,14 @@ export const CustomerAuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (email, password) => {
+    const login = useCallback(async (email, password) => {
         try {
             const response = await api.post('/customers/login', { email, password });
-            // API returns { user, accessToken, refreshToken }
             const { user, accessToken, refreshToken } = response.data || response;
 
-            // Update user state
             setUser(user);
             localStorage.setItem('user', JSON.stringify(user));
 
-            // Delegate token storage to API client
             if (api.setTokens) {
                 api.setTokens(accessToken, refreshToken);
             } else {
@@ -55,9 +48,9 @@ export const CustomerAuthProvider = ({ children }) => {
                 error: error.response?.data?.error || error.message || 'Login failed'
             };
         }
-    };
+    }, []);
 
-    const register = async (userData) => {
+    const register = useCallback(async (userData) => {
         try {
             await api.post('/customers/register', userData);
             return { success: true };
@@ -68,29 +61,27 @@ export const CustomerAuthProvider = ({ children }) => {
                 error: error.response?.data?.error || error.message || 'Registration failed'
             };
         }
-    };
+    }, []);
 
-    const openAuthModal = (view = 'login') => {
+    const openAuthModal = useCallback((view = 'login') => {
         setAuthModalView(view);
         setIsAuthModalOpen(true);
-    };
+    }, []);
 
-    const closeAuthModal = () => {
+    const closeAuthModal = useCallback(() => {
         setIsAuthModalOpen(false);
-    };
+    }, []);
 
-    const logout = async () => {
-        // Use API client's logout to hit server endpoint and clear all keys
+    const logout = useCallback(async () => {
         if (api.logout) {
             await api.logout();
         } else {
-            // Fallback if client method missing
             localStorage.removeItem('user');
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
         }
         setUser(null);
-    };
+    }, []);
 
     return (
         <CustomerAuthContext.Provider value={{
@@ -111,37 +102,25 @@ export const useCustomerAuth = () => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-    const { user, loading, openAuthModal } = useCustomerAuth();
+    const { user, loading, isAuthModalOpen, openAuthModal } = useCustomerAuth();
     const router = useRouter();
+    const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
-            openAuthModal('login');
+            if (!isAuthModalOpen && !hasAttemptedAuth) {
+                openAuthModal('login');
+                setHasAttemptedAuth(true); // Mark that we've prompted them
+            } else if (!isAuthModalOpen && hasAttemptedAuth) {
+                // If they closed the modal without logging in, send them to home
+                router.push('/');
+            }
         }
-    }, [user, loading, openAuthModal]);
+    }, [user, loading, isAuthModalOpen, hasAttemptedAuth, openAuthModal, router]);
 
-    if (loading) {
+    // Show a blank loading screen while evaluating or bouncing back to home
+    if (loading || !user) {
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
-    }
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50 pt-20">
-                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-2">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <h2 className="text-2xl font-bold text-secondary">Authentication Required</h2>
-                <p className="text-gray-500 max-w-md text-center">You need to be logged in to view this page. Please sign in to continue.</p>
-                <div className="flex gap-3 mt-4">
-                    <button onClick={() => openAuthModal('login')} className="px-6 py-2.5 bg-primary hover:bg-primary-dark transition-colors text-white rounded-xl font-bold text-sm">
-                        Sign In
-                    </button>
-                    <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 transition-colors text-gray-700 rounded-xl font-bold text-sm">
-                        Back to Home
-                    </button>
-                </div>
-            </div>
-        );
     }
 
     return children;

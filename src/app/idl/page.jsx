@@ -115,10 +115,11 @@ const emptyDriver = {
 const IDLPage = () => {
     const { success, error: toastError } = useToast();
     const router = useRouter();
-    const { user, loading: authLoading, openAuthModal } = useCustomerAuth();
+    const { user, loading: authLoading, isAuthModalOpen, openAuthModal } = useCustomerAuth();
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -127,9 +128,15 @@ const IDLPage = () => {
     // Auth guard — open modal if not authenticated
     useEffect(() => {
         if (isMounted && !authLoading && !user) {
-            openAuthModal('login');
+            if (!isAuthModalOpen && !hasAttemptedAuth) {
+                openAuthModal('login');
+                setHasAttemptedAuth(true); // Mark that we've prompted them
+            } else if (!isAuthModalOpen && hasAttemptedAuth) {
+                // If they closed the modal without logging in, send them to home
+                router.push('/');
+            }
         }
-    }, [isMounted, authLoading, user, openAuthModal]);
+    }, [isMounted, authLoading, user, isAuthModalOpen, hasAttemptedAuth, openAuthModal, router]);
 
     if (!isMounted || (isMounted && authLoading)) {
         return (

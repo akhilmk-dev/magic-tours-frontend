@@ -9,7 +9,7 @@ import image3 from '../../assets/Rectangle 640.png';
 import backgroundNew from '../../assets/Background new.png';
 import shapeImg from '../../assets/shape.png';
 
-const slides = [
+const staticSlides = [
     {
         id: 1,
         image: image1,
@@ -44,9 +44,39 @@ const slides = [
     }
 ];
 
-export default function Hero() {
+const HeroSkeleton = () => (
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-900 animate-pulse">
+        <div className="absolute inset-0 z-0 bg-slate-800/50" />
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-20 pb-32 flex flex-col justify-center">
+            <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
+                <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%]">
+                    <div className="h-4 w-32 bg-slate-700/50 rounded mb-4" />
+                    <div className="h-16 sm:h-24 w-full bg-slate-700/50 rounded mb-6" />
+                    <div className="h-4 w-3/4 bg-slate-700/50 rounded mb-8" />
+                    <div className="h-14 w-40 bg-slate-700/50 rounded-full" />
+                </div>
+                <div className="hidden lg:flex gap-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="w-28 lg:w-32 xl:w-44 h-36 lg:h-44 xl:h-56 bg-slate-800/50 rounded-xl border border-slate-700/50" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+export default function Hero({ slides: apiSlides, loading }) {
+    if (loading) return <HeroSkeleton />;
+    const slides = apiSlides && apiSlides.length > 0 ? apiSlides : staticSlides;
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+    // Clamp currentSlide if API slides arrive with fewer items than static slides
+    useEffect(() => {
+        if (currentSlide >= slides.length) {
+            setCurrentSlide(0);
+        }
+    }, [slides.length]);
 
     useEffect(() => {
         if (!isAutoPlaying) return;
@@ -54,7 +84,7 @@ export default function Hero() {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 6000);
         return () => clearInterval(interval);
-    }, [isAutoPlaying]);
+    }, [isAutoPlaying, slides.length]);
 
     const nextSlide = () => {
         setIsAutoPlaying(false);
@@ -117,7 +147,7 @@ export default function Hero() {
                     <div className="flex gap-2 lg:gap-3 xl:gap-4 overflow-visible">
                         {getNextSlides().map((slideIndex, i) => (
                             <motion.div
-                                key={slides[slideIndex].id}
+                                key={slideIndex}
                                 initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.5, delay: i * 0.1 }}
@@ -130,8 +160,8 @@ export default function Hero() {
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 lg:p-3 xl:p-4 flex flex-col justify-end">
-                                    <p className="text-white/60 text-[7px] lg:text-[8px] xl:text-[10px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
-                                    <h4 className="text-white font-bold text-[9px] lg:text-[10px] xl:text-sm leading-tight font-display uppercase">{slides[slideIndex].title} {slides[slideIndex].subtitle}</h4>
+                                    <p className="text-white/60 text-[7px] lg:text-[8px] xl:text-[10px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location?.split(' - ')[1] || slides[slideIndex].location}</p>
+                                    <h4 className="text-white font-bold text-[9px] lg:text-[10px] xl:text-sm leading-tight font-display uppercase">{slides[slideIndex].title} {slides[slideIndex].subtitle || ''}</h4>
                                 </div>
                             </motion.div>
                         ))}
@@ -215,7 +245,7 @@ export default function Hero() {
                         <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto w-full px-2 sm:px-4 no-scrollbar pb-1 snap-x">
                             {getNextSlides().map((slideIndex, i) => (
                                 <motion.div
-                                    key={`mobile-mini-${slides[slideIndex].id}`}
+                                    key={`mobile-mini-${slideIndex}`}
                                     onClick={() => goToSlide(slideIndex)}
                                     className="w-24 h-32 sm:w-28 sm:h-36 md:w-36 md:h-44 rounded-lg sm:rounded-xl overflow-hidden relative cursor-pointer group shrink-0 shadow-lg border border-white/10 snap-center"
                                 >
@@ -225,7 +255,7 @@ export default function Hero() {
                                         className="w-full h-full object-cover"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 sm:p-3 flex flex-col justify-end">
-                                        <p className="text-white/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location.split(' - ')[1]}</p>
+                                        <p className="text-white/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider mb-0.5">{slides[slideIndex].location?.split(' - ')[1] || slides[slideIndex].location}</p>
                                         <h4 className="text-white font-bold text-[9px] sm:text-[10px] leading-tight font-display uppercase">{slides[slideIndex].title}</h4>
                                     </div>
                                 </motion.div>

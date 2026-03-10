@@ -7,7 +7,7 @@ import cruiseBg from '../../assets/Cruise.png';
 import luxuryCruiseImg from '../../assets/Image 2.png';
 import adventureCruiseImg from '../../assets/Image 3.png';
 
-const cruiseCategories = [
+const staticCruiseCategories = [
     {
         id: 1,
         title: "Luxury Cruise",
@@ -20,10 +20,42 @@ const cruiseCategories = [
     }
 ];
 
-// Duplicate data for infinite loop
-const extendedData = [...cruiseCategories, ...cruiseCategories, ...cruiseCategories, ...cruiseCategories];
+const CruiseCategoriesSkeleton = () => (
+    <section className="relative min-h-[500px] lg:min-h-[700px] flex items-center overflow-hidden py-10 lg:py-16 bg-slate-900 animate-pulse">
+        <div className="container mx-auto px-4 lg:px-12 relative z-10">
+            <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center">
+                <div className="w-full lg:w-2/5">
+                    <div className="h-10 w-32 bg-slate-800/50 rounded-full mb-6" />
+                    <div className="h-12 w-full bg-slate-800/50 rounded mb-4" />
+                    <div className="h-12 w-3/4 bg-slate-800/50 rounded mb-6" />
+                    <div className="h-4 w-full bg-slate-800/50 rounded mb-8" />
+                    <div className="h-14 w-40 bg-slate-800/50 rounded-xl" />
+                </div>
+                <div className="w-full lg:flex-1 flex gap-4 overflow-hidden">
+                    {[1, 2].map(i => (
+                        <div key={i} className="bg-slate-800/50 p-4 rounded-[2.5rem] w-[310px] h-[450px] shrink-0">
+                            <div className="rounded-[2rem] bg-slate-700/50 w-full h-full" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+);
 
-export default function CruiseCategories() {
+export default function CruiseCategories({ cruises: apiCruises, loading }) {
+    if (loading) return <CruiseCategoriesSkeleton />;
+    const cruiseCategories = apiCruises && apiCruises.length > 0
+        ? apiCruises.map(c => ({
+            id: c.id,
+            title: c.name,
+            image: c.images && c.images.length > 0 ? c.images[0] : (luxuryCruiseImg.src || luxuryCruiseImg)
+        }))
+        : staticCruiseCategories;
+
+    // Duplicate data for infinite loop
+    const extendedData = [...cruiseCategories, ...cruiseCategories, ...cruiseCategories, ...cruiseCategories];
+
     const [currentIndex, setCurrentIndex] = useState(cruiseCategories.length);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
     const isTransitioning = useRef(false);

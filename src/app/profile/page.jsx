@@ -44,9 +44,12 @@ const ProfilePage = () => {
         return (
             <div className="min-h-screen flex items-center justify-center flex-col gap-4">
                 <p className="text-gray-500">Please log in to view your profile.</p>
-                <Link href="/login" className="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm">
-                    Go to Login
-                </Link>
+                <button
+                    onClick={() => openAuthModal('login')}
+                    className="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
+                >
+                    Sign In
+                </button>
             </div>
         );
     }

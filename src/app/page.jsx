@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Hero from '../components/Home/Hero';
 import Destinations from '../components/Home/Destinations';
 import About from '../components/Home/About';
@@ -18,24 +18,37 @@ import AdventureSection from '../components/Home/AdventureSection';
 import GalleryLoop from '../components/Home/GalleryLoop';
 
 export default function Home() {
+    const [homeData, setHomeData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('https://magic-apis.staff-b0c.workers.dev/homepage')
+            .then(res => res.json())
+            .then(result => {
+                if (result.data) setHomeData(result.data);
+            })
+            .catch(err => console.error("Error fetching home data:", err))
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <main className="overflow-x-hidden">
-            <Hero />
+            <Hero slides={homeData?.hero_slides} loading={loading} />
             <Destinations />
             <About />
-            <PopularPackages />
-            <CruiseCategories />
-            <HotelPackages />
+            <PopularPackages packages={homeData?.packages} loading={loading} />
+            <CruiseCategories cruises={homeData?.cruises} loading={loading} />
+            <HotelPackages hotels={homeData?.hotels} loading={loading} />
             <WondersOfQatar />
-            <PrivateJet />
+            <PrivateJet jets={homeData?.private_jets} loading={loading} />
             <VisaServices />
             <FeaturedDestinations />
-            <Gallery />
-            <Testimonials />
+            <Gallery images={homeData?.gallery_images} loading={loading} />
+            <Testimonials testimonials={homeData?.testimonials} loading={loading} />
             <SpecialOffer />
             <BlogNews />
             <AdventureSection />
-            <GalleryLoop />
+            <GalleryLoop images={homeData?.bottom_slider_images} loading={loading} />
         </main>
     );
 }

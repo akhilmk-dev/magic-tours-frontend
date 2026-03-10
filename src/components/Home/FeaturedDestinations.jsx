@@ -1,11 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Star, Loader2 } from 'lucide-react';
-import { api } from '../../api/client';
 import manClimbing from '../../assets/manClimbing.png';
+
+const FeaturedDestinationsSkeleton = () => (
+    <section className="py-8 sm:py-10 md:py-12 bg-slate-900 relative overflow-hidden text-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] mx-2 sm:mx-4 md:mx-10 my-6 md:my-10 animate-pulse">
+        <div className="container mx-auto px-4 md:px-10 lg:px-16 relative z-10">
+            <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-8">
+                <div className="w-full md:w-1/2 pt-3">
+                    <div className="h-10 w-48 bg-slate-800/50 rounded mb-4" />
+                    <div className="h-4 w-full bg-slate-800/50 rounded mb-2" />
+                    <div className="h-4 w-3/4 bg-slate-800/50 rounded mb-6" />
+                    <div className="h-12 w-48 bg-slate-800/50 rounded-full" />
+                </div>
+                <div className="w-full md:w-1/2 flex flex-col items-end gap-4">
+                    <div className="h-16 w-32 bg-slate-800/50 rounded" />
+                    <div className="h-16 w-64 bg-slate-800/50 rounded" />
+                </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="bg-slate-700/50 rounded-[2rem] h-[350px]" />
+                ))}
+            </div>
+        </div>
+    </section>
+);
 
 export default function FeaturedDestinations() {
     const [destinations, setDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
+    // ... rest of the state
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(4);
@@ -22,12 +46,21 @@ export default function FeaturedDestinations() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch destinations from backend
+    // Dynamic clone offset based on available items (max 4)
+    const cloneOffset = Math.min(4, destinations.length);
+
     useEffect(() => {
         const fetchDestinations = async () => {
             try {
-                const res = await api.get('/destinations?status=Active&limit=10');
-                setDestinations(res.data || []);
+                const res = await fetch('https://magic-apis.staff-b0c.workers.dev/destinations?status=Active&limit=10');
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        console.warn('Destinations API returned 401. This endpoint might actually require authentication despite being on the home page.');
+                    }
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                setDestinations(data.data || []);
             } catch (err) {
                 console.error('Failed to fetch destinations:', err);
             } finally {
@@ -36,9 +69,6 @@ export default function FeaturedDestinations() {
         };
         fetchDestinations();
     }, []);
-
-    // Dynamic clone offset based on available items (max 4)
-    const cloneOffset = Math.min(4, destinations.length);
 
     const displayItems = destinations.length > 0
         ? [...destinations.slice(-cloneOffset), ...destinations, ...destinations.slice(0, cloneOffset)]
@@ -74,13 +104,7 @@ export default function FeaturedDestinations() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="py-24 bg-brand-magic flex justify-center items-center">
-                <Loader2 className="animate-spin text-[#FFA500]" size={40} />
-            </div>
-        );
-    }
+    if (loading) return <FeaturedDestinationsSkeleton />;
 
     if (destinations.length === 0) return null;
 

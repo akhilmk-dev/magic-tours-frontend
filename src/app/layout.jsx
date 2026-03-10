@@ -5,6 +5,7 @@ import { CustomerAuthProvider } from '../context/CustomerAuthContext';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import ChatWidget from '../components/Chat/ChatWidget';
+import AuthModal from '../components/common/AuthModal';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
             <body className="font-sans text-slate-900 antialiased min-h-screen flex flex-col">
                 <ToastProvider>
                     <CustomerAuthProvider>
+                        <AuthModal />
                         <Navbar />
                         <div className="flex-1">
                             {children}

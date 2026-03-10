@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plane } from 'lucide-react';
 
-const galleryItems = [
+const staticGalleryItems = [
     {
         id: 1,
         image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
@@ -39,7 +39,45 @@ const galleryItems = [
     }
 ];
 
-export default function Gallery() {
+const GallerySkeleton = () => (
+    <section className="py-10 md:py-14 bg-white animate-pulse">
+        <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+                <div className="h-10 w-40 bg-gray-100 rounded-full mx-auto mb-4" />
+                <div className="h-12 w-64 bg-gray-100 rounded mx-auto" />
+            </div>
+            <div className="flex justify-center gap-6 h-[400px]">
+                <div className="w-40 bg-gray-100 rounded-[2rem]" />
+                <div className="flex flex-col gap-4 w-44">
+                    <div className="h-1/2 bg-gray-100 rounded-[2rem]" />
+                    <div className="h-1/2 bg-gray-100 rounded-[2rem]" />
+                </div>
+                <div className="w-52 bg-gray-100 rounded-[2.5rem]" />
+                <div className="flex flex-col gap-4 w-44">
+                    <div className="h-1/2 bg-gray-100 rounded-[2rem]" />
+                    <div className="h-1/2 bg-gray-100 rounded-[2rem]" />
+                </div>
+                <div className="w-40 bg-gray-100 rounded-[2rem]" />
+            </div>
+        </div>
+    </section>
+);
+
+export default function Gallery({ images: apiImages, loading }) {
+    if (loading) return <GallerySkeleton />;
+    let galleryItems = staticGalleryItems;
+    if (apiImages && apiImages.length > 0) {
+        const mappedImages = apiImages.map((img, idx) => ({
+            id: idx + 1,
+            image: img,
+            alt: `Gallery image ${idx + 1}`
+        }));
+        if (mappedImages.length >= 7) {
+            galleryItems = mappedImages;
+        } else {
+            galleryItems = [...mappedImages, ...staticGalleryItems.slice(mappedImages.length)];
+        }
+    }
     return (
         <section className="py-10 md:py-14 bg-white overflow-hidden">
             <div className="container mx-auto px-4">

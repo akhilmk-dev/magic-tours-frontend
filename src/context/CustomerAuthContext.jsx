@@ -8,6 +8,8 @@ const CustomerAuthContext = createContext(null);
 export const CustomerAuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authModalView, setAuthModalView] = useState('login'); // 'login' or 'register'
 
     useEffect(() => {
         // align with api/client.js which clears 'user' on logout
@@ -68,6 +70,15 @@ export const CustomerAuthProvider = ({ children }) => {
         }
     };
 
+    const openAuthModal = (view = 'login') => {
+        setAuthModalView(view);
+        setIsAuthModalOpen(true);
+    };
+
+    const closeAuthModal = () => {
+        setIsAuthModalOpen(false);
+    };
+
     const logout = async () => {
         // Use API client's logout to hit server endpoint and clear all keys
         if (api.logout) {
@@ -77,13 +88,15 @@ export const CustomerAuthProvider = ({ children }) => {
             localStorage.removeItem('user');
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
-            window.location.href = '/login';
         }
         setUser(null);
     };
 
     return (
-        <CustomerAuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <CustomerAuthContext.Provider value={{
+            user, login, register, logout, loading,
+            isAuthModalOpen, authModalView, openAuthModal, closeAuthModal
+        }}>
             {children}
         </CustomerAuthContext.Provider>
     );
@@ -98,14 +111,15 @@ export const useCustomerAuth = () => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-    const { user, loading } = useCustomerAuth();
+    const { user, loading, openAuthModal } = useCustomerAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!loading && !user) {
-            router.replace('/login');
+            openAuthModal('login');
+            router.replace('/'); // Redirect to home so the protected page doesn't break
         }
-    }, [user, loading, router]);
+    }, [user, loading, router, openAuthModal]);
 
     if (loading || !user) {
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;

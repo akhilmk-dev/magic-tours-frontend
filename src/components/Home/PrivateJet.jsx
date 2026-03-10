@@ -5,7 +5,7 @@ import { Plane, ArrowRight, MapPin, Shield, ArrowUpRight } from 'lucide-react';
 import airplaneBg from '../../assets/airoplane.png';
 import flightImg from '../../assets/flight.png';
 
-const slides = [
+const staticSlides = [
     {
         id: 1,
         image: flightImg.src || flightImg,
@@ -20,12 +20,56 @@ const slides = [
     },
 ];
 
-const PrivateJet = () => {
+const PrivateJetSkeleton = () => (
+    <section className="relative min-h-[500px] lg:min-h-[700px] flex items-center overflow-hidden py-10 lg:py-16 bg-slate-50 animate-pulse">
+        <div className="container mx-auto px-4 lg:px-12 relative z-10">
+            <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 xl:gap-24">
+                <div className="flex-1">
+                    <div className="h-10 w-32 bg-slate-100 rounded-full mb-6" />
+                    <div className="h-12 w-full bg-slate-100 rounded mb-4" />
+                    <div className="h-12 w-3/4 bg-slate-100 rounded mb-6" />
+                    <div className="h-4 w-full bg-slate-100 rounded mb-3" />
+                    <div className="h-4 w-5/6 bg-slate-100 rounded mb-8" />
+                    <div className="space-y-6">
+                        {[1, 2].map(i => (
+                            <div key={i} className="flex gap-4">
+                                <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0" />
+                                <div className="flex-1">
+                                    <div className="h-4 w-32 bg-slate-100 rounded mb-2" />
+                                    <div className="h-3 w-full bg-slate-100 rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="w-full sm:w-[340px] md:w-[380px] lg:w-[360px] xl:w-[400px] bg-slate-100 rounded-3xl h-[450px]" />
+            </div>
+        </div>
+    </section>
+);
+
+const PrivateJet = ({ jets: apiJets, loading }) => {
+    if (loading) return <PrivateJetSkeleton />;
+    const slides = apiJets && apiJets.length > 0
+        ? apiJets.map(j => ({
+            id: j.id,
+            image: j.images && j.images.length > 0 ? j.images[0] : (flightImg.src || flightImg),
+            title: j.name,
+            description: j.description
+        }))
+        : staticSlides;
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    // Clamp currentSlide if slides array shrinks when API data arrives
+    useEffect(() => {
+        if (currentSlide >= slides.length) {
+            setCurrentSlide(0);
+        }
+    }, [slides.length]);
 
     const nextSlide = useCallback(() => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, []);
+    }, [slides.length]);
 
     // Autoplay
     useEffect(() => {

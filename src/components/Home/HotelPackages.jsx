@@ -12,7 +12,7 @@ import hotel6 from '../../assets/hotel6.png';
 import hotel7 from '../../assets/hotel7.png';
 import hotel8 from '../../assets/hotel8.png';
 
-const hotels = [
+const staticHotels = [
     {
         id: 1,
         image: hotel1.src || hotel1,
@@ -97,6 +97,29 @@ const hotels = [
     }
 ];
 
+const HotelPackagesSkeleton = () => (
+    <section className="py-20 bg-slate-50 animate-pulse">
+        <div className="container mx-auto px-4 md:px-12 lg:px-16">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <div className="h-10 w-40 bg-slate-100 rounded-full mb-6" />
+                    <div className="h-12 w-96 bg-slate-100 rounded mb-3" />
+                    <div className="h-10 w-80 bg-slate-100 rounded" />
+                </div>
+                <div className="h-14 w-44 bg-slate-100 rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
+                <div className="bg-slate-100 rounded-3xl h-full" />
+                <div className="grid grid-cols-2 gap-6">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="bg-slate-100 rounded-3xl h-full" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
 const HotelCard = ({ hotel, className = "" }) => (
     <div className={`relative rounded-3xl overflow-hidden group cursor-pointer ${className}`}>
         <img
@@ -136,19 +159,47 @@ const HotelCard = ({ hotel, className = "" }) => (
     </div>
 );
 
-export default function HotelPackages() {
+export default function HotelPackages({ hotels: apiHotels, loading }) {
+    if (loading) return <HotelPackagesSkeleton />;
+    const hotels = apiHotels && apiHotels.length > 0
+        ? apiHotels.map((h, idx) => {
+            let hotelImages = [];
+            try {
+                hotelImages = typeof h.images === 'string' ? JSON.parse(h.images) : h.images;
+            } catch (e) {
+                console.error("Error parsing hotel images:", e);
+            }
+            return {
+                id: h.id,
+                image: (hotelImages && hotelImages.length > 0) ? hotelImages[0] : hotel1,
+                location: h.address,
+                title: h.name,
+                desc: h.description,
+                isLarge: idx % 5 === 0 // Make every 5th item large to maintain layout
+            };
+        })
+        : staticHotels;
+
     const [currentIndex, setCurrentIndex] = useState(0);
-    const slides = [
-        hotels.slice(0, 5),
-        hotels.slice(5, 10)
-    ];
+    const slides = [];
+    for (let i = 0; i < hotels.length; i += 5) {
+        slides.push(hotels.slice(i, i + 5));
+    }
+
+    // Clamp currentIndex if slides array shrinks when API data arrives
+    useEffect(() => {
+        if (slides.length > 0 && currentIndex >= slides.length) {
+            setCurrentIndex(0);
+        }
+    }, [slides.length]);
 
     useEffect(() => {
+        if (slides.length <= 1) return;
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % slides.length);
         }, 6000);
         return () => clearInterval(interval);
-    }, []);
+    }, [slides.length]);
 
     return (
         <section className="py-20 bg-white overflow-hidden">

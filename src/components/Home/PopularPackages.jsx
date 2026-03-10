@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plane, Star, Calendar, MapPin } from 'lucide-react';
 
-const packageData = [
+const staticPackageData = [
     {
         id: 1,
         title: "South Korea",
@@ -49,10 +49,54 @@ const packageData = [
     }
 ];
 
-// 5 sets for a massive buffer to ensure perfectly seamless looping
-const extendedData = [...packageData, ...packageData, ...packageData, ...packageData, ...packageData];
+const PopularPackagesSkeleton = () => (
+    <section className="py-16 bg-white animate-pulse">
+        <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+                <div className="h-8 w-32 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="h-10 w-64 bg-gray-200 rounded mx-auto mb-4" />
+                <div className="h-4 w-96 bg-gray-200 rounded mx-auto" />
+            </div>
+            <div className="flex justify-center gap-6 overflow-hidden">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="w-[320px] h-[560px] bg-gray-100 rounded-[2rem] flex flex-col">
+                        <div className="h-[40%] bg-gray-200" />
+                        <div className="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div className="h-6 w-3/4 bg-gray-200 rounded mb-4" />
+                                <div className="h-4 w-full bg-gray-200 rounded mb-2" />
+                                <div className="h-4 w-5/6 bg-gray-200 rounded" />
+                            </div>
+                            <div className="flex justify-between items-end">
+                                <div className="h-8 w-24 bg-gray-200 rounded" />
+                                <div className="h-10 w-24 bg-gray-200 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+);
 
-export default function PopularPackages() {
+export default function PopularPackages({ packages: apiPackages, loading }) {
+    if (loading) return <PopularPackagesSkeleton />;
+    const packageData = apiPackages && apiPackages.length > 0
+        ? apiPackages.map(p => ({
+            id: p.id,
+            title: p.title,
+            location: p.location,
+            duration: p.duration,
+            type: p.category,
+            price: p.price,
+            description: p.description,
+            image: p.image
+        }))
+        : staticPackageData;
+
+    // 5 sets for a massive buffer to ensure perfectly seamless looping
+    const extendedData = [...packageData, ...packageData, ...packageData, ...packageData, ...packageData];
+
     // Start at the beginning of the 3rd (middle) set
     const [currentIndex, setCurrentIndex] = useState(packageData.length * 2);
     const isTransitioning = useRef(false);

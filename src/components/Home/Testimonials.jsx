@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, Quote, Plane } from 'lucide-react';
 
-const reviews = [
+const staticReviews = [
     {
         id: 1,
         name: 'Kabin Martin',
@@ -32,7 +32,44 @@ const reviews = [
     }
 ];
 
-export default function Testimonials() {
+const TestimonialsSkeleton = () => (
+    <section className="py-12 md:py-16 bg-slate-50 animate-pulse">
+        <div className="container mx-auto px-4 text-center">
+            <div className="h-10 w-40 bg-slate-100 rounded-full mx-auto mb-6" />
+            <div className="h-12 w-96 bg-slate-100 rounded mx-auto mb-12" />
+            <div className="flex justify-center gap-8 overflow-hidden">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="w-[350px] bg-slate-100/50 rounded-[2rem] p-8 border border-slate-100 shrink-0">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-16 h-16 rounded-full bg-slate-100" />
+                            <div className="flex-1">
+                                <div className="h-4 w-24 bg-slate-100 rounded mb-2" />
+                                <div className="h-3 w-16 bg-slate-100 rounded" />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="h-3 w-full bg-slate-100 rounded" />
+                            <div className="h-3 w-full bg-slate-100 rounded" />
+                            <div className="h-3 w-3/4 bg-slate-100 rounded mx-auto" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+);
+
+export default function Testimonials({ testimonials: apiTestimonials, loading }) {
+    if (loading) return <TestimonialsSkeleton />;
+    const reviews = apiTestimonials && apiTestimonials.length > 0
+        ? apiTestimonials.map(t => ({
+            id: t.id,
+            name: t.customer_name,
+            role: t.customer_role,
+            image: t.customer_image,
+            text: t.review_text
+        }))
+        : staticReviews;
     const [currentIndex, setCurrentIndex] = useState(3); // Start at first real item (offset by clones)
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(3);

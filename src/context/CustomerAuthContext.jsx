@@ -117,12 +117,31 @@ export const ProtectedRoute = ({ children }) => {
     useEffect(() => {
         if (!loading && !user) {
             openAuthModal('login');
-            router.replace('/'); // Redirect to home so the protected page doesn't break
         }
-    }, [user, loading, router, openAuthModal]);
+    }, [user, loading, openAuthModal]);
 
-    if (loading || !user) {
+    if (loading) {
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50 pt-20">
+                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h2 className="text-2xl font-bold text-secondary">Authentication Required</h2>
+                <p className="text-gray-500 max-w-md text-center">You need to be logged in to view this page. Please sign in to continue.</p>
+                <div className="flex gap-3 mt-4">
+                    <button onClick={() => openAuthModal('login')} className="px-6 py-2.5 bg-primary hover:bg-primary-dark transition-colors text-white rounded-xl font-bold text-sm">
+                        Sign In
+                    </button>
+                    <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 transition-colors text-gray-700 rounded-xl font-bold text-sm">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return children;

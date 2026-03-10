@@ -43,8 +43,6 @@ export const metadata = {
     description: 'Experience the magic of travel with our curated luxury tours, cruises, and personalized travel solutions.',
 };
 
-export const runtime = 'edge';
-
 export default function RootLayout({ children }) {
     return (
         <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable}`}>

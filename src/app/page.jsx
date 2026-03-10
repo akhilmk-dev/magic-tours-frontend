@@ -17,13 +17,14 @@ import BlogNews from '../components/Home/BlogNews';
 import AdventureSection from '../components/Home/AdventureSection';
 import GalleryLoop from '../components/Home/GalleryLoop';
 
+import { api } from '../api/client';
+
 export default function Home() {
     const [homeData, setHomeData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('https://magic-apis.staff-b0c.workers.dev/homepage')
-            .then(res => res.json())
+        api.get('/homepage')
             .then(result => {
                 if (result.data) setHomeData(result.data);
             })

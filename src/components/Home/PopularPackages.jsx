@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plane, Star, Calendar, MapPin } from 'lucide-react';
 
@@ -80,6 +81,7 @@ const PopularPackagesSkeleton = () => (
 );
 
 export default function PopularPackages({ packages: apiPackages, loading }) {
+    const router = useRouter();
     if (loading) return <PopularPackagesSkeleton />;
     const packageData = apiPackages && apiPackages.length > 0
         ? apiPackages.map(p => ({
@@ -209,7 +211,8 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                         duration: 0.3,
                                         ease: "easeOut"
                                     }}
-                                    className="relative w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-default flex flex-col shadow-none"
+                                    onClick={() => router.push(`/packages/${pkg.id}`)}
+                                    className="relative w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col shadow-none"
                                 >
                                     {/* Image Section */}
                                     <div className="relative h-[40%] w-full">

@@ -55,16 +55,14 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {packages.map((pkg) => (
-                    <div key={pkg.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                    <Link href={`/packages/${pkg.id}`} key={pkg.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full block">
                         {/* Image Container */}
                         <div className="relative h-64 overflow-hidden">
-                            <Link href={`/packages/${pkg.id}`}>
-                                <img
-                                    src={pkg.image}
-                                    alt={pkg.title}
-                                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                                />
-                            </Link>
+                            <img
+                                src={pkg.image}
+                                alt={pkg.title}
+                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                            />
                             {/* Tag */}
                             <span className={`absolute top-4 left-4 ${pkg.is_featured ? 'bg-primary' : 'bg-secondary'} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
                                 {pkg.is_featured ? 'Elite' : pkg.category}
@@ -81,11 +79,9 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                 {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                             </div>
 
-                            <Link href={`/packages/${pkg.id}`}>
-                                <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                                    {pkg.title}
-                                </h3>
-                            </Link>
+                            <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                                {pkg.title}
+                            </h3>
 
                             <p className="text-gray-400 text-sm mb-6 line-clamp-2">
                                 {pkg.description || "Experience the best of travel with our curated packages designed for luxury and comfort."}
@@ -98,13 +94,13 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                     <span>{pkg.duration || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-primary group-hover:underline">
-                                    <Link href={`/packages/${pkg.id}`} className="font-bold text-xs uppercase tracking-wider">
+                                    <span className="font-bold text-xs uppercase tracking-wider">
                                         View Details
-                                    </Link>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
 

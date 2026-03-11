@@ -8,25 +8,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const ProfilePage = () => {
-    const { user, logout, loading: authLoading } = useCustomerAuth();
+    const { user, logout, loading: authLoading, openAuthModal } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
+    const [idlApplications, setIdlApplications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' or 'idl'
     const router = useRouter();
 
     useEffect(() => {
-        const fetchBookings = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/bookings');
-                setBookings(response.data || response);
+                const [bookingsRes, idlRes] = await Promise.all([
+                    api.get('/bookings').catch(() => ({ data: [] })),
+                    api.get('/idl/my').catch(() => ({ data: [] }))
+                ]);
+                setBookings(bookingsRes.data || bookingsRes || []);
+                setIdlApplications(idlRes.data || []);
             } catch (err) {
-                console.error('Failed to fetch bookings:', err);
+                console.error('Failed to fetch data:', err);
             } finally {
                 setLoading(false);
             }
         };
 
         if (user) {
-            fetchBookings();
+            fetchData();
         } else if (!authLoading) {
             setLoading(false);
         }
@@ -55,108 +61,233 @@ const ProfilePage = () => {
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen pt-28 pb-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    {/* User Sidebar */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4">
-                                    <User size={40} />
-                                </div>
-                                <h2 className="text-xl font-bold text-secondary">{user.name}</h2>
-                                <p className="text-sm text-gray-500 mb-6">{user.email}</p>
+        <div className="bg-[#F8FAFC] min-h-screen pb-20">
+            {/* Top Banner / Hero */}
+            <div className="bg-[#113A74] pt-40 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden text-white">
+                <div className="max-w-7xl mx-auto relative z-10 flex flex-col sm:flex-row items-center gap-6">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white/10 backdrop-blur-md rounded-full border-4 border-white/20 flex items-center justify-center text-white shadow-xl flex-shrink-0">
+                        <span className="text-4xl sm:text-6xl font-black">{user.name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div className="text-center sm:text-left flex-1">
+                        <h1 className="text-3xl sm:text-5xl font-black mb-2">{user.name}</h1>
+                        <p className="text-white/80 font-medium tracking-wide">{user.email}</p>
+                    </div>
+                    <div>
+                        <button
+                            onClick={logout}
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full transition-all text-sm font-bold text-white shadow-lg"
+                        >
+                            <LogOut size={16} /> Sign Out
+                        </button>
+                    </div>
+                </div>
+                {/* Decorative gradient orb */}
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#FFA500]/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+            </div>
 
+            {/* Main Content Area */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    {/* Sidebar / Quick Links */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/40 p-6 sm:p-8">
+                            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">Quick Links</h3>
+                            <div className="flex flex-col gap-3">
                                 <Link
                                     href="/visa-application"
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-primary/20 text-primary rounded-xl hover:bg-primary/5 transition-colors font-medium text-sm mb-3"
+                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
-                                    <FileText size={16} /> Apply for Visa
+                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                        <FileText size={18} />
+                                    </div>
+                                    Apply for Visa
                                 </Link>
-
-                                <button
-                                    onClick={logout}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-red-100 text-red-600 rounded-xl hover:bg-red-50 transition-colors font-medium text-sm"
+                                <Link
+                                    href="/idl"
+                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
-                                    <LogOut size={16} /> Logout
-                                </button>
+                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                        <User size={18} />
+                                    </div>
+                                    Apply for IDL
+                                </Link>
+                                <Link
+                                    href="/packages"
+                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                        <Package size={18} />
+                                    </div>
+                                    Browse Packages
+                                </Link>
                             </div>
                         </div>
                     </div>
 
-                    {/* Main Content - Bookings */}
+                    {/* Main Content - Tabs & Data */}
                     <div className="lg:col-span-3">
-                        <h2 className="text-2xl font-bold text-secondary mb-6">My Bookings</h2>
+                        {/* Tabs */}
+                        <div className="bg-white rounded-full shadow-sm p-1.5 flex gap-2 mb-8 max-w-md">
+                            <button
+                                onClick={() => setActiveTab('bookings')}
+                                className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'bookings'
+                                        ? 'bg-[#113A74] text-white shadow-md'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    }`}
+                            >
+                                My Bookings
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('idl')}
+                                className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'idl'
+                                        ? 'bg-[#113A74] text-white shadow-md'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    }`}
+                            >
+                                IDL Applications
+                            </button>
+                        </div>
 
                         {loading ? (
                             <div className="flex justify-center py-20">
-                                <Loader2 className="animate-spin text-primary" size={40} />
+                                <Loader2 className="animate-spin text-[#113A74]" size={40} />
                             </div>
-                        ) : bookings.length === 0 ? (
-                            <div className="bg-white rounded-2xl p-12 text-center border border-gray-100">
-                                <Package className="mx-auto text-gray-300 mb-4" size={48} />
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">No bookings yet</h3>
-                                <p className="text-gray-500 mb-6">You haven't made any bookings yet. Start your journey today!</p>
-                                <Link href="/packages" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all">
-                                    Browse Packages
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {bookings.map((booking) => (
-                                    <div key={booking.id} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-6 border-b border-gray-50">
-                                            <div>
-                                                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                    booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-gray-100 text-gray-600'
-                                                    }`}>
-                                                    {booking.status}
-                                                </span>
-                                                <h3 className="text-lg font-bold text-secondary">
-                                                    Booking #{booking.id}
-                                                </h3>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Amount</p>
-                                                <p className="text-2xl font-black text-primary">AED {booking.total_amount?.toLocaleString()}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                            <div>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Travel Date</p>
-                                                <div className="flex items-center gap-2 text-sm font-medium text-secondary">
-                                                    <Calendar size={16} className="text-primary" />
-                                                    {new Date(booking.travel_date).toLocaleDateString()}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Trip End</p>
-                                                <div className="flex items-center gap-2 text-sm font-medium text-secondary">
-                                                    <Clock size={16} className="text-primary" />
-                                                    {booking.trip_end ? new Date(booking.trip_end).toLocaleDateString() : 'N/A'}
-                                                </div>
-                                            </div>
-                                            <div className="col-span-2">
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Travelers</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {booking.count_adult_double > 0 && <span className="text-xs bg-gray-50 px-2 py-1 rounded border border-gray-100">{booking.count_adult_double} Adult(s) [Double]</span>}
-                                                    {booking.count_adult_single > 0 && <span className="text-xs bg-gray-50 px-2 py-1 rounded border border-gray-100">{booking.count_adult_single} Adult(s) [Single]</span>}
-                                                    {booking.count_adult_triple > 0 && <span className="text-xs bg-gray-50 px-2 py-1 rounded border border-gray-100">{booking.count_adult_triple} Adult(s) [Triple]</span>}
-                                                    {(booking.count_child_bed > 0 || booking.count_child_no_bed > 0) && (
-                                                        <span className="text-xs bg-gray-50 px-2 py-1 rounded border border-gray-100">
-                                                            {(booking.count_child_bed || 0) + (booking.count_child_no_bed || 0)} Child(ren)
-                                                        </span>
-                                                    )}
-                                                    {booking.count_infant > 0 && <span className="text-xs bg-gray-50 px-2 py-1 rounded border border-gray-100">{booking.count_infant} Infant(s)</span>}
-                                                </div>
-                                            </div>
-                                        </div>
+                        ) : activeTab === 'bookings' ? (
+                            bookings.length === 0 ? (
+                                <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
+                                    <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                        <Package className="text-gray-400" size={40} />
                                     </div>
-                                ))}
-                            </div>
+                                    <h3 className="text-2xl font-black text-[#113A74] mb-3">No bookings yet</h3>
+                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">You haven't made any bookings yet. Start exploring the world with our tailored travel packages.</p>
+                                    <Link href="/packages" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                        Browse Packages
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {bookings.map((booking) => (
+                                        <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
+                                            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8 pb-8 border-b border-gray-100">
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
+                                                                booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                    'bg-gray-100 text-gray-600'
+                                                            }`}>
+                                                            {booking.status}
+                                                        </span>
+                                                        <span className="text-xs font-bold text-gray-400">BOOKING #{booking.id.split('-').pop()}</span>
+                                                    </div>
+                                                    <h3 className="text-xl font-black text-[#113A74]">
+                                                        {booking.package_name || 'Tour Package'}
+                                                    </h3>
+                                                </div>
+                                                <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
+                                                    <p className="text-2xl font-black text-[#113A74]">AED {booking.total_amount?.toLocaleString()}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Calendar size={18} className="text-[#FFA500]" />
+                                                        {new Date(booking.travel_date).toLocaleDateString()}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Trip End</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Clock size={18} className="text-[#FFA500]" />
+                                                        {booking.trip_end ? new Date(booking.trip_end).toLocaleDateString() : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travelers</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {booking.count_adult_double > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_double} Adult (Double)</span>}
+                                                        {booking.count_adult_single > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_single} Adult (Single)</span>}
+                                                        {booking.count_adult_triple > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_triple} Adult (Triple)</span>}
+                                                        {(booking.count_child_bed > 0 || booking.count_child_no_bed > 0) && (
+                                                            <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">
+                                                                {(booking.count_child_bed || 0) + (booking.count_child_no_bed || 0)} Child(ren)
+                                                            </span>
+                                                        )}
+                                                        {booking.count_infant > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_infant} Infant(s)</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        ) : (
+                            /* IDL Applications View */
+                            idlApplications.length === 0 ? (
+                                <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
+                                    <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                        <FileText className="text-gray-400" size={40} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-[#113A74] mb-3">No IDL Applications yet</h3>
+                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">Apply for your International Driving License securely online through our portal.</p>
+                                    <Link href="/idl" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                        Apply for IDL
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {idlApplications.map((idl) => (
+                                        <div key={idl.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
+                                            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                                                <div>
+                                                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 ${idl.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                            idl.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                idl.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                                    'bg-gray-100 text-gray-600'
+                                                        }`}>
+                                                        {idl.status}
+                                                    </span>
+                                                    <h3 className="text-xl font-black text-[#113A74]">
+                                                        {idl.id}
+                                                    </h3>
+                                                </div>
+                                                <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Applied On</p>
+                                                    <p className="text-xl font-black text-[#113A74]">{new Date(idl.created_at).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Applicant Name</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <User size={18} className="text-[#FFA500]" />
+                                                        {idl.applicant_name}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Contact</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Clock size={18} className="text-[#FFA500]" />
+                                                        {idl.mobile_number}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Drivers</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <div className="w-5 h-5 rounded-full bg-[#FFA500]/20 text-[#FFA500] flex items-center justify-center font-bold text-xs">
+                                                            {idl.number_of_drivers}
+                                                        </div>
+                                                        Driver(s)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
                         )}
                     </div>
                 </div>

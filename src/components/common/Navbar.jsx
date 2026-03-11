@@ -39,10 +39,12 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                     <Link href="/support" className={clsx("transition-colors hidden md:block", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>Support</Link>
                     <div className={clsx("w-px h-3 hidden lg:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
                     {user ? (
-                        <button onClick={onLogout} className={clsx("items-center gap-1.5 transition-colors hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>
-                            Sign Out
-                            <LogOut size={14} />
-                        </button>
+                        <Link href="/profile" className={clsx("flex items-center gap-2 transition-all hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>
+                            <div className="w-6 h-6 rounded-full bg-[#113A74] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                {user.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <span className="font-bold">{user.name?.split(' ')[0] || 'Profile'}</span>
+                        </Link>
                     ) : (
                         <button onClick={() => onOpenAuthModal('login')} className={clsx("items-center gap-1.5 transition-colors hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>
                             Sign In / Register
@@ -64,7 +66,7 @@ export default function Navbar() {
     const { user, logout, openAuthModal } = useCustomerAuth();
 
     // Check if we are on pages that should have a transparent navbar initially
-    const isTransparentPage = pathname === '/' || pathname === '/tours';
+    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -77,8 +79,8 @@ export default function Navbar() {
     }, []);
 
     const navLinks = [
-        { name: 'Home', path: '/', dropdown: true },
-        { name: 'Destinations', path: '/packages' },
+        { name: 'Home', path: '/' },
+        { name: 'Destinations', path: '/destinations' },
         { name: 'Cruise', path: '/cruise' },
         { name: 'Hotels', path: '/hotels' },
         { name: 'Tours', path: '/tours' },
@@ -163,10 +165,18 @@ export default function Navbar() {
                             <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">FAQ</Link>
                             <Link href="/support" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px]">Support</Link>
                             {user ? (
-                                <button onClick={handleLogout} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2 w-full text-left">
-                                    <LogOut size={14} />
-                                    Sign Out
-                                </button>
+                                <>
+                                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2 w-full text-left">
+                                        <div className="w-5 h-5 rounded-full bg-[#113A74] text-white flex items-center justify-center font-bold text-[10px]">
+                                            {user.name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                        My Profile
+                                    </Link>
+                                    <button onClick={handleLogout} className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2 w-full text-left border-t border-gray-100 mt-1">
+                                        <LogOut size={14} />
+                                        Sign Out
+                                    </button>
+                                </>
                             ) : (
                                 <button
                                     onClick={() => {

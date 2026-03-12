@@ -2,7 +2,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Calendar, LayoutGrid, List, ChevronDown, Minus, Plus, ChevronLeft, ChevronRight, Check, MapPin } from 'lucide-react';
+import { Calendar, LayoutGrid, List, ChevronDown, Minus, Plus, ChevronLeft, ChevronRight, Check, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../api/client';
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
@@ -10,7 +11,7 @@ import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 import bookingImg from '../../assets/booking-img.png';
 
-const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading }) => {
+const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onClose, showPromo = true }) => {
     const [localFilters, setLocalFilters] = useState(filters);
 
     useEffect(() => { setLocalFilters(filters); }, [filters]);
@@ -70,13 +71,22 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading }) =>
 
     return (
         <div className="w-full lg:w-[300px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-24 self-start bg-white rounded-[2rem] border border-slate-100 shadow-sm p-4 flex flex-col gap-4">
-            <div className="w-full rounded-[1.5rem] overflow-hidden">
-                <img src={bookingImg.src || bookingImg} alt="Promo" className="w-full h-auto object-cover" />
-            </div>
+            {showPromo && (
+                <div className="w-full rounded-[1.5rem] overflow-hidden">
+                    <img src={bookingImg.src || bookingImg} alt="Promo" className="w-full h-auto object-cover" />
+                </div>
+            )}
 
             <div className="flex items-center justify-between px-1">
                 <h3 className="text-[15px] font-bold text-[#113A74]">Filters</h3>
-                <button onClick={handleClear} className="text-[11px] font-bold text-[#113A74] hover:text-[#FFA500] transition-colors">Clear All</button>
+                <div className="flex items-center gap-4">
+                    <button onClick={handleClear} className="text-[11px] font-bold text-[#113A74] hover:text-[#FFA500] transition-colors">Clear All</button>
+                    {onClose && (
+                        <button onClick={onClose} className="lg:hidden p-1.5 bg-slate-100 rounded-full text-[#113A74]">
+                            <X size={16} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="px-1">
@@ -190,12 +200,21 @@ const SORT_OPTIONS = [
     { value: 'price_high', label: 'Price: High to Low' },
 ];
 
-const SortHeader = ({ sort, setSort }) => {
+const SortHeader = ({ sort, setSort, onOpenFilters }) => {
     const [open, setOpen] = useState(false);
     const currentLabel = SORT_OPTIONS.find(o => o.value === sort)?.label || 'Sort';
     return (
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-            <h2 className="text-xl md:text-2xl font-bold text-[#113A74] tracking-tight w-full">Available <span className="text-[#FFA500]">Tour Packages</span></h2>
+            <div className="flex items-center justify-between w-full">
+                <h2 className="text-xl md:text-2xl font-bold text-[#113A74] tracking-tight">Available <span className="text-[#FFA500]">Tour Packages</span></h2>
+                <button
+                    onClick={onOpenFilters}
+                    className="lg:hidden flex items-center gap-2 bg-[#113A74] text-white px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-[#113A74]/20 active:scale-95 transition-transform"
+                >
+                    <SlidersHorizontal size={14} />
+                    <span>Filters</span>
+                </button>
+            </div>
             <div className="relative shrink-0">
                 <button
                     onClick={() => setOpen(prev => !prev)}
@@ -222,25 +241,25 @@ const SortHeader = ({ sort, setSort }) => {
     );
 };
 
-const TourCard = ({ id, image, package_name, description, price, days, nights, slots }) => (
+const TourCard = ({ id, image, title, package_name, description, price, days, nights, slots }) => (
     <Link href={`/packages/${id}`} className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
         <div className="relative aspect-[4/3] overflow-hidden">
-            <img src={image} alt={package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-[10px] font-bold shadow-lg">
-                <Calendar size={12} className="opacity-90" />
+            <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
+                <Calendar size={13} className="opacity-90" />
                 <span>{days} days, {nights} Nights</span>
             </div>
-            <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-[10px] font-black shadow-lg">27% Off</div>
+            <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
         </div>
         <div className="p-6 flex flex-col flex-1">
-            <h3 className="text-lg md:text-xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{package_name}</h3>
-            {slots !== undefined && <div className="text-[10px] font-bold text-[#FFA500] bg-orange-50 px-2.5 py-1 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
-            <p className="text-slate-400 text-[11px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
+            <h3 title={title || package_name} className="text-xl md:text-2xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{title || package_name}</h3>
+            {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
+            <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
             <div className="flex items-center justify-between mt-auto">
-                <span className="px-4 py-2 border border-slate-200 text-[#113A74] rounded-full text-[10px] font-bold group-hover:bg-[#113A74] group-hover:text-white transition-all">Book Now</span>
+                <span className="px-5 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-xs font-bold group-hover:bg-[#113A74] group-hover:text-white transition-all uppercase tracking-wider">Book Now</span>
                 <div className="text-right">
-                    <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-[10px] font-black uppercase">AED</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
-                    <p className="text-[#113A74] text-[9px] font-bold uppercase">onwards</p>
+                    <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-xs font-black uppercase">AED</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
+                    <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider">onwards</p>
                 </div>
             </div>
         </div>
@@ -283,6 +302,7 @@ const ToursContent = () => {
     const [filters, setFilters] = useState({ destination: urlDestination, cities: [], categories: [], travelers: 1, maxNights: '', departure_date: '' });
     const [filterData, setFilterData] = useState({ destinations: [], cities: [], categories: [] });
     const [sort, setSort] = useState('newest');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         const fetchFilters = async () => {
@@ -320,7 +340,12 @@ const ToursContent = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, sort, filters.destination]);
 
-    const handleApplyFilters = (f) => { setFilters(f); setPage(1); fetchPackages(f, 1, sort); };
+    const handleApplyFilters = (f) => {
+        setFilters(f);
+        setPage(1);
+        fetchPackages(f, 1, sort);
+        setIsSidebarOpen(false);
+    };
     const handleSortChange = (s) => { setSort(s); setPage(1); fetchPackages(filters, 1, s); };
 
     return (
@@ -344,9 +369,45 @@ const ToursContent = () => {
 
             <section className="pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
                 <div className="max-w-7xl mx-auto">
-                    <SortHeader sort={sort} setSort={handleSortChange} />
+                    <SortHeader sort={sort} setSort={handleSortChange} onOpenFilters={() => setIsSidebarOpen(true)} />
                     <div className="flex flex-col lg:flex-row gap-8 items-start">
-                        <Sidebar filters={filters} setFilters={setFilters} onApply={handleApplyFilters} filterData={filterData} filterLoading={false} />
+                        {/* Desktop Sidebar */}
+                        <div className="hidden lg:block shrink-0">
+                            <Sidebar filters={filters} setFilters={setFilters} onApply={handleApplyFilters} filterData={filterData} filterLoading={false} />
+                        </div>
+
+                        {/* Mobile Sidebar / Drawer */}
+                        <AnimatePresence>
+                            {isSidebarOpen && (
+                                <>
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        onClick={() => setIsSidebarOpen(false)}
+                                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] lg:hidden"
+                                    />
+                                    <motion.div
+                                        initial={{ x: '-100%' }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: '-100%' }}
+                                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                        className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-white z-[1000] lg:hidden overflow-y-auto p-4"
+                                    >
+                                        <Sidebar
+                                            filters={filters}
+                                            setFilters={setFilters}
+                                            onApply={handleApplyFilters}
+                                            filterData={filterData}
+                                            filterLoading={false}
+                                            onClose={() => setIsSidebarOpen(false)}
+                                            showPromo={false}
+                                        />
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
+
                         <div className="flex-1 min-w-0">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {loading ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} />) :
@@ -354,6 +415,11 @@ const ToursContent = () => {
                                         <div className="col-span-full py-20 text-center font-bold text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">No packages found.</div>}
                             </div>
                             {!loading && totalPages > 1 && <Pagination page={page} totalPages={totalPages} setPage={setPage} />}
+
+                            {/* Mobile Promo Banner - Restored to original behavior */}
+                            <div className="lg:hidden mt-8 w-full rounded-[2rem] overflow-hidden shadow-sm border border-slate-100">
+                                <img src={bookingImg.src || bookingImg} alt="Promo" className="w-full h-auto object-cover" />
+                            </div>
                         </div>
                     </div>
                 </div>

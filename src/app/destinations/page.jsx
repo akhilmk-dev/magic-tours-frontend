@@ -7,6 +7,21 @@ import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 
 
+const parseCategories = (cat) => {
+    if (!cat) return [];
+    if (Array.isArray(cat)) return cat;
+    if (typeof cat === 'string') {
+        try {
+            const parsed = JSON.parse(cat);
+            if (Array.isArray(parsed)) return parsed;
+            return [cat];
+        } catch (e) {
+            return [cat];
+        }
+    }
+    return [String(cat)];
+};
+
 const DestinationCardSkeleton = () => (
     <div className="bg-white rounded-3xl overflow-hidden shadow-sm flex flex-col border border-slate-100 h-full animate-pulse">
         <div className="relative h-64 bg-slate-200 shrink-0"></div>
@@ -134,91 +149,94 @@ export default function DestinationsPage() {
                             <p className="text-gray-400 font-bold tracking-wider">No destinations found matching your criteria.</p>
                         </div>
                     ) : (
-                        destinations.map((dest) => (
-                            <div
-                                key={dest.id}
-                                className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col border border-slate-100 h-full text-[13px]"
-                            >
-                                {/* Image Header with Status and Categories */}
-                                <div className="relative h-48 overflow-hidden shrink-0">
-                                    <img
-                                        src={dest.image}
-                                        alt={dest.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
+                        destinations.map((dest) => {
+                            const categories = parseCategories(dest.categories);
+                            return (
+                                <div
+                                    key={dest.id}
+                                    className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col border border-slate-100 h-full text-[13px]"
+                                >
+                                    {/* Image Header with Status and Categories */}
+                                    <div className="relative h-48 overflow-hidden shrink-0">
+                                        <img
+                                            src={dest.image}
+                                            alt={dest.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
 
-                                    <div className="absolute top-3 left-3 flex gap-2 flex-wrap max-w-[70%]">
-                                        {dest.categories && dest.categories.slice(0, 2).map((cat, i) => (
-                                            <span key={i} className="bg-[#113A74]/90 backdrop-blur-md text-white text-[8px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                                                {cat}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#113A74]/90 to-transparent pointer-events-none" />
+                                        <div className="absolute top-3 left-3 flex gap-2 flex-wrap max-w-[70%]">
+                                            {categories && categories.slice(0, 2).map((cat, i) => (
+                                                <span key={i} className="bg-[#113A74]/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                    {cat}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#113A74]/90 to-transparent pointer-events-none" />
 
-                                    <div className="absolute bottom-3 left-4 flex items-center gap-2 text-white z-10">
-                                        <Compass size={14} className="text-[#FFA500]" />
-                                        <span className="text-xs font-bold uppercase tracking-wider">{dest.continent}</span>
-                                    </div>
-                                </div>
-
-                                {/* Card Body */}
-                                <div className="p-4 flex flex-col flex-1 text-left">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h3 className="text-xl font-bold text-[#113A74] font-display tracking-tight leading-none mb-1 group-hover:text-[#FFA500] transition-colors">
-                                                {dest.name}
-                                            </h3>
-                                            <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-                                                <MapPin size={10} className="text-[#FFA500]" />
-                                                {dest.country}
-                                            </div>
+                                        <div className="absolute bottom-3 left-4 flex items-center gap-2 text-white z-10">
+                                            <Compass size={15} className="text-[#FFA500]" />
+                                            <span className="text-[13px] font-bold uppercase tracking-wider">{dest.continent}</span>
                                         </div>
                                     </div>
 
-                                    {dest.overview && (
-                                        <p className="text-gray-500 text-[11px] leading-relaxed mb-4 line-clamp-2">
-                                            {dest.overview}
-                                        </p>
-                                    )}
-
-                                    {/* Bottom Info Fields */}
-                                    <div className="bg-[#F8FBFF] rounded-xl p-3 flex flex-col gap-2.5 mt-auto">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF]">
-                                                <Calendar size={12} className="text-[#113A74]" />
-                                            </div>
+                                    {/* Card Body */}
+                                    <div className="p-4 flex flex-col flex-1 text-left">
+                                        <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wider mb-0">Best Season</p>
-                                                <p className="text-[10px] text-[#113A74] font-bold">{dest.best_season || "Year Round"}</p>
+                                                <h3 title={dest.name} className="text-2xl font-bold text-[#113A74] font-display tracking-tight leading-none mb-1 group-hover:text-[#FFA500] transition-colors">
+                                                    {dest.name}
+                                                </h3>
+                                                <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
+                                                    <MapPin size={12} className="text-[#FFA500]" />
+                                                    {dest.country}
+                                                </div>
                                             </div>
                                         </div>
-                                        {dest.cities && dest.cities.length > 0 && (
-                                            <div className="flex items-start gap-2.5">
-                                                <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF] mt-0.5">
-                                                    <Navigation size={12} className="text-[#113A74]" />
+
+                                        {dest.overview && (
+                                            <p title={dest.overview} className="text-gray-500 text-[13px] leading-relaxed mb-4 line-clamp-2">
+                                                {dest.overview}
+                                            </p>
+                                        )}
+
+                                        {/* Bottom Info Fields */}
+                                        <div className="bg-[#F8FBFF] rounded-xl p-3 flex flex-col gap-2.5 mt-auto">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF]">
+                                                    <Calendar size={14} className="text-[#113A74]" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wider mb-0">Key Cities</p>
-                                                    <div className="flex flex-wrap gap-1 mt-0.5">
-                                                        {dest.cities.slice(0, 2).map((city, idx) => (
-                                                            <span key={idx} className="bg-white border border-[#E9F7FF] text-[#113A74] text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
-                                                                {city.name}
-                                                            </span>
-                                                        ))}
-                                                        {dest.cities.length > 2 && <span className="text-[9px] text-gray-400 font-bold">+{dest.cities.length - 2}</span>}
-                                                    </div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0">Best Season</p>
+                                                    <p className="text-xs text-[#113A74] font-bold">{dest.best_season || "Year Round"}</p>
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
+                                            {dest.cities && dest.cities.length > 0 && (
+                                                <div className="flex items-start gap-2.5">
+                                                    <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF] mt-0.5">
+                                                        <Navigation size={14} className="text-[#113A74]" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0">Key Cities</p>
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {dest.cities.slice(0, 2).map((city, idx) => (
+                                                                <span key={idx} className="bg-white border border-[#E9F7FF] text-[#113A74] text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                                                    {city.name}
+                                                                </span>
+                                                            ))}
+                                                            {dest.cities.length > 2 && <span className="text-[11px] text-gray-400 font-bold">+{dest.cities.length - 2}</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
 
-                                    <Link href={`/tours?destination_id=${dest.id}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-2.5 rounded-full font-bold text-[10px] uppercase tracking-wider hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
-                                        View Packages
-                                    </Link>
+                                        <Link href={`/tours?destination_id=${dest.id}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
+                                            View Packages
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
 

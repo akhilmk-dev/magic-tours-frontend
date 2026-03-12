@@ -49,39 +49,30 @@ const PackageDetailsPage = () => {
     // Itinerary Accordion State
     const [expandedDays, setExpandedDays] = useState([1]);
 
-    const mockItinerary = [
-        {
-            day: 1,
-            title: "Overnight Flight",
-            description: "There are many variations of passages of available but majority have alteration in some by inject humour words. Lorem ipsum dolor sit amet, error insolens ea pri verterem phaedr vel ea isque aliquam.",
-            extraBox: "Board your overnight flight, bound for Italy! Fresh gelato and homemade pasta will soon be yours. Venture Into Venice proper or see the area surrounding your accommodation. So, so soon."
-        },
-        { day: 2, title: "Arrive in Venice + Welcome Dinner" },
-        { day: 3, title: "Tour Venice" },
-        { day: 4, title: "Travel to Milan via Verona" }
-    ];
+    const mockItinerary = []; // Keep as fallback template if needed
 
     const toggleDay = (day) => {
         setExpandedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
     };
     const toggleAllDays = () => {
-        if (expandedDays.length === mockItinerary.length) {
+        const itineraryLength = pkg?.itinerary ? pkg.itinerary.length : 0;
+        if (expandedDays.length === itineraryLength) {
             setExpandedDays([]);
         } else {
-            setExpandedDays(mockItinerary.map(item => item.day));
+            setExpandedDays(pkg?.itinerary?.map(item => item.day) || []);
         }
     };
 
     // Auto-loop state for Related Images
-    const relatedImages = [img4, img5, img1, img2, img3, img6];
+    const relatedImages = pkg?.images?.length ? pkg.images : (pkg?.gallery?.length ? (typeof pkg.gallery === 'string' ? JSON.parse(pkg.gallery) : pkg.gallery) : [img4, img5, img1, img2, img3, img6]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCurrentImageIndex((prev) => (prev + 1) % relatedImages.length);
+            setCurrentImageIndex((prev) => relatedImages.length > 0 ? (prev + 1) % relatedImages.length : 0);
         }, 3000);
         return () => clearInterval(timer);
-    }, []);
+    }, [relatedImages.length]);
 
     // Advanced Pricing State
     const [counts, setCounts] = useState({
@@ -97,37 +88,27 @@ const PackageDetailsPage = () => {
 
     useEffect(() => {
         if (!id) return;
-
-        // Mock Data for Design Phase Layout
-        const mockPkg = {
-            id,
-            title: "South Korea Experience",
-            category: "Cultural",
-            location: "South Korea",
-            price: 59,
-            duration: "6 Days, 3 Nights",
-            slots: 20,
-            description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
-            inclusions: ["Accommodation", "Breakfast", "Transport", "Local Guide"],
-            exclusions: ["Flight tickets", "Personal expenses", "Visa fees"],
-            gallery: [],
-            itinerary: [
-                { day: 1, title: "Arrival in Seoul", description: "Welcome to Seoul. Transfer to the hotel and rest.", attractions: [] },
-                { day: 2, title: "City Tour", description: "Visit Gyeongbokgung Palace and Bukchon Hanok Village.", attractions: [] }
-            ],
-            terms_conditions: "Standard Magic Tours terms apply.",
-            cancellation_policy: "Refundable if cancelled 48 hours before the trip.",
-            vendor: { id: 1, name: "Magic Tours LLC" }
+        const fetchPackageDetail = async () => {
+            try {
+                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${id}`);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+                setPkg(data);
+            } catch (err) {
+                setError("Failed to load package details.");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
         };
 
-        setPkg(mockPkg);
-        setLoading(false);
+        fetchPackageDetail();
     }, [id]);
 
     const totalPrice = useMemo(() => {
         if (!pkg) return 0;
-        const p = pkg.pricing;
-        if (!p) return pkg.price * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.childBed + counts.childNoBed);
+        const p = pkg.pricing && pkg.pricing.length > 0 ? pkg.pricing[0] : null;
+        if (!p) return (pkg.price || 0) * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.childBed + counts.childNoBed);
 
         return (
             (counts.adultDouble * (p.price_adult_double || pkg.price)) +
@@ -207,7 +188,7 @@ const PackageDetailsPage = () => {
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-12 md:mt-20">
 
                     <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-3 tracking-tight drop-shadow-sm font-heading">
-                        Packages Detail
+                        {pkg.title}
                     </h1>
 
                     {/* Breadcrumbs */}
@@ -234,10 +215,10 @@ const PackageDetailsPage = () => {
                         {/* Left Side: Title & Description */}
                         <div className="lg:w-1/2">
                             <h2 className="text-[44px] font-extrabold text-brand-heading leading-[1.1] mb-4 font-heading">
-                                Explore Switzerland for more fun!
+                                Explore <span className="text-[#FFA500]">{pkg.destination?.name || pkg.location}</span> for more fun!
                             </h2>
-                            <p className="text-gray-500 text-sm md:text-base mb-8 max-w-lg">
-                                Lorem ipsum proin gravida nibh vel velit auctor aliquenean sollicitudin.
+                            <p className="text-gray-500 text-sm md:text-base mb-8 max-w-lg line-clamp-3">
+                                {pkg.destination?.overview || pkg.description}
                             </p>
                             <button className="bg-[#113A74] hover:bg-[#0d2a56] text-white px-8 py-3 rounded-full font-medium flex inline-flex items-center gap-2 transition-colors">
                                 Book Now <ArrowRight size={16} />
@@ -252,19 +233,19 @@ const PackageDetailsPage = () => {
                                     <div className="flex items-center gap-2">
                                         <Globe size={16} className="text-[#113A74]" />
                                         <span className="font-bold text-[#113A74]">Country :</span>
-                                        <span className="text-gray-500">Dignissim</span>
+                                        <span className="text-gray-500 truncate max-w-[120px]" title={pkg.destination?.country || pkg.location || "N/A"}>{pkg.destination?.country || pkg.location || "N/A"}</span>
                                     </div>
                                     <div className="w-px h-4 bg-gray-200 hidden sm:block"></div>
                                     <div className="flex items-center gap-2">
                                         <Map size={16} className="text-[#113A74]" />
                                         <span className="font-bold text-[#113A74]">City :</span>
-                                        <span className="text-gray-500">Consequat</span>
+                                        <span className="text-gray-500 truncate max-w-[120px]" title={pkg.destination?.name || "N/A"}>{pkg.destination?.name || "N/A"}</span>
                                     </div>
                                     <div className="w-px h-4 bg-gray-200 hidden sm:block"></div>
                                     <div className="flex items-center gap-2">
                                         <Calendar size={16} className="text-[#113A74]" />
-                                        <span className="font-bold text-[#113A74]">Travel Date :</span>
-                                        <span className="text-gray-500">5 Sep 2026</span>
+                                        <span className="font-bold text-[#113A74]">Departure Date :</span>
+                                        <span className="text-gray-500">{pkg.departure_dates?.[0]?.departure_date || "N/A"}</span>
                                     </div>
                                 </div>
 
@@ -272,14 +253,14 @@ const PackageDetailsPage = () => {
                                 <div className="flex flex-wrap items-center justify-start md:justify-end gap-x-6 gap-y-3 py-4 text-sm">
                                     <div className="flex items-center gap-2">
                                         <CalendarCheck size={16} className="text-[#113A74]" />
-                                        <span className="font-bold text-[#113A74]">Validity Date :</span>
-                                        <span className="text-gray-500">25 Sep 2026</span>
+                                        <span className="font-bold text-[#113A74]">Slots :</span>
+                                        <span className="text-gray-500">{pkg.slots} Available</span>
                                     </div>
                                     <div className="w-px h-4 bg-gray-200 hidden sm:block"></div>
                                     <div className="flex items-center gap-2">
                                         <QrCode size={16} className="text-[#113A74]" />
                                         <span className="font-bold text-[#113A74]">Tour Code :</span>
-                                        <span className="text-gray-500">65R78UV</span>
+                                        <span className="text-gray-500">{pkg.display_id || "N/A"}</span>
                                     </div>
                                 </div>
 
@@ -302,23 +283,23 @@ const PackageDetailsPage = () => {
                 <div className="grid grid-cols-12 gap-2 md:gap-3">
                     {/* Row 1 */}
                     <div className="col-span-12 sm:col-span-6 md:col-span-3 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img1.src || img1} alt="Gallery 1" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[0] || img1.src} alt="Gallery 1" className="w-full h-full object-cover shadow-sm" />
                     </div>
                     <div className="col-span-12 sm:col-span-6 md:col-span-5 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img2.src || img2} alt="Gallery 2" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[1] || img2.src} alt="Gallery 2" className="w-full h-full object-cover shadow-sm" />
                     </div>
                     <div className="col-span-12 md:col-span-4 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img3.src || img3} alt="Gallery 3" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[2] || img3.src} alt="Gallery 3" className="w-full h-full object-cover shadow-sm" />
                     </div>
                     {/* Row 2 */}
                     <div className="col-span-12 md:col-span-8 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img4.src || img4} alt="Gallery 4" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[3] || img4.src} alt="Gallery 4" className="w-full h-full object-cover shadow-sm" />
                     </div>
                     <div className="col-span-6 md:col-span-2 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img5.src || img5} alt="Gallery 5" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[4] || img5.src} alt="Gallery 5" className="w-full h-full object-cover shadow-sm" />
                     </div>
                     <div className="col-span-6 md:col-span-2 h-48 sm:h-64 md:h-[200px] lg:h-[260px]">
-                        <img src={img6.src || img6} alt="Gallery 6" className="w-full h-full object-cover shadow-sm" />
+                        <img src={gallery[5] || img6.src} alt="Gallery 6" className="w-full h-full object-cover shadow-sm" />
                     </div>
                 </div>
             </div>
@@ -333,29 +314,27 @@ const PackageDetailsPage = () => {
                             <h2 className="text-2xl md:text-3xl font-bold text-[#113A74] font-heading">
                                 Over <span className="text-[#FFA500]">View</span> :
                             </h2>
-                            <p className="text-gray-500 text-sm leading-relaxed">
+                            <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-line">
                                 {pkg.description}
-                                Lorem ipsum dolor sit amet consectetur. Scelerisque facilisis facilisis nulla ullamcorper mattis. Dui nec at porttitor justo sit viverra commodo est ornare. Arcu tristique mauris morbi sed. Fermentum rhoncus elit in vulputate massa amet adipiscing. Suspendisse odio ut sit nisl ridiculus. Egestas tincidunt purus pharetra ultrices. Amet id morbi dignissim nunc feugiat neque. Cras fusce sit elementum neque pretium. Fermentum mi orci faucibus rhoncus vel volutpat tincidunt.
                             </p>
                         </div>
 
-                        {/* Top Highlights */}
-                        <div className="bg-[#f7f5f2] p-8 md:p-10 rounded-xl space-y-6">
-                            <h3 className="text-2xl font-bold text-[#113A74] font-heading">
-                                Top <span className="text-[#FFA500]">Highlights</span> :
-                            </h3>
-                            <p className="text-gray-500 text-sm leading-relaxed">
-                                Bali is more than just a tropical destination—it's a paradise filled with unforgettable experiences. From its sacred temples perched on dramatic cliffs to golden beaches that stretch for miles, every corner of the island offers something unique.
-                            </p>
-                            <ul className="space-y-3 pl-5 list-disc text-gray-500 text-sm marker:text-gray-400">
-                                <li>Explore iconic sites like Tanah Lot, Uluwatu, and Besakih Temple.</li>
-                                <li>Relax on Kuta, Seminyak, Nusa Dua, and Jimbaran Bay.</li>
-                                <li>Discover rice terraces, art markets, yoga retreats, and monkey forests.</li>
-                                <li>Hike an active volcano for breathtaking sunrise views.</li>
-                                <li>Experience beach clubs, rooftop bars, and live music in Seminyak and Canggu.</li>
-                                <li>Visit Tegenungan, Gitgit, and Sekumpul waterfalls for adventure and serenity.</li>
-                            </ul>
-                        </div>
+                        {/* Attractions */}
+                        {pkg.attractions && pkg.attractions.length > 0 && (
+                            <div className="bg-[#f7f5f2] p-8 md:p-10 rounded-xl space-y-6">
+                                <h3 className="text-2xl font-bold text-[#113A74] font-heading">
+                                    <span className="text-[#FFA500]">Attractions</span> :
+                                </h3>
+                                <ul className="space-y-3 pl-5 list-disc text-gray-500 text-sm marker:text-gray-400">
+                                    {pkg.attractions.map((attraction, idx) => (
+                                        <li key={idx}>
+                                            <span className="font-bold text-gray-700">{attraction.name}</span>
+                                            {attraction.overview && <span>: {attraction.overview}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
                         {/* Trip Summery */}
                         <div className="space-y-4">
@@ -382,9 +361,9 @@ const PackageDetailsPage = () => {
                                 <div className="flex items-center gap-3 cursor-pointer" onClick={toggleAllDays}>
                                     <span className="text-sm font-medium text-gray-500">Expand all</span>
                                     <button
-                                        className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${expandedDays.length === mockItinerary.length ? 'bg-[#FFA500]' : 'bg-gray-300'}`}
+                                        className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'bg-[#FFA500]' : 'bg-gray-300'}`}
                                     >
-                                        <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${expandedDays.length === mockItinerary.length ? 'left-[22px]' : 'left-[2px]'}`}></div>
+                                        <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'left-[22px]' : 'left-[2px]'}`}></div>
                                     </button>
                                 </div>
                             </div>
@@ -393,7 +372,7 @@ const PackageDetailsPage = () => {
                                 {/* Vertical Timeline Line */}
                                 <div className="absolute left-[19px] top-6 bottom-6 w-[1.5px] bg-gray-100 -z-10"></div>
 
-                                {mockItinerary.map((item) => {
+                                {pkg.itinerary && pkg.itinerary.map((item) => {
                                     const isExpanded = expandedDays.includes(item.day);
                                     return (
                                         <div key={item.day} className="relative pl-14 pt-2">
@@ -414,7 +393,7 @@ const PackageDetailsPage = () => {
                                                 className="w-full flex justify-between items-center py-4 text-left group"
                                             >
                                                 <h4 className="font-bold font-heading text-lg">
-                                                    <span className="text-[#113A74]">Day 0{item.day} : </span>
+                                                    <span className="text-[#113A74]">Day {item.day < 10 ? `0${item.day}` : item.day} : </span>
                                                     <span className="text-gray-800">{item.title}</span>
                                                 </h4>
                                                 {isExpanded ? (
@@ -425,13 +404,37 @@ const PackageDetailsPage = () => {
                                             </button>
 
                                             {/* Expanded Content */}
-                                            <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[500px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
-                                                <p className="text-sm text-gray-500 leading-relaxed mb-6 pr-4">
+                                            <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[1500px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
+                                                <p className="text-sm text-gray-500 leading-relaxed mb-6 pr-4 whitespace-pre-line">
                                                     {item.description}
                                                 </p>
-                                                {item.extraBox && (
-                                                    <div className="bg-[#d5e0f9]/50 p-6 rounded-sm border border-[#d5e0f9] text-gray-500 text-xs leading-relaxed max-w-[90%]">
-                                                        {item.extraBox}
+
+                                                {/* Transport & Meal Icons */}
+                                                {(item.has_flight || item.has_train || item.has_bus || item.has_breakfast || item.has_lunch || item.has_dinner) && (
+                                                    <div className="flex flex-wrap gap-3 mb-6">
+                                                        {item.has_flight && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Plane size={14} /> Flight</div>}
+                                                        {item.has_train && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Train size={14} /> Train</div>}
+                                                        {item.has_bus && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Car size={14} /> Bus</div>}
+                                                        {item.has_breakfast && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Breakfast</div>}
+                                                        {item.has_lunch && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Lunch</div>}
+                                                        {item.has_dinner && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Dinner</div>}
+                                                    </div>
+                                                )}
+
+                                                {/* Activities Box */}
+                                                {item.attractions && item.attractions.length > 0 && (
+                                                    <div className="bg-[#d5e0f9]/50 p-6 rounded-sm border border-[#d5e0f9] text-gray-500 text-xs leading-relaxed max-w-[90%] space-y-3">
+                                                        {item.attractions.map((attr, idx) => (
+                                                            <div key={idx} className="flex gap-4 items-start">
+                                                                {attr.images && attr.images.length > 0 && (
+                                                                    <img src={attr.images[0]} alt={attr.name} className="w-16 h-16 object-cover rounded-lg shrink-0" />
+                                                                )}
+                                                                <div>
+                                                                    <strong className="text-[#113A74] text-sm block mb-1">{attr.name}</strong>
+                                                                    <p className="line-clamp-2">{attr.overview}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>
@@ -527,7 +530,7 @@ const PackageDetailsPage = () => {
                         <div className="pt-4 space-y-5">
                             <h4 className="text-[#113A74] font-bold font-heading text-xl text-center mb-1">Related Images</h4>
                             <p className="text-gray-500 text-center text-xs max-w-[260px] mx-auto leading-relaxed">
-                                Quaerat inventore! Vestibulum aenean volutpat gravida. Sagittis, euismod perferendis.
+                                {pkg.attractions?.map(a => a.name).join(', ') || "A collection of beautiful memories from your selected destination."}
                             </p>
                             <div className="relative overflow-hidden px-2 h-[220px]">
                                 {mounted && (
@@ -579,154 +582,82 @@ const PackageDetailsPage = () => {
                 </div>
 
                 {/* Transport & Logistics Section */}
-                <div className="mt-20">
-                    <div className="mb-8">
-                        <h2 className="text-3xl lg:text-4xl font-bold font-heading mb-3">
-                            <span className="text-[#113A74]">Transport & </span>
-                            <span className="text-[#FFA500]">Logistics</span>
-                        </h2>
-                        <p className="text-gray-500 text-sm font-medium">Manage your travel itinerary and accommodation details in one place.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 px-4 md:px-10 lg:px-16">
-                        {/* Hotels Card */}
-                        <div className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full">
-                            <div className="relative h-44 md:h-48">
-                                <img src={hotel1.src || hotel1} className="w-full h-full object-cover" alt="Hotel" />
-                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
-                                    <BedDouble className="w-4 h-4 text-[#113A74]" />
-                                    <span className="text-[10px] font-bold text-[#113A74] tracking-wide">STAY</span>
-                                </div>
-                            </div>
-                            <div className="p-6 flex flex-col flex-1 pb-8">
-                                <h3 className="text-[#113A74] text-xl font-bold font-heading mb-6">Hotels</h3>
-                                <div className="space-y-3 mb-6 flex-1">
-                                    <div className="bg-[#FAF7F2] rounded-xl p-4 flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            <LogIn className="w-4 h-4 text-gray-400" />
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">CHECK-IN</span>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-800">3:00 PM</span>
-                                    </div>
-                                    <div className="bg-[#FAF7F2] rounded-xl p-4 flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            <LogOut className="w-4 h-4 text-gray-400" />
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">CHECK-OUT</span>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-800">11:00 AM</span>
-                                    </div>
-                                </div>
-                                <button className="bg-[#113A74] hover:bg-[#113A74]/90 text-white rounded-full py-2.5 px-6 text-xs font-medium w-fit transition-colors">
-                                    View Details
-                                </button>
-                            </div>
+                {(pkg.hotels?.length > 0 || pkg.transports?.length > 0) && (
+                    <div className="mt-20">
+                        <div className="mb-8">
+                            <h2 className="text-3xl lg:text-4xl font-bold font-heading mb-3">
+                                <span className="text-[#113A74]">Transport & </span>
+                                <span className="text-[#FFA500]">Logistics</span>
+                            </h2>
+                            <p className="text-gray-500 text-sm font-medium">Manage your travel itinerary and accommodation details in one place.</p>
                         </div>
 
-                        {/* Flights Card */}
-                        <div className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full">
-                            <div className="relative h-44 md:h-48">
-                                <img src={flightImg.src || flightImg} className="w-full h-full object-cover" alt="Flight" />
-                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
-                                    <Plane className="w-4 h-4 text-[#113A74]" />
-                                    <span className="text-[10px] font-bold text-[#113A74] tracking-wide">AIR</span>
-                                </div>
-                            </div>
-                            <div className="p-6 flex flex-col flex-1 pb-8">
-                                <h3 className="text-[#113A74] text-xl font-bold font-heading mb-6">Flights</h3>
-                                <div className="mb-6 flex-1 flex flex-col justify-between">
-                                    {/* Route graphic */}
-                                    <div className="flex items-center justify-between mt-2">
-                                        <div>
-                                            <div className="text-2xl font-black text-gray-900 leading-none">JFK</div>
-                                            <div className="text-[9px] text-gray-400 font-bold uppercase mt-1">NEW YORK</div>
-                                        </div>
-                                        <div className="flex-1 px-4 relative flex items-center justify-center">
-                                            <div className="absolute top-1/2 left-4 right-4 h-[1px] bg-[#FFA500]/40 -translate-y-1/2"></div>
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                                                <Plane className="w-3 h-3 text-[#FFA500] rotate-45 mb-1" fill="#FFA500" strokeWidth={1} />
-                                                <span className="text-[9px] font-bold text-[#FFA500] uppercase pt-1 bg-white px-1">6H 00M</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-2xl font-black text-gray-900 leading-none">LHR</div>
-                                            <div className="text-[9px] text-gray-400 font-bold uppercase mt-1">LONDON</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:px-16">
+                            {/* Hotels Loop */}
+                            {pkg.hotels?.map((hotel, idx) => (
+                                <div key={`hotel-${hotel.id || idx}`} className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full">
+                                    <div className="relative h-44 md:h-48">
+                                        <img src={(hotel.images && hotel.images[0]) || hotel1.src} className="w-full h-full object-cover" alt={hotel.name || "Hotel"} />
+                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
+                                            <BedDouble className="w-4 h-4 text-[#113A74]" />
+                                            <span className="text-[10px] font-bold text-[#113A74] tracking-wide uppercase">STAY</span>
                                         </div>
                                     </div>
+                                    <div className="p-6 flex flex-col flex-1 pb-8">
+                                        <h3 className="text-[#113A74] text-xl font-bold font-heading mb-6">{hotel.name || 'Hotel Accommodation'}</h3>
+                                        <div className="mb-6 flex-1 text-sm text-gray-500 line-clamp-4">
+                                            {hotel.overview || 'Enjoy a comfortable stay included in your package.'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
 
-                                    {/* Departure/Arrival info box */}
-                                    <div className="bg-[#FAF7F2] rounded-xl p-4 flex justify-between items-center mt-4">
-                                        <div>
-                                            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">DEPARTURE</div>
-                                            <div className="text-xs font-bold text-gray-800">10:00 AM</div>
+                            {/* Transports Loop */}
+                            {pkg.transports?.map((transport, idx) => (
+                                <div key={`transport-${transport.id || idx}`} className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full">
+                                    <div className="relative h-44 md:h-48">
+                                        <img src={transport.way_of_transport === 'Train' ? trainImg.src : flightImg.src} className="w-full h-full object-cover" alt={transport.name || "Transport"} />
+                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
+                                            {transport.way_of_transport === 'Train' ? <Train className="w-4 h-4 text-[#113A74]" /> : <Plane className="w-4 h-4 text-[#113A74]" />}
+                                            <span className="text-[10px] font-bold text-[#113A74] tracking-wide uppercase">{transport.way_of_transport || 'TRANSPORT'}</span>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">ARRIVAL</div>
-                                            <div className="text-xs font-bold text-gray-800">4:00 PM</div>
+                                    </div>
+                                    <div className="p-6 flex flex-col flex-1 pb-8">
+                                        <h3 className="text-[#113A74] text-xl font-bold font-heading mb-6">{transport.name || transport.way_of_transport || 'Transport'}</h3>
+                                        <div className="mb-6 flex-1 text-sm text-gray-500 line-clamp-4">
+                                            {transport.overview || 'Efficient and scenic travel arrangements for your journey.'}
                                         </div>
                                     </div>
                                 </div>
-                                <button className="bg-[#113A74] hover:bg-[#113A74]/90 text-white rounded-full py-2.5 px-6 text-xs font-medium w-fit transition-colors">
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Trains Card */}
-                        <div className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full">
-                            <div className="relative h-44 md:h-48">
-                                <img src={trainImg.src || trainImg} className="w-full h-full object-cover" alt="Train" />
-                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
-                                    <Train className="w-4 h-4 text-[#113A74]" />
-                                    <span className="text-[10px] font-bold text-[#113A74] tracking-wide">RAIL</span>
-                                </div>
-                            </div>
-                            <div className="p-6 flex flex-col flex-1 pb-8">
-                                <h3 className="text-[#113A74] text-xl font-bold font-heading mb-6">Trains</h3>
-                                <div className="space-y-3 mb-6 flex-1">
-                                    <div className="bg-[#FAF7F2] rounded-xl p-4 flex justify-between items-center">
-                                        <div className="flex items-start gap-3">
-                                            <Clock className="w-4 h-4 text-[#113A74] mt-0.5" />
-                                            <div>
-                                                <div className="text-[9px] font-bold text-[#113A74]/50 uppercase tracking-wider mb-0.5">DEPARTURE</div>
-                                                <div className="text-[11px] font-semibold text-gray-800">Gare du Nord, Paris</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-800">9:30 AM</span>
-                                    </div>
-                                    <div className="bg-[#FAF7F2] rounded-xl p-4 flex justify-between items-center">
-                                        <div className="flex items-start gap-3">
-                                            <MapPin className="w-4 h-4 text-[#113A74] mt-0.5" />
-                                            <div>
-                                                <div className="text-[9px] font-bold text-[#113A74]/50 uppercase tracking-wider mb-0.5">ARRIVAL</div>
-                                                <div className="text-[11px] font-semibold text-gray-800">St Pancras Int, London</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-800">12:15 PM</span>
-                                    </div>
-                                </div>
-                                <button className="bg-[#113A74] hover:bg-[#113A74]/90 text-white rounded-full py-2.5 px-6 text-xs font-medium w-fit transition-colors">
-                                    View Details
-                                </button>
-                            </div>
+                            ))}
                         </div>
                     </div>
-                </div>
+                )}
 
-                {/* Dummy Location Map Section */}
-                <div className="mt-20">
-                    <div className="rounded-[2rem] overflow-hidden shadow-md border border-gray-100 h-[450px] relative">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d193595.25279998157!2d-74.14448744574943!3d40.69763123338357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sin!4v1709999999999!5m2!1sen!2sin"
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            allowFullScreen=""
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title="Dummy Location Map"
-                        ></iframe>
+                {/* Location Map Section */}
+                {pkg.location_map ? (
+                    <div className="mt-20">
+                        <div className="rounded-[2rem] overflow-hidden shadow-md border border-gray-100 h-[450px] relative">
+                            {pkg.location_map.includes('<iframe') ? (
+                                <div
+                                    className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full border-0"
+                                    dangerouslySetInnerHTML={{ __html: pkg.location_map }}
+                                />
+                            ) : (
+                                <iframe
+                                    src={pkg.location_map}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen=""
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    title="Location Map"
+                                ></iframe>
+                            )}
+                        </div>
                     </div>
-                </div>
+                ) : null}
             </div>
 
             {/* Related Trips Section (Full Width Background) */}

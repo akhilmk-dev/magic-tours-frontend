@@ -83,13 +83,28 @@ const PopularPackagesSkeleton = () => (
 export default function PopularPackages({ packages: apiPackages, loading }) {
     const router = useRouter();
     if (loading) return <PopularPackagesSkeleton />;
+    const parseCategories = (cat) => {
+        if (!cat) return "";
+        if (Array.isArray(cat)) return cat.join(', ');
+        if (typeof cat === 'string') {
+            try {
+                const parsed = JSON.parse(cat);
+                if (Array.isArray(parsed)) return parsed.join(', ');
+                return cat;
+            } catch (e) {
+                return cat;
+            }
+        }
+        return String(cat);
+    };
+
     const packageData = apiPackages && apiPackages.length > 0
         ? apiPackages.map(p => ({
             id: p.id,
             title: p.title,
             location: p.location,
             duration: p.duration,
-            type: p.category,
+            type: parseCategories(p.category),
             price: p.price,
             description: p.description,
             image: p.image
@@ -235,8 +250,8 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                     <div className={`flex-1 p-6 flex flex-col relative z-10
                                         ${isFocused ? 'bg-white rounded-t-[2.5rem] -mt-10 pt-8' : 'bg-brand-magic'}
                                     `}>
-                                        <h3 className={`text-[24px] font-bold mb-3 ${isFocused ? 'text-brand-heading' : 'text-white'}`}>{pkg.title}</h3>
-                                        <p className={`text-[12px] leading-relaxed mb-6 line-clamp-2 ${isFocused ? 'text-gray-500' : 'text-white/80'}`}>{pkg.description}</p>
+                                        <h3 title={pkg.title} className={`text-[24px] font-bold mb-3 ${isFocused ? 'text-brand-heading' : 'text-white'} line-clamp-1`}>{pkg.title}</h3>
+                                        <p title={pkg.description} className={`text-[12px] leading-relaxed mb-6 line-clamp-2 ${isFocused ? 'text-gray-500' : 'text-white/80'}`}>{pkg.description}</p>
 
                                         {isFocused ? (
                                             <div className="bg-[#FAF8F5] p-4 rounded-[1.5rem] space-y-3 mb-6">
@@ -244,18 +259,18 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                                     <Calendar size={16} className="text-blue-500" /> {pkg.duration}
                                                 </div>
                                                 <div className="flex items-center gap-3 text-brand-heading font-semibold text-[13px]">
-                                                    <Star size={16} fill="#FACC15" className="text-[#FACC15]" /> Tour Type :{pkg.type}
+                                                    <Star size={16} fill="#FACC15" className="text-[#FACC15]" /> <span title={pkg.type} className="line-clamp-1">Tour Type :{pkg.type}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-brand-heading font-semibold text-[13px]">
-                                                    <MapPin size={16} className="text-blue-500" /> Brooklyn,NY
+                                                    <MapPin size={16} className="text-blue-500" /> <span title={pkg.location} className="line-clamp-1">{pkg.location}</span>
                                                 </div>
-                                                <div className="inline-block bg-[#FFA500] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider">
-                                                    Honey Moon Package
+                                                <div title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider line-clamp-1">
+                                                    {pkg.type}
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2 text-[#FFA500] font-bold text-[13px] mb-auto">
-                                                <Star size={14} fill="currentColor" /> Tour Type :{pkg.type}
+                                                <Star size={14} fill="currentColor" /> <span title={pkg.type} className="line-clamp-1">Tour Type :{pkg.type}</span>
                                             </div>
                                         )}
 

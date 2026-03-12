@@ -1,12 +1,51 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { MapPin, Globe, Wifi, Coffee, Wind, Tv, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { MapPin, Globe, Wifi, Coffee, Wind, Tv, ChevronLeft, ChevronRight, Search as SearchIcon, Check } from 'lucide-react';
 import { api } from '../../api/client';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 import bookingImg from '../../assets/booking-img.png';
 import backgroundImg from '../../assets/Background.png';
+
+const FilterSection = ({ title, children }) => (
+    <div className="flex flex-col gap-3">
+        <div className="flex items-center">
+            <div className="w-1 h-5 bg-[#FFA500]" />
+            <h3 className="text-[#113A74] font-bold text-[11px] bg-[#eff6ff] px-2.5 py-1 ml-2 uppercase tracking-wider">{title}</h3>
+        </div>
+        {children}
+    </div>
+);
+
+const CheckItem = ({ label, checked, onChange }) => (
+    <label className="flex items-center gap-2.5 cursor-pointer group">
+        <div
+            onClick={onChange}
+            className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition-colors ${checked ? 'bg-[#113A74] border-[#113A74]' : 'border-slate-200 group-hover:border-[#113A74] bg-white'
+                } shadow-sm`}
+        >
+            {checked && <Check size={9} strokeWidth={3} className="text-white" />}
+        </div>
+        <span className="text-[10px] font-semibold text-[#113A74] group-hover:text-[#FFA500] transition-colors">{label}</span>
+    </label>
+);
+
+const parseCategories = (cat) => {
+    if (!cat) return [];
+    if (Array.isArray(cat)) return cat;
+    if (typeof cat === 'string') {
+        try {
+            const parsed = JSON.parse(cat);
+            if (Array.isArray(parsed)) return parsed;
+            return [cat];
+        } catch (e) {
+            return [cat];
+        }
+    }
+    return [String(cat)];
+};
 
 const HotelCardSkeleton = () => (
     <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full animate-pulse">
@@ -27,7 +66,8 @@ const HotelCardSkeleton = () => (
     </div>
 );
 
-const HotelCard = ({ name, country, city_name, overview, facilities, categories, images, hotel_logo_image }) => {
+const HotelCard = ({ name, country, city_name, overview, facilities, categories: rawCategories, images, hotel_logo_image }) => {
+    const categories = parseCategories(rawCategories);
     // Map facilities text to icons if possible
     const iconMap = {
         "Free Wifi": <Wifi size={14} />,
@@ -55,7 +95,7 @@ const HotelCard = ({ name, country, city_name, overview, facilities, categories,
 
                 <div className="absolute top-3 right-3 flex gap-2">
                     {categories?.map((cat, i) => (
-                        <span key={i} className="bg-[#FFA500] text-white text-[8px] font-black px-2.5 py-1 rounded-full uppercase shadow-lg">
+                        <span key={i} className="bg-[#FFA500] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase shadow-lg">
                             {cat}
                         </span>
                     ))}
@@ -64,40 +104,40 @@ const HotelCard = ({ name, country, city_name, overview, facilities, categories,
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#113A74]/80 to-transparent pointer-events-none" />
 
                 <div className="absolute bottom-3 left-5 flex items-center gap-2 text-white z-10">
-                    <Globe size={12} className="text-[#FFA500]" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{country}</span>
+                    <Globe size={13} className="text-[#FFA500]" />
+                    <span className="text-xs font-bold uppercase tracking-wider">{country}</span>
                 </div>
             </div>
 
             {/* Content Body */}
             <div className="p-5 flex flex-col flex-1 text-left">
                 <div className="mb-3">
-                    <h3 className="text-lg md:text-xl font-bold text-[#113A74] font-display tracking-tight leading-tight mb-1 group-hover:text-[#FFA500] transition-colors line-clamp-1">
+                    <h3 title={name} className="text-xl md:text-2xl font-bold text-[#113A74] font-display tracking-tight leading-tight mb-1 group-hover:text-[#FFA500] transition-colors line-clamp-1">
                         {name}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-                        <MapPin size={10} className="text-[#FFA500]" />
+                    <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
+                        <MapPin size={12} className="text-[#FFA500]" />
                         {city_name}, {country}
                     </div>
                 </div>
 
-                <p className="text-gray-500 text-[10px] leading-relaxed mb-4 line-clamp-2">
+                <p title={overview} className="text-gray-500 text-[13px] leading-relaxed mb-4 line-clamp-2">
                     {overview}
                 </p>
 
                 {/* Facilities */}
                 {facilities && Array.isArray(facilities) && (
-                    <div className="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                    <div className="flex flex-wrap gap-2 mb-6">
                         {facilities.slice(0, 3).map((fac, idx) => (
-                            <div key={idx} className="flex items-center gap-1 bg-[#F8FBFF] border border-[#E9F7FF] text-[#113A74] text-[8px] font-bold px-2 py-1 rounded-full shadow-sm">
-                                {iconMap[fac] || <Wifi size={12} />}
+                            <div key={idx} className="flex items-center gap-1.5 bg-[#f8fafc] text-slate-500 px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-50 hover:bg-[#113A74] hover:text-white transition-all cursor-default group/fac">
+                                <span className="text-[#FFA500] group-hover/fac:text-white transition-colors">{iconMap[fac] || <Globe size={10} />}</span>
                                 <span>{fac}</span>
                             </div>
                         ))}
                     </div>
                 )}
 
-                <button className="w-full bg-[#113A74] text-white py-2.5 rounded-full font-bold text-[10px] uppercase tracking-wider hover:bg-[#0d2a56] transition-all shadow-md shadow-[#113A74]/10">
+                <button className="w-full bg-[#113A74] text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-[#0d2a56] transition-all shadow-md shadow-[#113A74]/10 mt-auto">
                     View Details
                 </button>
             </div>
@@ -128,18 +168,30 @@ const Pagination = ({ page, totalPages, setPage }) => {
     );
 };
 
-export default function HotelsPage() {
+function HotelsContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [hotels, setHotels] = useState([]);
+    const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [search, setSearch] = useState("");
-    const [searchInput, setSearchInput] = useState("");
+    const [search, setSearch] = useState(searchParams.get('search') || "");
+    const [searchInput, setSearchInput] = useState(searchParams.get('search') || "");
+    const [cityId, setCityId] = useState(searchParams.get('city_id') || "");
+    const [cityInput, setCityInput] = useState(searchParams.get('city_id') ? searchParams.get('city_id').split(',') : []);
 
-    const fetchHotels = async (activePage = page, searchQuery = search) => {
+    const fetchHotels = async (activePage = page, searchQuery = search, activeCity = cityId) => {
         setLoading(true);
         try {
-            const response = await api.get(`/hotels/frontend/list?page=${activePage}&limit=12&search=${searchQuery}`);
+            const queryParams = new URLSearchParams({
+                page: activePage,
+                limit: 12,
+                search: searchQuery,
+            });
+            if (activeCity) queryParams.append('city_id', activeCity);
+
+            const response = await api.get(`/hotels/frontend/list?${queryParams.toString()}`);
             if (response.data) {
                 setHotels(response.data);
                 if (response.pagination) {
@@ -154,13 +206,85 @@ export default function HotelsPage() {
     };
 
     useEffect(() => {
-        fetchHotels(page, search);
-    }, [page, search]);
+        const fetchCities = async () => {
+            try {
+                const response = await api.get('/cities');
+                if (Array.isArray(response)) {
+                    setCities(response);
+                } else if (response.data && Array.isArray(response.data)) {
+                    setCities(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch cities", error);
+            }
+        };
+        fetchCities();
+    }, []);
+
+    useEffect(() => {
+        const querySearch = searchParams.get('search') || "";
+        const queryCity = searchParams.get('city_id') || "";
+
+        if (querySearch !== search) {
+            setSearch(querySearch);
+            setSearchInput(querySearch);
+        }
+        if (queryCity !== cityId) {
+            setCityId(queryCity);
+            setCityInput(queryCity ? queryCity.split(',') : []);
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
+        fetchHotels(page, search, cityId);
+    }, [page, search, cityId]);
 
     const handleSearch = (e) => {
         if (e) e.preventDefault();
+        const cityIdString = cityInput.join(',');
         setSearch(searchInput);
-        setPage(1); // Reset to first page on search
+        setCityId(cityIdString);
+        setPage(1);
+
+        const params = new URLSearchParams();
+        if (searchInput) params.set('search', searchInput);
+        if (cityIdString) params.set('city_id', cityIdString);
+
+        router.push(`/hotels?${params.toString()}`, { scroll: false });
+    };
+
+    const handleClear = () => {
+        setSearchInput("");
+        setSearch("");
+        setCityInput([]);
+        setCityId("");
+        setPage(1);
+        router.push('/hotels', { scroll: false });
+    };
+
+    // Search Debouncing
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchInput !== search) {
+                setSearch(searchInput);
+                setPage(1);
+                const params = new URLSearchParams(window.location.search);
+                if (searchInput) params.set('search', searchInput);
+                else params.delete('search');
+                // Keep city_id if it exists
+                if (cityId) params.set('city_id', cityId);
+                router.push(`/hotels?${params.toString()}`, { scroll: false });
+            }
+        }, 600);
+        return () => clearTimeout(timer);
+    }, [searchInput, search, cityId, router]);
+
+    const toggleCity = (id) => {
+        setCityInput(prev =>
+            prev.includes(id)
+                ? prev.filter(c => c !== id)
+                : [...prev, id]
+        );
     };
 
     return (
@@ -197,12 +321,20 @@ export default function HotelsPage() {
 
                     {/* Sidebar Area */}
                     <aside className="w-full lg:w-[320px] shrink-0 lg:sticky lg:top-24 space-y-6">
-                        {/* Search Sidebar Box - Standardized with other pages */}
+                        {/* Search Sidebar Box */}
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm">
-                            <h4 className="text-[#113A74] font-bold font-heading text-lg mb-6 flex items-center gap-2">
-                                <div className="w-1 h-5 bg-[#FFA500]" />
-                                Find a Hotel
-                            </h4>
+                            <div className="flex items-center justify-between mb-6">
+                                <h4 className="text-[#113A74] font-bold font-heading text-lg flex items-center gap-2">
+                                    <div className="w-1 h-5 bg-[#FFA500]" />
+                                    Find a Hotel
+                                </h4>
+                                <button
+                                    onClick={handleClear}
+                                    className="text-[11px] font-bold text-[#113A74] hover:text-[#FFA500] transition-colors"
+                                >
+                                    Clear All
+                                </button>
+                            </div>
                             <form onSubmit={handleSearch} className="space-y-4">
                                 <div className="relative">
                                     <input
@@ -212,14 +344,33 @@ export default function HotelsPage() {
                                         onChange={(e) => setSearchInput(e.target.value)}
                                         className="w-full bg-[#f4f7f9] rounded-full py-3.5 px-6 text-[11px] font-bold outline-none placeholder:text-gray-400 border border-transparent focus:border-[#113A74]/10 transition-colors"
                                     />
+                                    <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#113A74] text-white p-2 rounded-full hover:bg-[#FFA500] transition-colors">
+                                        <SearchIcon size={16} />
+                                    </button>
                                 </div>
-                                <button type="submit" className="w-full bg-[#113A74] text-white py-3.5 rounded-full font-bold text-[11px] uppercase tracking-wider hover:bg-[#0d2a56] shadow-lg shadow-[#113A74]/10">
-                                    Search
+
+                                <FilterSection title="Cities">
+                                    <div className="flex flex-col gap-2.5 mt-2 bg-[#f8fafc]/50 p-4 rounded-3xl border border-slate-50">
+                                        {cities.length > 0 ? cities.map(city => (
+                                            <CheckItem
+                                                key={city.id}
+                                                label={city.name}
+                                                checked={cityInput.includes(city.id)}
+                                                onChange={() => toggleCity(city.id)}
+                                            />
+                                        )) : (
+                                            <div className="text-[10px] text-slate-400 font-bold italic">Loading cities...</div>
+                                        )}
+                                    </div>
+                                </FilterSection>
+
+                                <button type="submit" className="w-full bg-[#113A74] text-white py-3.5 rounded-full font-bold text-[11px] uppercase tracking-wider hover:bg-[#0d2a56] shadow-lg shadow-[#113A74]/10 mt-2 active:scale-95 transition-transform">
+                                    Apply
                                 </button>
                             </form>
                         </div>
 
-                        {/* Promotion Banner 1 */}
+                        {/* Promotion Banners */}
                         <div className="rounded-[2rem] overflow-hidden shadow-xl group border border-slate-100">
                             <img
                                 src={bookingImg.src || bookingImg}
@@ -227,8 +378,6 @@ export default function HotelsPage() {
                                 className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                             />
                         </div>
-
-                        {/* Promotion Banner 2 */}
                         <div className="relative rounded-[2rem] overflow-hidden shadow-xl group border border-slate-100 tracking-tight">
                             <img
                                 src={backgroundImg.src || backgroundImg}
@@ -236,34 +385,46 @@ export default function HotelsPage() {
                                 className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-[4/5]"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#113A74]/80 to-transparent flex flex-col justify-end p-8 text-white">
-                                <span className="bg-[#FFA500] text-black text-[10px] font-black px-3 py-1 rounded-full w-fit mb-4">LIMITED OFFER</span>
+                                <span className="bg-[#FFA500] text-black text-[10px] font-black px-3 py-1 rounded-full w-fit mb-4 text-center">LIMITED OFFER</span>
                                 <h5 className="text-2xl font-bold leading-tight mb-2">Summer Luxury Retreats</h5>
-                                <p className="text-xs text-white/80 font-medium">Book now and get 30% off on premium suites worldwide.</p>
+                                <p className="text-xs text-white/80 font-medium text-left">Book now and get 30% off on premium suites worldwide.</p>
                             </div>
                         </div>
                     </aside>
 
-                    {/* Main Hotels Grid */}
+                    {/* Hotels Grid Area */}
                     <div className="flex-1 min-w-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {loading ? (
-                                Array(6).fill(0).map((_, i) => <HotelCardSkeleton key={i} />)
-                            ) : hotels.length === 0 ? (
-                                <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border border-slate-100 shadow-sm">
-                                    <p className="text-gray-400 font-bold tracking-wider">No hotels found.</p>
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => <HotelCardSkeleton key={i} />)}
+                            </div>
+                        ) : hotels.length > 0 ? (
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {hotels.map((hotel, idx) => (
+                                        <HotelCard key={hotel.id || idx} {...hotel} />
+                                    ))}
                                 </div>
-                            ) : (
-                                hotels.map(hotel => (
-                                    <HotelCard key={hotel.id} {...hotel} />
-                                ))
-                            )}
-                        </div>
-
-                        {/* Pagination */}
-                        {!loading && <Pagination page={page} totalPages={totalPages} setPage={setPage} />}
+                                <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+                            </>
+                        ) : (
+                            <div className="text-center py-20 bg-white rounded-[3rem] border border-dashed border-slate-200">
+                                <SearchIcon size={48} className="mx-auto text-slate-300 mb-4" />
+                                <h3 className="text-xl font-bold text-[#113A74] mb-2">No Hotels Found</h3>
+                                <p className="text-slate-400">Try adjusting your search criteria</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
         </main>
+    );
+}
+
+export default function HotelsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#E9F7FF] flex items-center justify-center font-bold text-[#113A74]">Loading Filters...</div>}>
+            <HotelsContent />
+        </Suspense>
     );
 }

@@ -66,7 +66,7 @@ export default function Navbar() {
     const { user, logout, openAuthModal } = useCustomerAuth();
 
     // Check if we are on pages that should have a transparent navbar initially
-    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl';
+    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels';
 
     useEffect(() => {
         const handleScroll = () => {

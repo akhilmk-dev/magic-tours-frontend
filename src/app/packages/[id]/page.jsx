@@ -27,6 +27,7 @@ import flightImg from '../../../assets/flight.png';
 import trainImg from '../../../assets/img (2).png'; // Placeholder for Train
 import GalleryLoop from '../../../components/Home/GalleryLoop';
 import AdventureSection from '../../../components/Home/AdventureSection';
+import BookingModal from '../../../components/Booking/BookingModal';
 
 const PackageDetailsPage = () => {
     const params = useParams();
@@ -36,6 +37,7 @@ const PackageDetailsPage = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [mounted, setMounted] = useState(false);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -93,7 +95,7 @@ const PackageDetailsPage = () => {
                 const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${id}`);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const data = await response.json();
-                setPkg(data);
+                setPkg(data.package_details || data);
             } catch (err) {
                 setError("Failed to load package details.");
                 console.error(err);
@@ -220,7 +222,10 @@ const PackageDetailsPage = () => {
                             <p className="text-gray-500 text-sm md:text-base mb-8 max-w-lg line-clamp-3">
                                 {pkg.destination?.overview || pkg.description}
                             </p>
-                            <button className="bg-[#113A74] hover:bg-[#0d2a56] text-white px-8 py-3 rounded-full font-medium flex inline-flex items-center gap-2 transition-colors">
+                            <button
+                                onClick={() => setIsBookingModalOpen(true)}
+                                className="bg-[#113A74] hover:bg-[#0d2a56] text-white px-8 py-3 rounded-full font-medium flex inline-flex items-center gap-2 transition-colors"
+                            >
                                 Book Now <ArrowRight size={16} />
                             </button>
                         </div>
@@ -504,26 +509,28 @@ const PackageDetailsPage = () => {
                         {/* BOOKING FORM */}
                         <div className="bg-[#113A74] rounded-xl p-8 md:p-10 relative overflow-hidden shadow-2xl">
                             <h4 className="text-white text-center font-heading font-bold text-xl mb-3 tracking-wide">BOOKING FORM</h4>
-                            <p className="text-white/80 text-center text-xs mb-8 leading-relaxed max-w-[200px] mx-auto">
-                                Malesuada incidunt excepturi proident quo eros? Sinterdum praesent magnis, eius cumque.
+                            <p className="text-white/80 text-center text-[10px] mb-8 leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest font-black">
+                                Plan your dream journey today
                             </p>
 
-                            <form className="space-y-5 relative z-10" onSubmit={handleBooking}>
-                                <div>
-                                    <input required type="text" placeholder="Your Name..." className="w-full bg-white rounded-full py-3.5 px-6 text-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-white/50 transition-all font-medium" />
-                                </div>
-                                <div>
-                                    <input required type="email" placeholder="Your Email..." className="w-full bg-white rounded-full py-3.5 px-6 text-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-white/50 transition-all font-medium" />
+                            <div className="space-y-5 relative z-10">
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-6">
+                                    <p className="text-white/70 text-xs font-medium text-center italic">
+                                        "Fill in passenger details, upload documents and select departure dates in our secure booking portal."
+                                    </p>
                                 </div>
                                 <div className="pt-2">
-                                    <button disabled={bookingLoading} type="submit" className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-4 px-6 text-sm flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg shadow-[#FFA500]/20">
-                                        {bookingLoading ? <Loader2 className="animate-spin w-4 h-4" /> : 'Book Now'} <ArrowRight size={16} />
+                                    <button
+                                        onClick={() => setIsBookingModalOpen(true)}
+                                        className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-4 px-6 text-sm flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg shadow-[#FFA500]/20"
+                                    >
+                                        Start Booking <ArrowRight size={16} />
                                     </button>
                                 </div>
                                 {bookingSuccess && (
-                                    <p className="text-green-400 text-xs text-center mt-4">Booking Successful!</p>
+                                    <p className="text-green-400 text-xs text-center mt-4 font-bold">Booking Request Sent!</p>
                                 )}
-                            </form>
+                            </div>
                         </div>
 
                         {/* Related Images */}
@@ -761,6 +768,13 @@ const PackageDetailsPage = () => {
             <div className="bg-[#E9F7FF]">
                 <GalleryLoop />
             </div>
+            {/* Booking Modal */}
+            <BookingModal
+                isOpen={isBookingModalOpen}
+                onClose={() => setIsBookingModalOpen(false)}
+                pkg={pkg}
+                user={user}
+            />
         </div>
     );
 };

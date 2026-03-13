@@ -19,7 +19,7 @@ const ProfilePage = () => {
         const fetchData = async () => {
             try {
                 const [bookingsRes, idlRes] = await Promise.all([
-                    api.get('/bookings').catch(() => ({ data: [] })),
+                    api.get('/bookings/frontend/my').catch(() => ({ data: [] })),
                     api.get('/idl/my').catch(() => ({ data: [] }))
                 ]);
                 setBookings(bookingsRes.data || bookingsRes || []);
@@ -131,8 +131,8 @@ const ProfilePage = () => {
                             <button
                                 onClick={() => setActiveTab('bookings')}
                                 className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'bookings'
-                                        ? 'bg-[#113A74] text-white shadow-md'
-                                        : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    ? 'bg-[#113A74] text-white shadow-md'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
                                     }`}
                             >
                                 My Bookings
@@ -140,8 +140,8 @@ const ProfilePage = () => {
                             <button
                                 onClick={() => setActiveTab('idl')}
                                 className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'idl'
-                                        ? 'bg-[#113A74] text-white shadow-md'
-                                        : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    ? 'bg-[#113A74] text-white shadow-md'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
                                     }`}
                             >
                                 IDL Applications
@@ -166,61 +166,89 @@ const ProfilePage = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-6">
-                                    {bookings.map((booking) => (
-                                        <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
-                                            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8 pb-8 border-b border-gray-100">
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                                booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                                    'bg-gray-100 text-gray-600'
-                                                            }`}>
-                                                            {booking.status}
-                                                        </span>
-                                                        <span className="text-xs font-bold text-gray-400">BOOKING #{booking.id.split('-').pop()}</span>
-                                                    </div>
-                                                    <h3 className="text-xl font-black text-[#113A74]">
-                                                        {booking.package_name || 'Tour Package'}
-                                                    </h3>
-                                                </div>
-                                                <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl">
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
-                                                    <p className="text-2xl font-black text-[#113A74]">AED {booking.total_amount?.toLocaleString()}</p>
-                                                </div>
-                                            </div>
+                                    {bookings.map((booking) => {
+                                        // Support both old and new API field names
+                                        const adultDouble = booking.guest_adult_double ?? booking.count_adult_double ?? 0;
+                                        const adultSingle = booking.guest_adult_single ?? booking.count_adult_single ?? 0;
+                                        const adultTriple = booking.guest_adult_triple ?? booking.count_adult_triple ?? 0;
+                                        const childBed = booking.guest_child_with_bed ?? booking.count_child_bed ?? 0;
+                                        const childNoBed = booking.guest_child_no_bed ?? booking.count_child_no_bed ?? 0;
+                                        const infant = booking.guest_infant ?? booking.count_infant ?? 0;
+                                        const totalPassengers = adultDouble * 2 + adultSingle + adultTriple * 3 + childBed + childNoBed + infant;
+                                        const packageTitle = booking.package_title || booking.package_name || 'Tour Package';
+                                        const bookingRef = booking.display_id || booking.id?.split('-').pop()?.toUpperCase();
+                                        const totalAmount = booking.total_amount ?? booking.total ?? null;
 
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-                                                <div>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
-                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
-                                                        <Calendar size={18} className="text-[#FFA500]" />
-                                                        {new Date(booking.travel_date).toLocaleDateString()}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Trip End</p>
-                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
-                                                        <Clock size={18} className="text-[#FFA500]" />
-                                                        {booking.trip_end ? new Date(booking.trip_end).toLocaleDateString() : 'N/A'}
-                                                    </div>
-                                                </div>
-                                                <div className="col-span-2">
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travelers</p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {booking.count_adult_double > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_double} Adult (Double)</span>}
-                                                        {booking.count_adult_single > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_single} Adult (Single)</span>}
-                                                        {booking.count_adult_triple > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_adult_triple} Adult (Triple)</span>}
-                                                        {(booking.count_child_bed > 0 || booking.count_child_no_bed > 0) && (
-                                                            <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">
-                                                                {(booking.count_child_bed || 0) + (booking.count_child_no_bed || 0)} Child(ren)
+                                        return (
+                                            <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
+                                                {/* Header */}
+                                                <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
+                                                    <div className="flex-1">
+                                                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
+                                                                    booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                        booking.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
+                                                                            'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                {booking.status}
                                                             </span>
+                                                            <span className="text-xs font-bold text-gray-400">#{bookingRef}</span>
+                                                        </div>
+                                                        <h3 className="text-xl font-black text-[#113A74] mb-1">{packageTitle}</h3>
+                                                        {booking.currency && (
+                                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">{booking.currency}</span>
                                                         )}
-                                                        {booking.count_infant > 0 && <span className="text-xs bg-gray-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-gray-100">{booking.count_infant} Infant(s)</span>}
+                                                    </div>
+                                                    <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl shrink-0">
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
+                                                        <p className="text-2xl font-black text-[#113A74]">
+                                                            {totalAmount != null ? `AED ${totalAmount.toLocaleString()}` : '—'}
+                                                        </p>
                                                     </div>
                                                 </div>
+
+                                                {/* Details grid */}
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                                    <div>
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
+                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                            <Calendar size={16} className="text-[#FFA500] shrink-0" />
+                                                            {booking.travel_date ? new Date(booking.travel_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Passengers</p>
+                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                            <User size={16} className="text-[#FFA500] shrink-0" />
+                                                            {totalPassengers} Traveler{totalPassengers !== 1 ? 's' : ''}
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-span-2 md:col-span-1">
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Booked On</p>
+                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                            <Clock size={16} className="text-[#FFA500] shrink-0" />
+                                                            {booking.created_at ? new Date(booking.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Room breakdown */}
+                                                {(adultDouble + adultSingle + adultTriple + childBed + childNoBed + infant > 0) && (
+                                                    <div className="mt-6 pt-6 border-t border-gray-50">
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Room Breakdown</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {adultDouble > 0 && <span className="text-xs bg-blue-50   text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-blue-100">{adultDouble} Double Room{adultDouble > 1 ? 's' : ''} ({adultDouble * 2} pax)</span>}
+                                                            {adultSingle > 0 && <span className="text-xs bg-indigo-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-indigo-100">{adultSingle} Single Room{adultSingle > 1 ? 's' : ''}</span>}
+                                                            {adultTriple > 0 && <span className="text-xs bg-purple-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-purple-100">{adultTriple} Triple Room{adultTriple > 1 ? 's' : ''} ({adultTriple * 3} pax)</span>}
+                                                            {childBed > 0 && <span className="text-xs bg-green-50  text-green-700  px-3 py-1.5 font-bold rounded-lg border border-green-100">{childBed} Child (with bed)</span>}
+                                                            {childNoBed > 0 && <span className="text-xs bg-green-50  text-green-700  px-3 py-1.5 font-bold rounded-lg border border-green-100">{childNoBed} Child (no bed)</span>}
+                                                            {infant > 0 && <span className="text-xs bg-orange-50 text-orange-600 px-3 py-1.5 font-bold rounded-lg border border-orange-100">{infant} Infant{infant > 1 ? 's' : ''}</span>}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )
                         ) : (
@@ -243,9 +271,9 @@ const ProfilePage = () => {
                                             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                                                 <div>
                                                     <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 ${idl.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                            idl.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                                idl.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                                    'bg-gray-100 text-gray-600'
+                                                        idl.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                            idl.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-gray-100 text-gray-600'
                                                         }`}>
                                                         {idl.status}
                                                     </span>

@@ -191,7 +191,7 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                         <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">Packages</span>
                     </div>
                     <h2 className="text-[28px] md:text-[42px] font-bold text-brand-heading leading-tight mb-4">
-                        Popular Travel <span className="text-[#FFA500]">Packages</span>
+                        Popular Travel <span className="text-[#FFA500]">Packages</span> [DEPLOY_CHECK_VER_2]
                     </h2>
                     <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                         Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,

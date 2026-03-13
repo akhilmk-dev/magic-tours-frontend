@@ -149,7 +149,7 @@ const HotelCard = ({ hotel, className = "" }) => (
                 <MapPin size={14} className="text-[#FDB338]" />
                 {hotel.location}
             </div>
-            <h4 className={`${hotel.isLarge ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl'} font-bold text-white mb-2 font-heading leading-tight`}>
+            <h4 className={`${hotel.isLarge ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl'} font-bold text-white mb-2 font-heading leading-tight line-clamp-2`}>
                 {hotel.title}
             </h4>
             <p className="text-white/60 text-xs line-clamp-2 font-medium leading-relaxed">
@@ -166,15 +166,16 @@ export default function HotelPackages({ hotels: apiHotels, loading }) {
             let hotelImages = [];
             try {
                 hotelImages = typeof h.images === 'string' ? JSON.parse(h.images) : h.images;
+                if (!Array.isArray(hotelImages)) hotelImages = [h.images];
             } catch (e) {
-                console.error("Error parsing hotel images:", e);
+                hotelImages = [h.images];
             }
             return {
                 id: h.id,
-                image: (hotelImages && hotelImages.length > 0) ? hotelImages[0] : hotel1,
-                location: h.address,
+                image: (hotelImages && hotelImages.length > 0) ? hotelImages[0] : (h.image || hotel1),
+                location: h.country || h.address,
                 title: h.name,
-                desc: h.description,
+                desc: h.overview || h.description,
                 isLarge: idx % 5 === 0 // Make every 5th item large to maintain layout
             };
         })

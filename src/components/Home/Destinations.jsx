@@ -1,27 +1,32 @@
 import React from 'react';
 import { ArrowRight, Plane } from 'lucide-react';
 import { clsx } from 'clsx';
+import Link from 'next/link';
 
 const tripCategories = [
     {
         id: 1,
         name: 'Packages',
         image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
+        link: '/tours'
     },
     {
         id: 2,
         name: 'Cruise Ship',
         image: 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?q=80&w=800&auto=format&fit=crop',
+        link: '#'
     },
     {
         id: 3,
-        name: 'Educational Trip',
+        name: 'Private Jets',
         image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format&fit=crop',
+        link: '/private-jets'
     },
     {
         id: 4,
-        name: 'Airbnb',
+        name: 'Destinations',
         image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop',
+        link: '/destinations'
     }
 ];
 
@@ -61,7 +66,7 @@ export default function Destinations() {
                     <div className="xl:w-[75%] w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                             {tripCategories.map((trip) => (
-                                <div key={trip.id} className="group cursor-pointer">
+                                <Link href={trip.link} key={trip.id} className="group cursor-pointer">
                                     <div className="flex flex-col h-full rounded-[2.2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_20px_60px_rgba(15,30,50,0.15)] hover:-translate-y-2">
                                         <div className="aspect-square overflow-hidden relative">
                                             <img
@@ -81,7 +86,7 @@ export default function Destinations() {
                                             </span>
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>

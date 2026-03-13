@@ -7,37 +7,43 @@ import blog1 from '../../assets/blog1.jpg';
 import blog2 from '../../assets/blog2.jpg';
 import blog3 from '../../assets/blog3.jpg';
 
-const blogPosts = [
-    {
-        id: 1,
-        image: blog1,
-        date: '04',
-        month: 'Nov',
-        author: 'admin',
-        comments: '0 Comments',
-        title: 'Top 8 Amazing Places to Stay in California',
-    },
-    {
-        id: 2,
-        image: blog2,
-        date: '04',
-        month: 'Nov',
-        author: 'admin',
-        comments: '0 Comments',
-        title: 'The surfing man will adventure your mind',
-    },
-    {
-        id: 3,
-        image: blog3,
-        date: '04',
-        month: 'Nov',
-        author: 'admin',
-        comments: '0 Comments',
-        title: 'Top 5 destinations & adventure travel',
-    },
-];
+const BlogNewsSkeleton = () => (
+    <section className="bg-[#E9F7FF] py-10 sm:py-14 lg:py-20 px-4 sm:px-8 md:px-12 lg:px-16 animate-pulse">
+        <div className="container mx-auto">
+            <div className="text-center mb-12">
+                <div className="h-10 w-32 bg-white/50 rounded-full mx-auto mb-6" />
+                <div className="h-12 w-96 bg-white/50 rounded mx-auto" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-2xl h-[400px] shadow-sm" />
+                ))}
+            </div>
+        </div>
+    </section>
+);
 
-export default function BlogNews() {
+export default function BlogNews({ blogs, loading }) {
+    if (loading) return <BlogNewsSkeleton />;
+
+    const posts = blogs && blogs.length > 0 ? blogs.map((post, idx) => {
+        const dateObj = post.date ? new Date(post.date) : new Date();
+        const day = dateObj.getDate().toString().padStart(2, '0');
+        const month = dateObj.toLocaleString('default', { month: 'short' });
+
+        return {
+            id: post.id || idx,
+            image: post.image,
+            date: day,
+            month: month,
+            author: post.author || 'admin',
+            comments: '0 Comments',
+            title: post.heading,
+        };
+    }) : [];
+
+    if (posts.length === 0) return null;
+
     return (
         <section className="bg-[#E9F7FF] py-10 sm:py-14 lg:py-20 px-4 sm:px-8 md:px-12 lg:px-16">
             <div className="container mx-auto">
@@ -59,7 +65,7 @@ export default function BlogNews() {
 
                 {/* Blog Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 sm:mb-28 max-w-6xl mx-auto">
-                    {blogPosts.map((post, index) => (
+                    {posts.map((post, index) => (
                         <motion.div
                             key={post.id}
                             initial={{ opacity: 0, y: 20 }}

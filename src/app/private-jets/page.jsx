@@ -12,6 +12,10 @@ import jet2 from '../../assets/private-jet-2.png';
 import formBg from '../../assets/form-background.png';
 import wingBg from '../../assets/Background (1).png';
 
+// Components
+import AdventureSection from '../../components/Home/AdventureSection';
+import GalleryLoop from '../../components/Home/GalleryLoop';
+
 const PrivateJetsPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
 
@@ -316,6 +320,12 @@ const PrivateJetsPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Adventure Section */}
+            <AdventureSection />
+
+            {/* Gallery Loop Section */}
+            <GalleryLoop />
         </div>
     );
 };

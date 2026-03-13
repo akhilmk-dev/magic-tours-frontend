@@ -69,12 +69,20 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
             image: t.customer_image,
             text: t.review_text
         }))
-        : staticReviews;
-    const [currentIndex, setCurrentIndex] = useState(3); // Start at first real item (offset by clones)
+        : [];
+
+    if (reviews.length === 0) return null;
+    const [currentIndex, setCurrentIndex] = useState(3);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(3);
     const sliderRef = useRef(null);
     const autoPlayRef = useRef(null);
+
+    // Reset slider when reviews length changes
+    useEffect(() => {
+        setCurrentIndex(3);
+        setIsTransitioning(false);
+    }, [reviews.length]);
 
     // Clone items for infinite loop (3 at each end)
     const displayItems = [...reviews.slice(-3), ...reviews, ...reviews.slice(0, 3)];
@@ -103,7 +111,7 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
     useEffect(() => {
         startAutoPlay();
         return () => stopAutoPlay();
-    }, [currentIndex]);
+    }, [currentIndex, reviews.length]);
 
     const handleNext = () => {
         if (isTransitioning) return;
@@ -115,8 +123,7 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
         setIsTransitioning(false);
         if (currentIndex >= reviews.length + 3) {
             setCurrentIndex(3);
-        }
-        if (currentIndex < 3) {
+        } else if (currentIndex < 3) {
             setCurrentIndex(reviews.length + currentIndex);
         }
     };

@@ -51,13 +51,15 @@ const PrivateJetSkeleton = () => (
 const PrivateJet = ({ jets: apiJets, loading }) => {
     if (loading) return <PrivateJetSkeleton />;
     const slides = apiJets && apiJets.length > 0
-        ? apiJets.map(j => ({
-            id: j.id,
-            image: j.images && j.images.length > 0 ? j.images[0] : (flightImg.src || flightImg),
-            title: j.name,
+        ? apiJets.map((j, idx) => ({
+            id: j.id || idx,
+            image: j.image || (flightImg.src || flightImg),
+            title: j.heading,
             description: j.description
         }))
-        : staticSlides;
+        : [];
+
+    if (slides.length === 0) return null;
     const [currentSlide, setCurrentSlide] = useState(0);
 
     // Clamp currentSlide if slides array shrinks when API data arrives

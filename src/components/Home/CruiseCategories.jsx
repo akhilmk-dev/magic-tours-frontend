@@ -46,12 +46,14 @@ const CruiseCategoriesSkeleton = () => (
 export default function CruiseCategories({ cruises: apiCruises, loading }) {
     if (loading) return <CruiseCategoriesSkeleton />;
     const cruiseCategories = apiCruises && apiCruises.length > 0
-        ? apiCruises.map(c => ({
-            id: c.id,
+        ? apiCruises.map((c, idx) => ({
+            id: c.id || idx,
             title: c.name,
-            image: c.images && c.images.length > 0 ? c.images[0] : (luxuryCruiseImg.src || luxuryCruiseImg)
+            image: c.image || (luxuryCruiseImg.src || luxuryCruiseImg)
         }))
-        : staticCruiseCategories;
+        : [];
+
+    if (cruiseCategories.length === 0) return null;
 
     // Duplicate data for infinite loop
     const extendedData = [...cruiseCategories, ...cruiseCategories, ...cruiseCategories, ...cruiseCategories];

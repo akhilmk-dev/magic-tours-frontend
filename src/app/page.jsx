@@ -38,16 +38,16 @@ export default function Home() {
             <Destinations />
             <About />
             <PopularPackages packages={homeData?.packages} loading={loading} />
-            <CruiseCategories cruises={homeData?.cruises} loading={loading} />
+            <CruiseCategories cruises={homeData?.custom_cruises} loading={loading} />
             <HotelPackages hotels={homeData?.hotels} loading={loading} />
-            <WondersOfQatar />
-            <PrivateJet jets={homeData?.private_jets} loading={loading} />
+            <WondersOfQatar spotlights={homeData?.destination_spotlight} loading={loading} />
+            <PrivateJet jets={homeData?.custom_private_jets} loading={loading} />
             <VisaServices />
             <FeaturedDestinations />
             <Gallery images={homeData?.gallery_images} loading={loading} />
             <Testimonials testimonials={homeData?.testimonials} loading={loading} />
             <SpecialOffer />
-            <BlogNews />
+            <BlogNews blogs={homeData?.blogs} loading={loading} />
             <AdventureSection />
             <GalleryLoop images={homeData?.bottom_slider_images} loading={loading} />
         </main>

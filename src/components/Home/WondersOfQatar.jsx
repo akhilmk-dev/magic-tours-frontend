@@ -5,27 +5,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import bgImage from '../../assets/wandersofqadar.png';
 import slide1Image from '../../assets/Image 4.png';
 
-const slides = [
-    {
-        id: 1,
-        image: slide1Image.src || slide1Image,
-        title: 'Museum of Islamic',
-        subtitle: 'See More',
-    },
-    {
-        id: 2,
-        image: 'https://images.unsplash.com/photo-1573790387438-4da905039392?q=80&w=800&auto=format&fit=crop',
-        title: 'Souq Waqif',
-        subtitle: 'See More',
-    },
-];
+const WondersOfQatarSkeleton = () => (
+    <section className="relative min-h-[400px] flex items-center overflow-hidden py-16 animate-pulse bg-slate-900">
+        <div className="container mx-auto px-6 lg:px-16 flex flex-col lg:flex-row items-center gap-10">
+            <div className="w-[320px] h-[320px] bg-slate-800/50 rounded-3xl" />
+            <div className="flex-1 text-center">
+                <div className="h-10 w-48 bg-slate-800/50 rounded-full mx-auto mb-6" />
+                <div className="h-14 w-[500px] bg-slate-800/50 rounded mx-auto mb-4" />
+                <div className="h-4 w-[400px] bg-slate-800/50 rounded mx-auto" />
+            </div>
+        </div>
+    </section>
+);
 
-export default function WondersOfQatar() {
+export default function WondersOfQatar({ spotlights, loading }) {
+    if (loading) return <WondersOfQatarSkeleton />;
+
+    const items = spotlights && spotlights.length > 0 ? spotlights.map((s, idx) => ({
+        id: s.id || idx,
+        image: s.image || (slide1Image.src || slide1Image),
+        title: s.heading,
+        subtitle: 'See More',
+    })) : [];
+
+    if (items.length === 0) return null;
+
     const [currentSlide, setCurrentSlide] = useState(0);
 
     const nextSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, []);
+        setCurrentSlide((prev) => (prev + 1) % items.length);
+    }, [items.length]);
 
     // Autoplay
     useEffect(() => {
@@ -57,9 +66,9 @@ export default function WondersOfQatar() {
                                 <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden mb-4">
                                     <AnimatePresence mode="wait">
                                         <motion.img
-                                            key={slides[currentSlide].id}
-                                            src={slides[currentSlide].image}
-                                            alt={slides[currentSlide].title}
+                                            key={items[currentSlide].id}
+                                            src={items[currentSlide].image}
+                                            alt={items[currentSlide].title}
                                             initial={{ opacity: 0, scale: 1.05 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
@@ -73,17 +82,17 @@ export default function WondersOfQatar() {
                                 <div className="text-center pb-2">
                                     <AnimatePresence mode="wait">
                                         <motion.div
-                                            key={slides[currentSlide].id}
+                                            key={items[currentSlide].id}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ duration: 0.4 }}
                                         >
                                             <h3 className="text-brand-magic text-lg sm:text-xl font-bold mb-1">
-                                                {slides[currentSlide].title}
+                                                {items[currentSlide].title}
                                             </h3>
                                             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">
-                                                {slides[currentSlide].subtitle}
+                                                {items[currentSlide].subtitle}
                                             </span>
                                         </motion.div>
                                     </AnimatePresence>
@@ -91,7 +100,7 @@ export default function WondersOfQatar() {
 
                                 {/* Dot Indicators */}
                                 <div className="flex justify-center gap-2 pt-3 pb-1">
-                                    {slides.map((_, index) => (
+                                    {items.map((_, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setCurrentSlide(index)}

@@ -6,6 +6,10 @@ import { api } from '../../api/client';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 
+// Components
+import AdventureSection from '../../components/Home/AdventureSection';
+import GalleryLoop from '../../components/Home/GalleryLoop';
+
 
 const parseCategories = (cat) => {
     if (!cat) return [];
@@ -244,6 +248,12 @@ export default function DestinationsPage() {
                     <Pagination page={page} totalPages={totalPages} setPage={setPage} />
                 )}
             </section>
+
+            {/* Adventure Section */}
+            <AdventureSection />
+
+            {/* Gallery Loop Section */}
+            <GalleryLoop />
         </main>
     );
 }

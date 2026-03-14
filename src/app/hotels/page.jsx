@@ -9,6 +9,10 @@ import gutterImg from '../../assets/gutter.png';
 import bookingImg from '../../assets/booking-img.png';
 import backgroundImg from '../../assets/Background.png';
 
+// Components
+import AdventureSection from '../../components/Home/AdventureSection';
+import GalleryLoop from '../../components/Home/GalleryLoop';
+
 const FilterSection = ({ title, children }) => (
     <div className="flex flex-col gap-3">
         <div className="flex items-center">
@@ -417,6 +421,12 @@ function HotelsContent() {
                     </div>
                 </div>
             </section>
+
+            {/* Adventure Section */}
+            <AdventureSection />
+
+            {/* Gallery Loop Section */}
+            <GalleryLoop />
         </main>
     );
 }

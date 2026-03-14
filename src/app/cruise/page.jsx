@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind } from 'lucide-react';
+import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind, Loader2, CheckCircle2 } from 'lucide-react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 // Assets
 import cruiseHero from '../../assets/Cruise.png';
@@ -15,9 +17,17 @@ import wingBg from '../../assets/Background (1).png';
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { api } from '../../api/client';
+
+const CABIN_TYPES = ['Interior', 'Ocean View', 'Balcony', 'Suite'];
+const CRUISE_LINES = ['Royal Caribbean', 'Carnival', 'Norwegian', 'MSC Cruises', 'Princess Cruises', 'Celebrity Cruises', 'Disney Cruise Line'];
 
 const CruisesPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
+    const { user, openAuthModal } = useCustomerAuth();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
 
     const cruiseCategories = [
         { id: 1, name: "Luxury Cruises", img: luxuryCruiseImg, desc: "Five-star amenities and unparalleled service on the world's finest ships." },
@@ -34,6 +44,52 @@ const CruisesPage = () => {
         setCarouselIndex((prev) => (prev + 1) % cruiseCategories.length);
     };
 
+    const formik = useFormik({
+        initialValues: {
+            cruise_line: '',
+            ship_name: '',
+            destination: '',
+            departure_date: '',
+            duration_nights: '',
+            passenger_count: '',
+            cabin_type: 'Interior',
+            additional_notes: ''
+        },
+        validationSchema: Yup.object({
+            cruise_line: Yup.string().required('Required'),
+            destination: Yup.string().required('Required'),
+            departure_date: Yup.string().required('Required'),
+            duration_nights: Yup.number().positive('Must be positive').required('Required'),
+            passenger_count: Yup.number().positive('Must be positive').required('Required'),
+            cabin_type: Yup.string().required('Required')
+        }),
+        onSubmit: async (values) => {
+            if (!user) {
+                openAuthModal('login');
+                return;
+            }
+
+            setIsSubmitting(true);
+            setSubmitStatus(null);
+            try {
+                const payload = {
+                    customer_id: user.id,
+                    ...values
+                };
+
+                await api.post('/cruise-enquiries', payload);
+                setSubmitStatus('success');
+                formik.resetForm();
+                setTimeout(() => setSubmitStatus(null), 5000);
+            } catch (error) {
+                console.error('Submission failed:', error);
+                setSubmitStatus('error');
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
+    });
+
     return (
         <div className="bg-white min-h-screen pb-20 font-sans">
             {/* Hero Section */}
@@ -45,11 +101,9 @@ const CruisesPage = () => {
                         alt="Luxury Cruises"
                         className="w-full h-full object-cover object-center brightness-[1.05] grayscale-[5%] contrast-[1.02]"
                     />
-                    {/* Strong gradient overlay for text readability, matching Jets/Yachts */}
                     <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
                 </div>
 
-                {/* Hero Content aligned to the right */}
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
@@ -71,8 +125,6 @@ const CruisesPage = () => {
             {/* Split Content Section */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-
-                    {/* Left: Text Content */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -95,7 +147,6 @@ const CruisesPage = () => {
                         </div>
                     </motion.div>
 
-                    {/* Right: Image */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -111,14 +162,12 @@ const CruisesPage = () => {
                             />
                         </div>
                     </motion.div>
-
                 </div>
             </section>
 
             {/* Cruise Categories Carousel Section */}
             <section className="w-full bg-[#E9F7FF] py-20 lg:py-28 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
                             <span className="text-[#113A74]">Voyage </span>
@@ -129,10 +178,7 @@ const CruisesPage = () => {
                         </p>
                     </div>
 
-                    {/* Carousel Layout */}
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
-
-                        {/* Left Card (Active/Large) */}
                         <motion.div
                             key={`left-${carouselIndex}`}
                             initial={{ opacity: 0, x: -30 }}
@@ -145,10 +191,8 @@ const CruisesPage = () => {
                                 alt={currentCategory.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            {/* Overlay Gradient for Text Readability */}
                             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                            {/* Card Content Overlay */}
                             <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
                                 <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
                                     <div className="flex items-center gap-2.5 mb-2">
@@ -164,10 +208,7 @@ const CruisesPage = () => {
                             </div>
                         </motion.div>
 
-                        {/* Right Column (Secondary Card + Next Button) */}
                         <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
-
-                            {/* Secondary Card */}
                             <motion.div
                                 key={`right-${carouselIndex}`}
                                 initial={{ opacity: 0, x: 30 }}
@@ -182,7 +223,6 @@ const CruisesPage = () => {
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                                {/* Card Content Overlay */}
                                 <div className="absolute bottom-4 left-4 right-4 z-10">
                                     <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
                                         <div className="flex items-center gap-2.5 mb-2">
@@ -198,7 +238,6 @@ const CruisesPage = () => {
                                 </div>
                             </motion.div>
 
-                            {/* Arrow Button */}
                             <div className="flex justify-start">
                                 <button
                                     onClick={handleNextSlide}
@@ -208,12 +247,11 @@ const CruisesPage = () => {
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>
 
-            {/* Destiny Highlights (New Section) */}
+            {/* Destiny Highlights */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
@@ -242,6 +280,7 @@ const CruisesPage = () => {
 
             {/* Form Section */}
             <section
+                id="enquiry-form"
                 className="w-full relative py-20 lg:py-28 overflow-hidden bg-[#1A2639]"
                 style={{
                     backgroundImage: `url(${formBg.src || formBg})`,
@@ -261,84 +300,143 @@ const CruisesPage = () => {
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 justify-center items-center lg:items-stretch">
-
                         {/* Left: Form Card */}
-                        <div className="w-full lg:w-[769px] lg:h-[618px] bg-white rounded-xl p-6 md:p-8 lg:p-10 shadow-2xl flex flex-col justify-center">
-                            <form className="space-y-6">
-                                {/* Row 1 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests</label>
-                                        <input type="text" placeholder="e.g. 2" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" />
+                        <div className="w-full lg:flex-1 bg-white rounded-xl p-6 md:p-8 lg:p-10 shadow-2xl">
+                            {submitStatus === 'success' ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                        <CheckCircle2 className="text-green-500 w-8 h-8" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Type</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            {cruiseCategories.map(cat => (
-                                                <option key={cat.id}>{cat.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Port</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="e.g. Miami, Barcelona" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="e.g. Nassau, Santorini" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            <option>Any Month</option>
-                                            <option>May 2026</option>
-                                            <option>June 2026</option>
-                                            <option>July 2026</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            <option>3 - 5 Nights</option>
-                                            <option>6 - 9 Nights</option>
-                                            <option>10+ Nights</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* Row 4 */}
-                                <div className="space-y-2 pt-2">
-                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Preferences</label>
-                                    <textarea rows={4} placeholder="Specific cruise lines, cabin types, shore excursions..." className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-500"></textarea>
-                                </div>
-
-                                {/* Submit Button */}
-                                <div className="pt-2">
-                                    <button type="button" className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3 px-8 rounded-full text-[13px] inline-flex items-center gap-2 transition-colors">
-                                        Search Best Rates
-                                        <ArrowRight className="w-4 h-4" />
+                                    <h3 className="text-2xl font-bold text-[#113A74] mb-2">Voyage Enquired</h3>
+                                    <p className="text-gray-500 max-w-md">Your cruise enquiry has been submitted successfully. Our travel consultants will reach out with the best options for your voyage.</p>
+                                    <button 
+                                        onClick={() => setSubmitStatus(null)}
+                                        className="mt-8 text-[#FFA500] font-bold text-sm uppercase tracking-widest hover:underline"
+                                    >
+                                        Send Another Enquiry
                                     </button>
                                 </div>
-                            </form>
+                            ) : (
+                                <form onSubmit={formik.handleSubmit} className="space-y-6">
+                                    {/* Row 1 */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Line</label>
+                                            <input 
+                                                type="text" 
+                                                name="cruise_line"
+                                                placeholder="e.g. Royal Caribbean" 
+                                                {...formik.getFieldProps('cruise_line')}
+                                                className={`w-full border ${formik.touched.cruise_line && formik.errors.cruise_line ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Ship Name (Optional)</label>
+                                            <input 
+                                                type="text" 
+                                                name="ship_name"
+                                                placeholder="e.g. Icon of the Seas" 
+                                                {...formik.getFieldProps('ship_name')}
+                                                className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Row 2 */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination</label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                                <input 
+                                                    type="text" 
+                                                    name="destination"
+                                                    placeholder="e.g. Bahamas, Santorini" 
+                                                    {...formik.getFieldProps('destination')}
+                                                    className={`w-full border ${formik.touched.destination && formik.errors.destination ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests</label>
+                                            <input 
+                                                type="number" 
+                                                name="passenger_count"
+                                                placeholder="e.g. 2" 
+                                                {...formik.getFieldProps('passenger_count')}
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Row 3 - Dates & Duration */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month/Date</label>
+                                            <input 
+                                                type="date" 
+                                                name="departure_date"
+                                                {...formik.getFieldProps('departure_date')}
+                                                className={`w-full border ${formik.touched.departure_date && formik.errors.departure_date ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration (Nights)</label>
+                                            <input 
+                                                type="number" 
+                                                name="duration_nights"
+                                                placeholder="e.g. 7" 
+                                                {...formik.getFieldProps('duration_nights')}
+                                                className={`w-full border ${formik.touched.duration_nights && formik.errors.duration_nights ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Row 4 - Cabin Type */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type</label>
+                                        <select 
+                                            name="cabin_type"
+                                            {...formik.getFieldProps('cabin_type')}
+                                            className={`w-full border ${formik.touched.cabin_type && formik.errors.cabin_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
+                                        >
+                                            {CABIN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                                        </select>
+                                    </div>
+
+                                    {/* Additional Notes */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Preferences</label>
+                                        <textarea 
+                                            rows={4} 
+                                            name="additional_notes"
+                                            placeholder="Cabin preferences, shore excursions, dining options..." 
+                                            {...formik.getFieldProps('additional_notes')}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-700"
+                                        ></textarea>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="pt-2">
+                                        <button 
+                                            type="submit" 
+                                            disabled={isSubmitting}
+                                            className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
+                                        >
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search Best Rates'}
+                                            {!isSubmitting && <ArrowRight className="w-4 h-4" />}
+                                        </button>
+                                        {submitStatus === 'error' && (
+                                            <p className="text-red-500 text-xs font-bold mt-4">Failed to submit enquiry. Please try again later.</p>
+                                        )}
+                                    </div>
+                                </form>
+                            )}
                         </div>
 
                         {/* Right: Image Card */}
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
-                            <div className="relative w-full aspect-square lg:h-[512px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group border border-white/10">
+                            <div className="relative w-full aspect-square lg:h-[618px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group border border-white/10">
                                 <img
                                     src={wingBg.src || wingBg}
                                     alt="Cruise View"
@@ -356,7 +454,6 @@ const CruisesPage = () => {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>

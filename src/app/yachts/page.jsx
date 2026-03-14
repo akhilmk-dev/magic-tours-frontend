@@ -1,37 +1,40 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowUpRight, Anchor, MapPin, ArrowRight, Ship, Compass, Wind, Camera } from 'lucide-react';
 
 // Assets
-import cruiseHero from '../../assets/Cruise.png';
-import cruiseInterior from '../../assets/Rectangle 640.png';
-import luxuryCruiseImg from '../../assets/Image 2.png';
-import adventureCruiseImg from '../../assets/Image 3.png';
+import yachtHero from '../../assets/yacht-hero.png';
+import yachtInterior from '../../assets/yacht-interior.png';
+import yachtGrid from '../../assets/yacht-types-grid.png';
+import motorboatImg from '../../assets/yacht-motorboat.png';
+import dhowImg from '../../assets/yacht-dhow.png';
+import catamaranImg from '../../assets/yacht-catamaran.png';
 import formBg from '../../assets/form-background.png';
-import wingBg from '../../assets/Background (1).png';
 
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
 
-const CruisesPage = () => {
+const YachtsPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
 
-    const cruiseCategories = [
-        { id: 1, name: "Luxury Cruises", img: luxuryCruiseImg, desc: "Five-star amenities and unparalleled service on the world's finest ships." },
-        { id: 2, name: "Adventure Cruises", img: adventureCruiseImg, desc: "Explore remote corners of the globe with expert-led expeditions." },
-        { id: 3, name: "River Cruises", img: cruiseInterior, desc: "Intimate journeys through the heart of iconic continents." },
-        { id: 4, name: "Family Cruises", img: luxuryCruiseImg, desc: "Fun-filled voyages with activities for every generation." },
-        { id: 5, name: "World Cruises", img: adventureCruiseImg, desc: "The ultimate voyage covering multiple continents over several months." }
+    const yachtTypes = [
+        { id: 1, name: "Motorboat", img: motorboatImg, desc: "Fast and powerful, perfect for coastal exploration." },
+        { id: 2, name: "Speedboats", img: motorboatImg, desc: "Ultimate thrill on the water with premium comfort." },
+        { id: 3, name: "Dhows", img: dhowImg, desc: "Traditional wooden vessels for a cultural sailing experience." },
+        { id: 4, name: "Catamarans", img: catamaranImg, desc: "Stable and spacious, ideal for luxury group charters." },
+        { id: 5, name: "Gullet", img: dhowImg, desc: "Classic wooden yachts blending tradition with modern luxury." },
+        { id: 6, name: "Houseboat", img: yachtInterior, desc: "Floating luxury homes for serene water retreats." },
+        { id: 7, name: "Sail yacht", img: catamaranImg, desc: "Elegant wind-powered vessels for true maritime enthusiasts." }
     ];
 
-    const currentCategory = cruiseCategories[carouselIndex];
-    const nextCategory = cruiseCategories[(carouselIndex + 1) % cruiseCategories.length];
+    const currentType = yachtTypes[carouselIndex];
+    const nextType = yachtTypes[(carouselIndex + 1) % yachtTypes.length];
 
     const handleNextSlide = () => {
-        setCarouselIndex((prev) => (prev + 1) % cruiseCategories.length);
+        setCarouselIndex((prev) => (prev + 1) % yachtTypes.length);
     };
 
     return (
@@ -41,11 +44,11 @@ const CruisesPage = () => {
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src={cruiseHero.src || cruiseHero}
-                        alt="Luxury Cruises"
-                        className="w-full h-full object-cover object-center brightness-[1.05] grayscale-[5%] contrast-[1.02]"
+                        src={yachtHero.src || yachtHero}
+                        alt="Luxury Yacht Charters"
+                        className="w-full h-full object-cover object-center brightness-[1.1] grayscale-[10%] contrast-[1.05]"
                     />
-                    {/* Strong gradient overlay for text readability, matching Jets/Yachts */}
+                    {/* Stronger gradient overlay to ensure text readability, matching Private Jet styling */}
                     <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
                 </div>
 
@@ -58,11 +61,11 @@ const CruisesPage = () => {
                         className="w-full md:w-[50%] lg:w-[45%] text-right pt-20"
                     >
                         <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                            <span className="text-[#113A74]">Exceptional Ocean </span>
-                            <span className="text-[#FFA500]">Cruises</span>
+                            <span className="text-[#113A74]">Exquisite Yacht </span>
+                            <span className="text-[#FFA500]">Charters</span>
                         </h1>
                         <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
-                            Embark on a journey of discovery across the world's most beautiful oceans. From Caribbean sunrises to Mediterranean sunsets, we offer the pinnacle of maritime travel.
+                            Discover the ultimate maritime luxury with our curated fleet of world-class yachts. From serene sunsets to high-speed adventures, we define oceanic excellence.
                         </p>
                     </motion.div>
                 </div>
@@ -81,16 +84,16 @@ const CruisesPage = () => {
                         className="w-full lg:w-[55%] space-y-6"
                     >
                         <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                            <span className="text-[#113A74]">Discover the Art of<br /></span>
-                            <span className="text-[#FFA500]">High Seas Luxury</span>
+                            <span className="text-[#113A74]">Unmatched Comfort on<br /></span>
+                            <span className="text-[#FFA500]">The Open Seas</span>
                         </h2>
 
                         <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
                             <p>
-                                Experience a world where every detail is curated for your comfort. Our cruise collections bring together the finest liners and most inspiring itineraries, ensuring that your time at sea is as rewarding as your time in port. 
+                                Experience the pinnacle of nautical luxury with our bespoke charter services. Our yachts are designed to provide unparalleled comfort, featuring state-of-the-art amenities and world-class crew services. Whether you are planning a romantic getaway, a corporate retreat, or a family adventure, our fleet offers the perfect vessel for every occasion.
                             </p>
                             <p>
-                                Whether you're seeking a serene river journey through Europe's heart or a grand oceanic crossing, our experts are dedicated to finding the perfect match for your travel style. Indulge in world-class dining, exceptional entertainment, and breathtaking views that only a cruise can provide.
+                                Immerse yourself in the tranquility of the ocean while enjoying the finest hospitality. From gourmet dining on deck to exploring hidden turquoise bays, every moment aboard is crafted to be an unforgettable memory.
                             </p>
                         </div>
                     </motion.div>
@@ -105,8 +108,8 @@ const CruisesPage = () => {
                     >
                         <div className="rounded-[1.5rem] overflow-hidden shadow-xl aspect-[4/3] lg:aspect-[5/4] w-full">
                             <img
-                                src={cruiseInterior.src || cruiseInterior}
-                                alt="Luxurious Cruise Interior"
+                                src={yachtInterior.src || yachtInterior}
+                                alt="Luxurious Yacht Interior"
                                 className="w-full h-full object-cover"
                             />
                         </div>
@@ -115,17 +118,17 @@ const CruisesPage = () => {
                 </div>
             </section>
 
-            {/* Cruise Categories Carousel Section */}
-            <section className="w-full bg-[#E9F7FF] py-20 lg:py-28 overflow-hidden">
+            {/* Yacht Types Carousel Section */}
+            <section className="w-full bg-[#FFF6E9] py-20 lg:py-28 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
-                            <span className="text-[#113A74]">Voyage </span>
-                            <span className="text-[#FFA500]">Collections</span>
+                            <span className="text-[#113A74]">Explore Our </span>
+                            <span className="text-[#FFA500]">Fleet Types</span>
                         </h2>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                            Select from our diverse range of curated cruise experiences, each offering a unique perspective on the world's most iconic waterways.
+                            A diverse collection of vessels tailored to your specific maritime desires. Select from our range of modern boats and traditional dhows.
                         </p>
                     </div>
 
@@ -141,8 +144,8 @@ const CruisesPage = () => {
                             className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg aspect-[4/3] lg:aspect-auto"
                         >
                             <img
-                                src={currentCategory.img.src || currentCategory.img}
-                                alt={currentCategory.name}
+                                src={currentType.img.src || currentType.img}
+                                alt={currentType.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                             {/* Overlay Gradient for Text Readability */}
@@ -155,10 +158,10 @@ const CruisesPage = () => {
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                                             <Ship className="text-[#113A74] w-5 h-5" />
                                         </div>
-                                        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{currentCategory.name}</h3>
+                                        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{currentType.name}</h3>
                                     </div>
                                     <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
-                                        {currentCategory.desc}
+                                        {currentType.desc}
                                     </p>
                                 </div>
                             </div>
@@ -176,8 +179,8 @@ const CruisesPage = () => {
                                 className="w-full rounded-[2rem] overflow-hidden relative group shadow-md flex-1 min-h-[300px]"
                             >
                                 <img
-                                    src={nextCategory.img.src || nextCategory.img}
-                                    alt={nextCategory.name}
+                                    src={nextType.img.src || nextType.img}
+                                    alt={nextType.name}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -189,10 +192,10 @@ const CruisesPage = () => {
                                             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                                                 <Compass className="text-[#113A74] w-4 h-4" />
                                             </div>
-                                            <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{nextCategory.name}</h3>
+                                            <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{nextType.name}</h3>
                                         </div>
                                         <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
-                                            {nextCategory.desc}
+                                            {nextType.desc}
                                         </p>
                                     </div>
                                 </div>
@@ -213,33 +216,6 @@ const CruisesPage = () => {
                 </div>
             </section>
 
-            {/* Destiny Highlights (New Section) */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                        { title: "Mediterranean", count: "140+ Cruises", icon: <Anchor className="text-[#FFA500]" /> },
-                        { title: "Caribbean", count: "210+ Cruises", icon: <Globe className="text-[#113A74]" /> },
-                        { title: "Alaska", count: "85+ Cruises", icon: <Wind className="text-[#FFA500]" /> },
-                        { title: "Northern Europe", count: "115+ Cruises", icon: <Compass className="text-[#113A74]" /> }
-                    ].map((dest, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1 }}
-                            className="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-[#113A74]/5 hover:-translate-y-1 transition-all group"
-                        >
-                            <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                {dest.icon}
-                            </div>
-                            <h4 className="text-[#113A74] font-bold text-xl mb-2">{dest.title}</h4>
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">{dest.count}</p>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
             {/* Form Section */}
             <section
                 className="w-full relative py-20 lg:py-28 overflow-hidden bg-[#1A2639]"
@@ -252,11 +228,11 @@ const CruisesPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="mb-12">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-4 text-white">
-                            <span>Plan Your </span>
-                            <span className="text-[#FFA500]">Cruise</span>
+                            <span>Request a </span>
+                            <span className="text-[#FFA500]">Charter</span>
                         </h2>
                         <p className="text-white/80 text-sm md:text-[13px] leading-relaxed max-w-xl">
-                            Share your cruise preferences with us, and our travel consultants will find the best deals and itineraries for your dream voyage.
+                            Tell us your requirements and our maritime experts will find the perfect yacht for your journey. Private events, luxury cruises, or adventure trips - we handle it all.
                         </p>
                     </div>
 
@@ -269,13 +245,13 @@ const CruisesPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests</label>
-                                        <input type="text" placeholder="e.g. 2" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" />
+                                        <input type="text" placeholder="e.g. 12" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Type</label>
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Yacht Type</label>
                                         <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            {cruiseCategories.map(cat => (
-                                                <option key={cat.id}>{cat.name}</option>
+                                            {yachtTypes.map(type => (
+                                                <option key={type.id}>{type.name}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -284,17 +260,17 @@ const CruisesPage = () => {
                                 {/* Row 2 */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Port</label>
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Point</label>
                                         <div className="relative">
                                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="e.g. Miami, Barcelona" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
+                                            <input type="text" placeholder="Port or City" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To</label>
                                         <div className="relative">
                                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="e.g. Nassau, Santorini" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
+                                            <input type="text" placeholder="Port or City" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
                                         </div>
                                     </div>
                                 </div>
@@ -302,34 +278,25 @@ const CruisesPage = () => {
                                 {/* Row 3 */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            <option>Any Month</option>
-                                            <option>May 2026</option>
-                                            <option>June 2026</option>
-                                            <option>July 2026</option>
-                                        </select>
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Charter Start Date</label>
+                                        <input type="date" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-500" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            <option>3 - 5 Nights</option>
-                                            <option>6 - 9 Nights</option>
-                                            <option>10+ Nights</option>
-                                        </select>
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration (Days)</label>
+                                        <input type="number" placeholder="e.g. 3" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-500" />
                                     </div>
                                 </div>
 
                                 {/* Row 4 */}
                                 <div className="space-y-2 pt-2">
-                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Preferences</label>
-                                    <textarea rows={4} placeholder="Specific cruise lines, cabin types, shore excursions..." className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-500"></textarea>
+                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Special Requests</label>
+                                    <textarea rows={4} placeholder="Catering, water sports equipment, specific route..." className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-500"></textarea>
                                 </div>
 
                                 {/* Submit Button */}
                                 <div className="pt-2">
                                     <button type="button" className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3 px-8 rounded-full text-[13px] inline-flex items-center gap-2 transition-colors">
-                                        Search Best Rates
+                                        Check Availability
                                         <ArrowRight className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -340,18 +307,18 @@ const CruisesPage = () => {
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
                             <div className="relative w-full aspect-square lg:h-[512px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group border border-white/10">
                                 <img
-                                    src={wingBg.src || wingBg}
-                                    alt="Cruise View"
+                                    src={yachtGrid.src || yachtGrid}
+                                    alt="Marine Fleet"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/30 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center mt-8">
                                     <h3 className="text-white text-3xl md:text-[2.5rem] font-bold font-heading mb-4 drop-shadow-md leading-tight">
-                                        Unforgettable<br />Voyages
+                                        Discover All<br />Fleet Options
                                     </h3>
                                     <p className="text-white/90 text-[15px] max-w-[240px] drop-shadow-sm font-medium">
-                                        Exclusive member deals and hidden gems
+                                        Wide range of traditional and modern vessels
                                     </p>
                                 </div>
                             </div>
@@ -370,4 +337,4 @@ const CruisesPage = () => {
     );
 };
 
-export default CruisesPage;
+export default YachtsPage;

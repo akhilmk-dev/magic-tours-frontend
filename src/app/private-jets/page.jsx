@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Plane, MapPin, ArrowRight } from 'lucide-react';
+import { ArrowUpRight, Plane, MapPin, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 // Assets
 import jetImg from '../../assets/jet.png';
@@ -15,9 +17,17 @@ import wingBg from '../../assets/Background (1).png';
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { api } from '../../api/client';
+
+const JET_TYPES = ['Private Jet', 'Executive Airlines', 'Charter Flights', 'Air Ambulance', 'Helicopters'];
+const FLIGHT_CLASSES = ['Economy', 'Business', 'Both'];
 
 const PrivateJetsPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
+    const { user, openAuthModal } = useCustomerAuth();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
 
     const carouselJets = [
         { id: 1, name: "Bombardier Global 7500", img: jet1 },
@@ -29,6 +39,62 @@ const PrivateJetsPage = () => {
     const handleNextSlide = () => {
         setCarouselIndex((prev) => (prev + 1) % carouselJets.length);
     };
+
+    const formik = useFormik({
+        initialValues: {
+            jet_type: 'Private Jet',
+            passenger_count: '',
+            departing_from: '',
+            departing_to: '',
+            departure_datetime: '',
+            return_datetime: '',
+            return_from: '',
+            return_to: '',
+            flight_class: 'Business',
+            additional_notes: '',
+            has_return: false
+        },
+        validationSchema: Yup.object({
+            jet_type: Yup.string().required('Required'),
+            passenger_count: Yup.number().positive('Must be positive').required('Required'),
+            departing_from: Yup.string().required('Required'),
+            departing_to: Yup.string().required('Required'),
+            departure_datetime: Yup.string().required('Required'),
+            flight_class: Yup.string().required('Required'),
+            return_datetime: Yup.string().when('has_return', {
+                is: true,
+                then: (schema) => schema.required('Required'),
+                otherwise: (schema) => schema.optional()
+            })
+        }),
+        onSubmit: async (values) => {
+            if (!user) {
+                openAuthModal('login');
+                return;
+            }
+
+            setIsSubmitting(true);
+            setSubmitStatus(null);
+            try {
+                const payload = {
+                    customer_id: user.id,
+                    ...values
+                };
+                delete payload.has_return; // backend doesn't need this toggle
+
+                await api.post('/private-jet-enquiries', payload);
+                setSubmitStatus('success');
+                formik.resetForm();
+                setTimeout(() => setSubmitStatus(null), 5000);
+            } catch (error) {
+                console.error('Submission failed:', error);
+                setSubmitStatus('error');
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
+    });
+
     return (
         <div className="bg-white min-h-screen pb-20 font-sans">
             {/* Hero Section */}
@@ -40,11 +106,9 @@ const PrivateJetsPage = () => {
                         alt="Private Jet Charter"
                         className="w-full h-full object-cover object-center"
                     />
-                    {/* Subtle gradient overlay to ensure text readability */}
                     <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
                 </div>
 
-                {/* Hero Content aligned to the right */}
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
@@ -57,7 +121,7 @@ const PrivateJetsPage = () => {
                             <span className="text-[#FFA500]">Jet Charters</span>
                         </h1>
                         <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
-                            Lorem ipsum dolor sit amet consectetur. Diam tempor tortor neque id tempor mi egestas. There are many variations of passages of Lorem Ipsum avalab but.
+                            Experience the ultimate in bespoke aviation. Our curated private jet services offer unmatched flexibility, privacy, and luxury for the discerning traveler.
                         </p>
                     </motion.div>
                 </div>
@@ -66,8 +130,6 @@ const PrivateJetsPage = () => {
             {/* Split Content Section */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-
-                    {/* Left: Text Content */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -76,18 +138,20 @@ const PrivateJetsPage = () => {
                         className="w-full lg:w-[55%] space-y-6"
                     >
                         <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                            <span className="text-[#113A74]">Lorem ipsum dolor sit<br /></span>
-                            <span className="text-[#FFA500]">amet consectetur</span>
+                            <span className="text-[#113A74]">Seamless Journeys<br /></span>
+                            <span className="text-[#FFA500]">Without Compromise</span>
                         </h2>
 
                         <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
                             <p>
-                                Lorem ipsum dolor sit amet consectetur. Consequat vitae cras mattis mi tempus sit bibendum et. Consequat sit feugiat sollicitudin at quisque malesuada cursus diam adipiscing. Consequat vel sagittis at ipsum vestibulum est sit. Nunc et turpis augue magna consequat enim vulputate condimentum. Lorem ipsum dolor sit amet consectetur. Consequat vitae cras mattis mi tempus sit bibendum et. Consequat sit feugiat sollicitudin at quisque malesuada cursus diam adipiscing. Consequat vel sagittis at ipsum vestibulum est sit. Nunc et turpis augue magna consequat enim vulputate condimentum.
+                                At Magic Tours, we understand that time is your most valuable asset. Our private jet charter services are designed to eliminate the stresses of commercial travel, providing you with a direct path to your destination on your own schedule. From ultra-long-range jets to nimble light aircraft, we provide the perfect vessel for your specific requirements.
+                            </p>
+                            <p>
+                                Every aspect of your journey is meticulously planned by our dedicated aviation specialists. Whether it's coordinating multi-leg itineraries, arranging gourmet in-flight dining, or ensuring seamless ground transfers, we handle every detail so you can focus on what matters most.
                             </p>
                         </div>
                     </motion.div>
 
-                    {/* Right: Image */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -103,28 +167,23 @@ const PrivateJetsPage = () => {
                             />
                         </div>
                     </motion.div>
-
                 </div>
             </section>
 
             {/* Aircraft Carousel Section */}
             <section className="w-full bg-[#FFF6E9] py-20 lg:py-28 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
-                            <span className="text-[#113A74]">Lorem ipsum </span>
-                            <span className="text-[#FFA500]">dolor</span>
+                            <span className="text-[#113A74]">Featured </span>
+                            <span className="text-[#FFA500]">Fleet</span>
                         </h2>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                            Lorem ipsum dolor sit amet consectetur. Diam tempor tortor neque id tempor mi egestas. There are many variations of passages of Lorem Ipsum avalab but.
+                            Discover our most requested aircraft. Each jet in our global network is maintained to the highest safety and service standards.
                         </p>
                     </div>
 
-                    {/* Carousel Layout */}
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
-
-                        {/* Left Card (Active/Large) */}
                         <motion.div
                             key={`left-${carouselIndex}`}
                             initial={{ opacity: 0, x: -30 }}
@@ -137,31 +196,24 @@ const PrivateJetsPage = () => {
                                 alt={carouselJets[carouselIndex].name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            {/* Overlay Gradient for Text Readability */}
                             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                            {/* Card Content Overlay */}
                             <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
                                 <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
                                     <div className="flex items-center gap-2.5 mb-2">
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                            <svg className="text-[#113A74]" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
-                                            </svg>
+                                            <Plane className="text-[#113A74] w-5 h-5" />
                                         </div>
                                         <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{carouselJets[carouselIndex].name}</h3>
                                     </div>
                                     <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
-                                        Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet.
+                                        Offering exceptional range and comfort, making it the preferred choice for transcontinental travel.
                                     </p>
                                 </div>
                             </div>
                         </motion.div>
 
-                        {/* Right Column (Secondary Card + Next Button) */}
                         <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
-
-                            {/* Secondary Card */}
                             <motion.div
                                 key={`right-${carouselIndex}`}
                                 initial={{ opacity: 0, x: 30 }}
@@ -176,25 +228,21 @@ const PrivateJetsPage = () => {
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                                {/* Card Content Overlay */}
                                 <div className="absolute bottom-4 left-4 right-4 z-10">
                                     <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
                                         <div className="flex items-center gap-2.5 mb-2">
                                             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                                <svg className="text-[#113A74]" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
-                                                </svg>
+                                                <Plane className="text-[#113A74] w-4 h-4 scale-75" />
                                             </div>
                                             <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{carouselJets[(carouselIndex + 1) % carouselJets.length].name}</h3>
                                         </div>
                                         <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
-                                            Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet.
+                                            Unmatched performance and elegance in the skies.
                                         </p>
                                     </div>
                                 </div>
                             </motion.div>
 
-                            {/* Arrow Button */}
                             <div className="flex justify-start">
                                 <button
                                     onClick={handleNextSlide}
@@ -204,13 +252,13 @@ const PrivateJetsPage = () => {
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>
 
             {/* Form Section */}
             <section
+                id="enquiry-form"
                 className="w-full relative py-20 lg:py-28 overflow-hidden bg-[#1A2639]"
                 style={{
                     backgroundImage: `url(${formBg.src || formBg})`,
@@ -221,84 +269,198 @@ const PrivateJetsPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="mb-12">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-4 text-white">
-                            <span>Lorem ipsum </span>
-                            <span className="text-[#FFA500]">dolor</span>
+                            <span>Request a </span>
+                            <span className="text-[#FFA500]">Jet Charter</span>
                         </h2>
                         <p className="text-white/80 text-sm md:text-[13px] leading-relaxed max-w-xl">
-                            Lorem ipsum dolor sit amet consectetur. Diam tempor tortor neque id tempor mi egestas.There are many variations of passages of Lorem Ipsum avalab but .
+                            Connect with our aviation specialists. Provide your travel details below, and we will prepare a bespoke charter proposal tailored to your itinerary.
                         </p>
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 justify-center items-center lg:items-stretch">
-
                         {/* Left: Form Card */}
-                        <div className="w-full lg:w-[769px] lg:h-[618px] bg-white rounded-xl p-6 md:p-8 lg:p-10 shadow-2xl flex flex-col justify-center">
-                            <form className="space-y-6">
-                                {/* Row 1 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Passengers</label>
-                                        <input type="text" placeholder="e.g. 4" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" />
+                        <div className="w-full lg:flex-1 bg-white rounded-xl p-6 md:p-8 lg:p-10 shadow-2xl">
+                            {submitStatus === 'success' ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                        <CheckCircle2 className="text-green-500 w-8 h-8" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Travel Class</label>
-                                        <select className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-500 appearance-none bg-transparent focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors">
-                                            <option>Business Class</option>
-                                            <option>First Class</option>
-                                            <option>Economy</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="Airport or City" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input type="text" placeholder="Airport or City" className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Date & Time</label>
-                                        <input type="text" placeholder="mm /dd/yyyy, --:-- --" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-500" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Date & Time</label>
-                                        <input type="text" placeholder="mm /dd/yyyy, --:-- --" className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-500" />
-                                    </div>
-                                </div>
-
-                                {/* Row 4 */}
-                                <div className="space-y-2 pt-2">
-                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Notes</label>
-                                    <textarea rows={4} placeholder="Special requirements, pets, dietary preferences..." className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-500"></textarea>
-                                </div>
-
-                                {/* Submit Button */}
-                                <div className="pt-2">
-                                    <button type="button" className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3 px-8 rounded-full text-[13px] inline-flex items-center gap-2 transition-colors">
-                                        Submit Request
-                                        <ArrowRight className="w-4 h-4" />
+                                    <h3 className="text-2xl font-bold text-[#113A74] mb-2">Request Received</h3>
+                                    <p className="text-gray-500 max-w-md">Your jet charter enquiry has been submitted successfully. Our specialists will contact you shortly.</p>
+                                    <button 
+                                        onClick={() => setSubmitStatus(null)}
+                                        className="mt-8 text-[#FFA500] font-bold text-sm uppercase tracking-widest hover:underline"
+                                    >
+                                        Send Another Request
                                     </button>
                                 </div>
-                            </form>
+                            ) : (
+                                <form onSubmit={formik.handleSubmit} className="space-y-6">
+                                    {/* Row 1 */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Aircraft Type</label>
+                                            <select 
+                                                name="jet_type"
+                                                {...formik.getFieldProps('jet_type')}
+                                                className={`w-full border ${formik.touched.jet_type && formik.errors.jet_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
+                                            >
+                                                {JET_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Passengers</label>
+                                            <input 
+                                                type="number" 
+                                                name="passenger_count"
+                                                placeholder="e.g. 4" 
+                                                {...formik.getFieldProps('passenger_count')}
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Row 2 */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From</label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                                <input 
+                                                    type="text" 
+                                                    name="departing_from"
+                                                    placeholder="Airport or City" 
+                                                    {...formik.getFieldProps('departing_from')}
+                                                    className={`w-full border ${formik.touched.departing_from && formik.errors.departing_from ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To</label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                                <input 
+                                                    type="text" 
+                                                    name="departing_to"
+                                                    placeholder="Airport or City" 
+                                                    {...formik.getFieldProps('departing_to')}
+                                                    className={`w-full border ${formik.touched.departing_to && formik.errors.departing_to ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Row 3 - Departure DateTime & Flight Class */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Date & Time</label>
+                                            <input 
+                                                type="datetime-local" 
+                                                name="departure_datetime"
+                                                {...formik.getFieldProps('departure_datetime')}
+                                                className={`w-full border ${formik.touched.departure_datetime && formik.errors.departure_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Service Class</label>
+                                            <select 
+                                                name="flight_class"
+                                                {...formik.getFieldProps('flight_class')}
+                                                className={`w-full border ${formik.touched.flight_class && formik.errors.flight_class ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
+                                            >
+                                                {FLIGHT_CLASSES.map(cls => <option key={cls} value={cls}>{cls}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Toggle for Return Trip */}
+                                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                                        <div 
+                                            className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${formik.values.has_return ? 'bg-[#FFA500]' : 'bg-gray-200'}`}
+                                            onClick={() => formik.setFieldValue('has_return', !formik.values.has_return)}
+                                        >
+                                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${formik.values.has_return ? 'left-6' : 'left-1'}`}></div>
+                                        </div>
+                                        <label className="text-[11px] font-bold text-[#113A74] uppercase tracking-wider select-none cursor-pointer" onClick={() => formik.setFieldValue('has_return', !formik.values.has_return)}>Include Return Trip</label>
+                                    </div>
+
+                                    {/* Return Trip Section */}
+                                    <AnimatePresence>
+                                        {formik.values.has_return && (
+                                            <motion.div 
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="space-y-6 overflow-hidden"
+                                            >
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Origin</label>
+                                                        <input 
+                                                            type="text" 
+                                                            name="return_from"
+                                                            placeholder="Airport or City" 
+                                                            {...formik.getFieldProps('return_from')}
+                                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none" 
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Destination</label>
+                                                        <input 
+                                                            type="text" 
+                                                            name="return_to"
+                                                            placeholder="Airport or City" 
+                                                            {...formik.getFieldProps('return_to')}
+                                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none" 
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Date & Time</label>
+                                                    <input 
+                                                        type="datetime-local" 
+                                                        name="return_datetime"
+                                                        {...formik.getFieldProps('return_datetime')}
+                                                        className={`w-full border ${formik.touched.return_datetime && formik.errors.return_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none`} 
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Additional Notes */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Notes</label>
+                                        <textarea 
+                                            rows={4} 
+                                            name="additional_notes"
+                                            placeholder="Special requirements, pets, dietary preferences..." 
+                                            {...formik.getFieldProps('additional_notes')}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-700"
+                                        ></textarea>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="pt-2">
+                                        <button 
+                                            type="submit" 
+                                            disabled={isSubmitting}
+                                            className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
+                                        >
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Request Proposal'}
+                                            {!isSubmitting && <ArrowRight className="w-4 h-4" />}
+                                        </button>
+                                        {submitStatus === 'error' && (
+                                            <p className="text-red-500 text-xs font-bold mt-4">Failed to submit request. Please try again later.</p>
+                                        )}
+                                    </div>
+                                </form>
+                            )}
                         </div>
 
                         {/* Right: Image Card */}
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
-                            <div className="relative w-full aspect-square lg:h-[512px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group">
+                            <div className="relative w-full aspect-square lg:h-[618px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group">
                                 <img
                                     src={wingBg.src || wingBg}
                                     alt="Private Jet View"
@@ -308,15 +470,14 @@ const PrivateJetsPage = () => {
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center mt-8">
                                     <h3 className="text-white text-3xl md:text-[2.5rem] font-bold font-heading mb-4 drop-shadow-md leading-tight">
-                                        Suscipit<br />scelerisque
+                                        Elevated<br />Expectations
                                     </h3>
                                     <p className="text-white/90 text-[15px] max-w-[240px] drop-shadow-sm font-medium">
-                                        and get discount next flights with our card
+                                        Arrive in style and comfort with our elite charter solutions.
                                     </p>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>

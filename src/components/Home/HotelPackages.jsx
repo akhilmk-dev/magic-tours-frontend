@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, ArrowRight, MapPin, Crown } from 'lucide-react';
 
@@ -224,10 +225,10 @@ export default function HotelPackages({ hotels: apiHotels, loading }) {
                         </h3>
                     </div>
 
-                    <button className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg w-fit h-fit">
+                    <Link href="/hotels" className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg w-fit h-fit">
                         Explore More
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Slider */}

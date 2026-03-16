@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, ArrowRight, MapPin, Shield, ArrowUpRight } from 'lucide-react';
 
@@ -135,10 +136,10 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
                         </div>
 
                         {/* CTA Button */}
-                        <button className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
+                        <Link href="/private-jets" className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
                             Explore More
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </Link>
                     </div>
 
                     {/* Right Side - Mini Slider */}

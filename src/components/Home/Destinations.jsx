@@ -3,6 +3,10 @@ import { ArrowRight, Plane } from 'lucide-react';
 import { clsx } from 'clsx';
 import Link from 'next/link';
 
+// Assets
+import privateJetImg from '../../assets/private-jet-2.png';
+import destinationsImg from '../../assets/img (1).png';
+
 const tripCategories = [
     {
         id: 1,
@@ -14,18 +18,18 @@ const tripCategories = [
         id: 2,
         name: 'Cruise Ship',
         image: 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?q=80&w=800&auto=format&fit=crop',
-        link: '#'
+        link: '/cruise'
     },
     {
         id: 3,
         name: 'Private Jets',
-        image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format&fit=crop',
+        image: privateJetImg.src || privateJetImg,
         link: '/private-jets'
     },
     {
         id: 4,
         name: 'Destinations',
-        image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop',
+        image: destinationsImg.src || destinationsImg,
         link: '/destinations'
     }
 ];
@@ -53,13 +57,15 @@ export default function Destinations() {
                         </h2>
 
                         <p className="text-gray-500 text-lg leading-relaxed mb-10 max-w-sm">
-                            Flexible classes refers to the process of acquiring is knowledge free.
+                            Discover curated travel experiences and breathtaking destinations across the globe. From luxury cruises to private jet charters, we make your dream journey a reality.
                         </p>
 
-                        <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-bold text-sm hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
-                            Discover More
-                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        <Link href="/destinations">
+                            <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-bold text-sm hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
+                                Discover More
+                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </Link>
                     </div>
 
                     {/* Right Content - Cards Grid */}

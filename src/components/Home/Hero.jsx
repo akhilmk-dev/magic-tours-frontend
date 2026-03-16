@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
 
@@ -228,12 +229,12 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 </p>
 
                                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-5">
-                                    <button className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
+                                    <Link href="/tours" className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
                                         <span className="text-[12px] sm:text-[14px] xl:text-[16px] tracking-wide">Plan My Trip</span>
                                         <div className="flex items-center justify-center transition-transform group-hover:translate-x-1">
                                             <ArrowRight size={14} className="sm:size-[16px]" />
                                         </div>
-                                    </button>
+                                    </Link>
                                 </div>
                             </motion.div>
                         </AnimatePresence>

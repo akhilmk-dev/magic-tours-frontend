@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, useAnimation } from 'framer-motion';
 import { Plane, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -44,6 +45,7 @@ const CruiseCategoriesSkeleton = () => (
 );
 
 export default function CruiseCategories({ cruises: apiCruises, loading }) {
+    const router = useRouter();
     if (loading) return <CruiseCategoriesSkeleton />;
     const cruiseCategories = apiCruises && apiCruises.length > 0
         ? apiCruises.map((c, idx) => ({
@@ -154,7 +156,10 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
                             Experience luxury on the open sea with our unforgettable cruise journeys.
                         </p>
 
-                        <button className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group">
+                        <button 
+                            onClick={() => router.push('/cruise')}
+                            className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group"
+                        >
                             <span className="text-[15px]">View Cruises</span>
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </button>

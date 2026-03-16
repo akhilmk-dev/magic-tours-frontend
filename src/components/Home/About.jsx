@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Plane, Trophy, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
 import image01 from '../../assets/link_image_01.png';
 import image02 from '../../assets/link_image_02.png';
@@ -82,7 +83,7 @@ export default function About() {
 
                             {/* Description */}
                             <p className="text-gray-500 text-base leading-relaxed mb-10 max-w-lg lg:max-w-none">
-                                There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form, by injected humour,
+                                Discover hidden gems and iconic landmarks with our expertly curated travel experiences. We specialize in crafting personalized itineraries that blend luxury with authentic local culture for every traveler.
                             </p>
 
                             {/* Features Row */}
@@ -94,7 +95,7 @@ export default function About() {
                                     <div className="flex flex-col justify-center sm:text-left">
                                         <h4 className="text-brand-heading font-black text-lg mb-1 whitespace-nowrap">Friendly Guide</h4>
                                         <p className="text-gray-400 text-[12px] leading-relaxed max-w-[200px] sm:max-w-[140px] mx-auto sm:mx-0">
-                                            There are many variations of passages of lorem Ipsum.
+                                            Our certified local experts provide deep insights and stories that bring every destination to life.
                                         </p>
                                     </div>
                                 </div>
@@ -108,7 +109,7 @@ export default function About() {
                                     <div className="flex flex-col justify-center sm:text-left">
                                         <h4 className="text-brand-heading font-black text-lg mb-1 whitespace-nowrap">Safety Travel</h4>
                                         <p className="text-gray-400 text-[12px] leading-relaxed max-w-[200px] sm:max-w-[140px] mx-auto sm:mx-0">
-                                            There are many variations of passages of lorem Ipsum.
+                                            Your peace of mind is our priority, with 24/7 support and vetted transportation for every journey.
                                         </p>
                                     </div>
                                 </div>
@@ -126,9 +127,9 @@ export default function About() {
                                 <div className="flex-1 space-y-6 flex flex-col items-center lg:items-start w-full">
                                     <ul className="space-y-3 w-full sm:w-auto">
                                         {[
-                                            "Many variations of passages of lorem.",
-                                            "Many variations of passages of lorem.",
-                                            "Expert many variations teacher."
+                                            "Bespoke itineraries tailored to your unique preferences.",
+                                            "Exclusive access to premium lounges and luxury stays.",
+                                            "Sustainable travel practices that support local communities."
                                         ].map((item, idx) => (
                                             <li key={idx} className="flex items-center gap-3 text-gray-700 font-bold text-sm justify-start">
                                                 <div className="w-6 h-6 rounded-full bg-brand-magic flex items-center justify-center text-white flex-shrink-0 text-[10px]">
@@ -139,10 +140,10 @@ export default function About() {
                                         ))}
                                     </ul>
 
-                                    <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
+                                    <Link href="/contact-us" className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
                                         Explore More
                                         <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

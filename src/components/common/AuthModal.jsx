@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import InternationalPhoneInput from './InternationalPhoneInput';
+import logo from '../../assets/logo.png';
 
 const AuthModal = () => {
     const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal, login, register } = useCustomerAuth();
@@ -14,6 +16,7 @@ const AuthModal = () => {
     const [loginPassword, setLoginPassword] = useState('');
     const [loginLoading, setLoginLoading] = useState(false);
     const [loginError, setLoginError] = useState('');
+    const [showLoginPassword, setShowLoginPassword] = useState(false);
 
     // Register State
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
@@ -59,7 +62,7 @@ const AuthModal = () => {
     const registerValidationSchema = Yup.object().shape({
         name: Yup.string().min(2, 'Name must be at least 2 characters').required('Full Name is required'),
         email: Yup.string().email('Invalid email address').required('Email is required'),
-        phone: Yup.string().matches(/^\+?[\d\s-]+$/, 'Invalid phone number format').required('Phone Number is required'),
+        phone: Yup.string().matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format').required('Phone Number is required'),
         password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
         confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm Password is required')
     });
@@ -89,26 +92,44 @@ const AuthModal = () => {
             }
         }
     });
+    
+    // Reset state on modal close/open
+    useEffect(() => {
+        if (!isAuthModalOpen) {
+            // Reset Login State
+            setLoginEmail('');
+            setLoginPassword('');
+            setLoginError('');
+            setShowLoginPassword(false);
+            
+            // Reset Register State
+            registerFormik.resetForm();
+            setRegisterSuccess(false);
+            setShowRegisterPassword(false);
+            setShowRegisterConfirmPassword(false);
+        }
+    }, [isAuthModalOpen, registerFormik.resetForm]);
 
     return (
         <AnimatePresence>
             {isAuthModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center font-inter p-4">
+                <div className="fixed inset-0 z-[100] flex justify-center font-inter p-4 py-12 overflow-y-auto custom-scrollbar">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={closeAuthModal}
-                        className="absolute inset-0 bg-[#0A1D37]/80 backdrop-blur-sm"
+                        className="fixed inset-0 bg-[#0A1D37]/80 backdrop-blur-sm shadow-inner"
                     />
 
-                    {/* Modal Content */}
+                    {/* Modal Content container */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative z-10 w-full max-w-[450px]"
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative z-10 w-full max-w-[450px] my-auto"
                     >
                         <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/40 p-8 overflow-hidden relative">
                             {/* Close Button */}
@@ -123,8 +144,8 @@ const AuthModal = () => {
                                 /* --- LOGIN VIEW --- */
                                 <>
                                     <div className="text-center mb-6 mt-4">
-                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-12 h-12 bg-[#FFA500] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#FFA500]/30">
-                                            <ShieldCheck className="text-white" size={24} />
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
+                                            <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
                                         </motion.div>
                                         <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Welcome Back</h2>
                                         <p className="text-gray-500 text-xs font-medium">Please enter your details to sign in</p>
@@ -158,13 +179,16 @@ const AuthModal = () => {
                                                 <div className="relative group">
                                                     <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                                     <input
-                                                        type="password"
+                                                        type={showLoginPassword ? "text" : "password"}
                                                         required
-                                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-6 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
+                                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-12 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
                                                         placeholder="••••••••"
                                                         value={loginPassword}
                                                         onChange={(e) => setLoginPassword(e.target.value)}
                                                     />
+                                                    <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#113A74] transition-colors">
+                                                        {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -218,11 +242,10 @@ const AuthModal = () => {
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
-                                            className="max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar"
                                         >
                                             <div className="text-center mb-6 mt-4">
-                                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-12 h-12 bg-[#FFA500] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#FFA500]/30">
-                                                    <UserPlus className="text-white" size={24} />
+                                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
+                                                    <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
                                                 </motion.div>
                                                 <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Create Account</h2>
                                                 <p className="text-gray-500 text-xs font-medium">Join us for premium travel experiences</p>
@@ -236,7 +259,7 @@ const AuthModal = () => {
                                                 )}
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Full Name</label>
+                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Full Name<span className="text-red-500 ml-1">*</span></label>
                                                     <div className="relative group">
                                                         <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                                         <input
@@ -253,7 +276,7 @@ const AuthModal = () => {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Email Address</label>
+                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Email Address<span className="text-red-500 ml-1">*</span></label>
                                                     <div className="relative group">
                                                         <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                                         <input
@@ -270,24 +293,16 @@ const AuthModal = () => {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Phone Number</label>
-                                                    <div className="relative group">
-                                                        <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
-                                                        <input
-                                                            type="tel"
-                                                            name="phone"
-                                                            className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-3 pl-14 pr-6 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
-                                                            placeholder="+974 0000 0000"
-                                                            {...registerFormik.getFieldProps('phone')}
-                                                        />
-                                                    </div>
-                                                    {registerFormik.touched.phone && registerFormik.errors.phone && (
-                                                        <div className="text-red-500 text-[10px] font-bold uppercase px-2">{registerFormik.errors.phone}</div>
-                                                    )}
+                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Phone Number<span className="text-red-500 ml-1">*</span></label>
+                                                    <InternationalPhoneInput
+                                                        value={registerFormik.values.phone}
+                                                        onChange={(val) => registerFormik.setFieldValue('phone', val)}
+                                                        error={registerFormik.touched.phone && registerFormik.errors.phone}
+                                                    />
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Password</label>
+                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Password<span className="text-red-500 ml-1">*</span></label>
                                                     <div className="relative group">
                                                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                                         <input
@@ -307,7 +322,7 @@ const AuthModal = () => {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Confirm Password</label>
+                                                    <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Confirm Password<span className="text-red-500 ml-1">*</span></label>
                                                     <div className="relative group">
                                                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                                         <input

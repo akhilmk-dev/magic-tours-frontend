@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Anchor, MapPin, ArrowRight, Ship, Compass, Wind, Camera, Loader2, CheckCircle2 } from 'lucide-react';
 import { useFormik } from 'formik';
@@ -21,37 +21,44 @@ import GalleryLoop from '../../components/Home/GalleryLoop';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
-const YACHT_TYPES = [
-    "Motorboat",
-    "Speedboats",
-    "Dhows",
-    "Catamarans",
-    "Gullet",
-    "Houseboat",
-    "Sail yacht"
-];
+const Skeleton = ({ className }) => (
+    <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`}></div>
+);
+
+const YACHT_TYPES = ['Motorboat', 'Sailing Yacht', 'Catamaran', 'Dhows', 'Superyacht', 'Speedboats'];
 
 const YachtsPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
     const { user, openAuthModal } = useCustomerAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
+    const [cmsData, setCmsData] = useState(null);
+    const [isLoadingCMS, setIsLoadingCMS] = useState(true);
 
-    const yachtTypesData = [
-        { id: 1, name: "Motorboat", img: motorboatImg, desc: "Fast and powerful, perfect for coastal exploration." },
-        { id: 2, name: "Speedboats", img: motorboatImg, desc: "Ultimate thrill on the water with premium comfort." },
-        { id: 3, name: "Dhows", img: dhowImg, desc: "Traditional wooden vessels for a cultural sailing experience." },
-        { id: 4, name: "Catamarans", img: catamaranImg, desc: "Stable and spacious, ideal for luxury group charters." },
-        { id: 5, name: "Gullet", img: dhowImg, desc: "Classic wooden yachts blending tradition with modern luxury." },
-        { id: 6, name: "Houseboat", img: yachtInterior, desc: "Floating luxury homes for serene water retreats." },
-        { id: 7, name: "Sail yacht", img: catamaranImg, desc: "Elegant wind-powered vessels for true maritime enthusiasts." }
-    ];
+    useEffect(() => {
+        const fetchCMSData = async () => {
+            try {
+                setIsLoadingCMS(true);
+                const response = await api.get('/yacht-cms');
+                if (response.data) {
+                    setCmsData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Yacht CMS data:', error);
+            } finally {
+                setIsLoadingCMS(false);
+            }
+        };
+        fetchCMSData();
+    }, []);
 
-    const currentType = yachtTypesData[carouselIndex];
-    const nextType = yachtTypesData[(carouselIndex + 1) % yachtTypesData.length];
+    const yachtTypes = cmsData?.items || [];
+    const galleryImages = cmsData?.section_slider || [];
 
     const handleNextSlide = () => {
-        setCarouselIndex((prev) => (prev + 1) % yachtTypesData.length);
+        if (yachtTypes.length > 0) {
+            setCarouselIndex((prev) => (prev + 1) % yachtTypes.length);
+        }
     };
 
     const formik = useFormik({
@@ -84,7 +91,7 @@ const YachtsPage = () => {
                     ...values
                 };
 
-                await api.post('/yacht-enquiries', payload);
+                await api.post('/yacht/frontend/create', payload);
                 setSubmitStatus('success');
                 formik.resetForm();
                 setTimeout(() => setSubmitStatus(null), 5000);
@@ -103,12 +110,18 @@ const YachtsPage = () => {
             <section className="relative w-full h-screen flex items-center justify-end overflow-hidden">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
-                    <img
-                        src={yachtHero.src || yachtHero}
-                        alt="Luxury Yacht Charters"
-                        className="w-full h-full object-cover object-center brightness-[1.1] grayscale-[10%] contrast-[1.05]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
+                    {isLoadingCMS ? (
+                        <Skeleton className="w-full h-full rounded-none" />
+                    ) : (
+                        <>
+                            <img
+                                src={cmsData?.hero_image || yachtHero.src || yachtHero}
+                                alt={cmsData?.hero_title || "Luxury Yacht Charters"}
+                                className="w-full h-full object-cover object-center"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
+                        </>
+                    )}
                 </div>
 
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
@@ -118,13 +131,23 @@ const YachtsPage = () => {
                         transition={{ duration: 0.8 }}
                         className="w-full md:w-[50%] lg:w-[45%] text-right pt-20"
                     >
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                            <span className="text-[#113A74]">Exquisite Yacht </span>
-                            <span className="text-[#FFA500]">Charters</span>
-                        </h1>
-                        <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
-                            Experience the ultimate in maritime elegance. From serene sunsets to high-speed adventures, our curated fleet of world-class yachts defines oceanic excellence.
-                        </p>
+                        {isLoadingCMS ? (
+                            <div className="space-y-4">
+                                <Skeleton className="h-12 w-[80%] ml-auto" />
+                                <Skeleton className="h-12 w-[60%] ml-auto" />
+                                <Skeleton className="h-20 w-full ml-auto mt-6" />
+                            </div>
+                        ) : (
+                            <>
+                                <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
+                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -1).join(' ')} </span>
+                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-1)}</span>
+                                </h1>
+                                <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
+                                    {cmsData?.hero_description}
+                                </p>
+                            </>
+                        )}
                     </motion.div>
                 </div>
             </section>
@@ -139,19 +162,28 @@ const YachtsPage = () => {
                         transition={{ duration: 0.6 }}
                         className="w-full lg:w-[55%] space-y-6"
                     >
-                        <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                            <span className="text-[#113A74]">Unmatched Comfort on<br /></span>
-                            <span className="text-[#FFA500]">The Open Seas</span>
-                        </h2>
+                        {isLoadingCMS ? (
+                            <div className="space-y-6">
+                                <Skeleton className="h-10 w-[70%]" />
+                                <Skeleton className="h-10 w-[50%]" />
+                                <div className="space-y-4 pt-4">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[90%]" />
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
+                                    <span className="text-[#113A74]">Unmatched Comfort on<br /></span>
+                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('The ').pop()}</span>
+                                </h2>
 
-                        <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
-                            <p>
-                                Immerse yourself in the pinnacle of nautical luxury with our bespoke charter services. Our fleet is meticulously maintained to provide unparalleled comfort, featuring state-of-the-art amenities and world-class crew services. Whether you are planning a romantic getaway, a corporate retreat, or a family adventure, we offer the perfect vessel for every occasion.
-                            </p>
-                            <p>
-                                Enjoy the tranquility of the ocean while experiencing the finest hospitality. From gourmet dining on deck to exploring hidden turquoise bays, every moment aboard is crafted to be an unforgettable memory in your maritime journey.
-                            </p>
-                        </div>
+                                <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
+                                    <p>{cmsData?.section_description}</p>
+                                </div>
+                            </>
+                        )}
                     </motion.div>
 
                     <motion.div
@@ -162,11 +194,15 @@ const YachtsPage = () => {
                         className="w-full lg:w-[40%] lg:ml-auto"
                     >
                         <div className="rounded-[1.5rem] overflow-hidden shadow-xl aspect-[4/3] lg:aspect-[5/4] w-full">
-                            <img
-                                src={yachtInterior.src || yachtInterior}
-                                alt="Luxurious Yacht Interior"
-                                className="w-full h-full object-cover"
-                            />
+                            {isLoadingCMS ? (
+                                <Skeleton className="w-full h-full" />
+                            ) : (
+                                <img
+                                    src={cmsData?.section_image || yachtInterior.src || yachtInterior}
+                                    alt={cmsData?.section_title}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                     </motion.div>
                 </div>
@@ -185,76 +221,88 @@ const YachtsPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
-                        <motion.div
-                            key={`left-${carouselIndex}`}
-                            initial={{ opacity: 0, x: -30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg aspect-[4/3] lg:aspect-auto"
-                        >
-                            <img
-                                src={currentType.img.src || currentType.img}
-                                alt={currentType.name}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-
-                            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
-                                <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
-                                    <div className="flex items-center gap-2.5 mb-2">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                            <Ship className="text-[#113A74] w-5 h-5" />
-                                        </div>
-                                        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{currentType.name}</h3>
-                                    </div>
-                                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
-                                        {currentType.desc}
-                                    </p>
+                    {isLoadingCMS ? (
+                        <div className="flex flex-col lg:flex-row gap-8 min-h-[450px]">
+                            <Skeleton className="w-full lg:w-[60%] h-[450px] rounded-[2rem]" />
+                            <div className="w-full lg:w-[40%] flex flex-col gap-8">
+                                <Skeleton className="w-full flex-1 rounded-[2rem] min-h-[300px]" />
+                                <div className="flex justify-start">
+                                    <Skeleton className="w-16 h-16 rounded-full" />
                                 </div>
                             </div>
-                        </motion.div>
-
-                        <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                        </div>
+                    ) : (
+                        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative">
                             <motion.div
-                                key={`right-${carouselIndex}`}
-                                initial={{ opacity: 0, x: 30 }}
+                                key={`left-${carouselIndex}`}
+                                initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.1 }}
-                                className="w-full rounded-[2rem] overflow-hidden relative group shadow-md flex-1 min-h-[300px]"
+                                transition={{ duration: 0.5 }}
+                                className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg h-[300px] md:h-[420px] lg:h-[480px]"
                             >
                                 <img
-                                    src={nextType.img.src || nextType.img}
-                                    alt={nextType.name}
+                                    src={yachtTypes[carouselIndex]?.img?.src || yachtTypes[carouselIndex]?.img}
+                                    alt={yachtTypes[carouselIndex]?.name}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                                <div className="absolute bottom-4 left-4 right-4 z-10">
-                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
+                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
                                         <div className="flex items-center gap-2.5 mb-2">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                                <Compass className="text-[#113A74] w-4 h-4" />
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <Ship className="text-[#113A74] w-5 h-5" />
                                             </div>
-                                            <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{nextType.name}</h3>
+                                            <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{yachtTypes[carouselIndex]?.name}</h3>
                                         </div>
-                                        <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
-                                            {nextType.desc}
+                                        <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
+                                            {yachtTypes[carouselIndex]?.desc}
                                         </p>
                                     </div>
                                 </div>
                             </motion.div>
 
-                            <div className="flex justify-start">
-                                <button
-                                    onClick={handleNextSlide}
-                                    className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
+                            <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                                <motion.div
+                                    key={`right-${carouselIndex}`}
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.1 }}
+                                    className="w-full rounded-[2rem] overflow-hidden relative group shadow-md h-[280px] lg:h-[380px]"
                                 >
-                                    <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
-                                </button>
+                                    <img
+                                        src={yachtTypes[(carouselIndex + 1) % yachtTypes.length]?.img?.src || yachtTypes[(carouselIndex + 1) % yachtTypes.length]?.img}
+                                        alt={yachtTypes[(carouselIndex + 1) % yachtTypes.length]?.name}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                                    <div className="absolute bottom-4 left-4 right-4 z-10">
+                                        <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                            <div className="flex items-center gap-2.5 mb-2">
+                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <Compass className="text-[#113A74] w-4 h-4" />
+                                                </div>
+                                                <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{yachtTypes[(carouselIndex + 1) % yachtTypes.length]?.name}</h3>
+                                            </div>
+                                            <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
+                                                {yachtTypes[(carouselIndex + 1) % yachtTypes.length]?.desc}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                <div className="flex justify-start">
+                                    <button
+                                        onClick={handleNextSlide}
+                                        className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
+                                    >
+                                        <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
@@ -417,7 +465,7 @@ const YachtsPage = () => {
             <AdventureSection />
 
             {/* Gallery Loop Section */}
-            <GalleryLoop />
+            <GalleryLoop images={galleryImages} loading={isLoadingCMS} />
         </div>
     );
 };

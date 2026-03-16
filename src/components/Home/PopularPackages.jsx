@@ -194,8 +194,9 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                         Popular Travel <span className="text-[#FFA500]">Packages</span> [DEPLOY_CHECK_VER_2]
                     </h2>
                     <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
-                        totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto.
+                        Experience stunning landscapes, iconic landmarks, and rich cultures.
+                        Our travel packages are designed for comfort, adventure, and discovery.
+                        Start your next unforgettable journey with us today.
                     </p>
                 </div>
 
@@ -278,7 +279,7 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                             <div className="flex flex-col">
                                                 <div className="mb-0">
                                                     <span className="text-[#FFA500] text-[20px] font-black leading-none whitespace-nowrap">AED {pkg.price}</span>
-                                                    <span className={`block text-[10px] font-bold uppercase ${isFocused ? 'text-gray-400' : 'text-white/50'}`}>Per Day</span>
+                                                    <span className={`block text-[10px] font-bold uppercase ${isFocused ? 'text-gray-400' : 'text-white/50'}`}>Onwards</span>
                                                 </div>
                                                 {!isFocused && (
                                                     <button className="text-[12px] font-bold text-[#8E99AF] hover:text-white transition-colors mt-1 text-left">

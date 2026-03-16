@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Plane, ArrowRight, FileCheck, Globe, Shield, Zap } from 'lucide-react';
 import globalImg from '../../assets/global.png';
 
@@ -89,10 +90,10 @@ const VisaServices = () => {
                     </div>
 
                     {/* CTA Button */}
-                    <button className="inline-flex items-center gap-2 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-heading font-bold px-6 py-3 rounded-full text-xs sm:text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
+                    <Link href="/visa-application" className="inline-flex items-center gap-2 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-heading font-bold px-6 py-3 rounded-full text-xs sm:text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
                         Explore More
                         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Right Side - Globe Image */}

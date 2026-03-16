@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Plane, MapPin, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { useFormik } from 'formik';
@@ -20,6 +20,10 @@ import GalleryLoop from '../../components/Home/GalleryLoop';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
+const Skeleton = ({ className }) => (
+    <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`}></div>
+);
+
 const JET_TYPES = ['Private Jet', 'Executive Airlines', 'Charter Flights', 'Air Ambulance', 'Helicopters'];
 const FLIGHT_CLASSES = ['Economy', 'Business', 'Both'];
 
@@ -28,13 +32,27 @@ const PrivateJetsPage = () => {
     const { user, openAuthModal } = useCustomerAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
+    const [cmsData, setCmsData] = useState(null);
+    const [isLoadingCMS, setIsLoadingCMS] = useState(true);
 
-    const carouselJets = [
-        { id: 1, name: "Bombardier Global 7500", img: jet1 },
-        { id: 2, name: "Bombardier Global 7500", img: jet2 },
-        { id: 3, name: "Gulfstream G650ER", img: jet1 },
-        { id: 4, name: "Cessna Citation Longitude", img: jet2 }
-    ];
+    useEffect(() => {
+        const fetchCMSData = async () => {
+            try {
+                setIsLoadingCMS(true);
+                const response = await api.get('/private-jet-cms');
+                if (response.data) {
+                    setCmsData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Private Jet CMS data:', error);
+            } finally {
+                setIsLoadingCMS(false);
+            }
+        };
+        fetchCMSData();
+    }, []);
+
+    const carouselJets = cmsData?.items || [];
 
     const handleNextSlide = () => {
         setCarouselIndex((prev) => (prev + 1) % carouselJets.length);
@@ -82,7 +100,7 @@ const PrivateJetsPage = () => {
                 };
                 delete payload.has_return; // backend doesn't need this toggle
 
-                await api.post('/private-jet-enquiries', payload);
+                await api.post('/private-jet/frontend/create', payload);
                 setSubmitStatus('success');
                 formik.resetForm();
                 setTimeout(() => setSubmitStatus(null), 5000);
@@ -101,12 +119,18 @@ const PrivateJetsPage = () => {
             <section className="relative w-full h-screen flex items-center justify-end overflow-hidden">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
-                    <img
-                        src={jetImg.src || jetImg}
-                        alt="Private Jet Charter"
-                        className="w-full h-full object-cover object-center"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
+                    {isLoadingCMS ? (
+                        <Skeleton className="w-full h-full rounded-none" />
+                    ) : (
+                        <>
+                            <img
+                                src={cmsData?.hero_image || jetImg.src || jetImg}
+                                alt={cmsData?.hero_title || "Private Jet Charter"}
+                                className="w-full h-full object-cover object-center"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
+                        </>
+                    )}
                 </div>
 
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
@@ -116,13 +140,23 @@ const PrivateJetsPage = () => {
                         transition={{ duration: 0.8 }}
                         className="w-full md:w-[50%] lg:w-[45%] text-right pt-20"
                     >
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                            <span className="text-[#113A74]">Elite Private </span>
-                            <span className="text-[#FFA500]">Jet Charters</span>
-                        </h1>
-                        <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
-                            Experience the ultimate in bespoke aviation. Our curated private jet services offer unmatched flexibility, privacy, and luxury for the discerning traveler.
-                        </p>
+                        {isLoadingCMS ? (
+                            <div className="space-y-4">
+                                <Skeleton className="h-12 w-[80%] ml-auto" />
+                                <Skeleton className="h-12 w-[60%] ml-auto" />
+                                <Skeleton className="h-20 w-full ml-auto mt-6" />
+                            </div>
+                        ) : (
+                            <>
+                                <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
+                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -2).join(' ')} </span>
+                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-2).join(' ')}</span>
+                                </h1>
+                                <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
+                                    {cmsData?.hero_description}
+                                </p>
+                            </>
+                        )}
                     </motion.div>
                 </div>
             </section>
@@ -137,19 +171,28 @@ const PrivateJetsPage = () => {
                         transition={{ duration: 0.6 }}
                         className="w-full lg:w-[55%] space-y-6"
                     >
-                        <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                            <span className="text-[#113A74]">Seamless Journeys<br /></span>
-                            <span className="text-[#FFA500]">Without Compromise</span>
-                        </h2>
+                        {isLoadingCMS ? (
+                            <div className="space-y-6">
+                                <Skeleton className="h-10 w-[70%]" />
+                                <Skeleton className="h-10 w-[50%]" />
+                                <div className="space-y-4 pt-4">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[90%]" />
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
+                                    <span className="text-[#113A74]">Seamless Journeys<br /></span>
+                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('Without ').pop()}</span>
+                                </h2>
 
-                        <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
-                            <p>
-                                At Magic Tours, we understand that time is your most valuable asset. Our private jet charter services are designed to eliminate the stresses of commercial travel, providing you with a direct path to your destination on your own schedule. From ultra-long-range jets to nimble light aircraft, we provide the perfect vessel for your specific requirements.
-                            </p>
-                            <p>
-                                Every aspect of your journey is meticulously planned by our dedicated aviation specialists. Whether it's coordinating multi-leg itineraries, arranging gourmet in-flight dining, or ensuring seamless ground transfers, we handle every detail so you can focus on what matters most.
-                            </p>
-                        </div>
+                                <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
+                                    <p>{cmsData?.section_description}</p>
+                                </div>
+                            </>
+                        )}
                     </motion.div>
 
                     <motion.div
@@ -160,11 +203,15 @@ const PrivateJetsPage = () => {
                         className="w-full lg:w-[40%] lg:ml-auto"
                     >
                         <div className="rounded-[1.5rem] overflow-hidden shadow-xl aspect-[4/3] lg:aspect-[5/4] w-full">
-                            <img
-                                src={interiorImg.src || interiorImg}
-                                alt="Luxurious Private Jet Interior"
-                                className="w-full h-full object-cover"
-                            />
+                            {isLoadingCMS ? (
+                                <Skeleton className="w-full h-full" />
+                            ) : (
+                                <img
+                                    src={cmsData?.section_image || interiorImg.src || interiorImg}
+                                    alt={cmsData?.section_title}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                     </motion.div>
                 </div>
@@ -183,76 +230,88 @@ const PrivateJetsPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
-                        <motion.div
-                            key={`left-${carouselIndex}`}
-                            initial={{ opacity: 0, x: -30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg aspect-[4/3] lg:aspect-auto"
-                        >
-                            <img
-                                src={carouselJets[carouselIndex].img.src || carouselJets[carouselIndex].img}
-                                alt={carouselJets[carouselIndex].name}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-
-                            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
-                                <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
-                                    <div className="flex items-center gap-2.5 mb-2">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                            <Plane className="text-[#113A74] w-5 h-5" />
-                                        </div>
-                                        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{carouselJets[carouselIndex].name}</h3>
-                                    </div>
-                                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
-                                        Offering exceptional range and comfort, making it the preferred choice for transcontinental travel.
-                                    </p>
-                                </div>
+                    {isLoadingCMS ? (
+                        <div className="flex flex-col lg:flex-row gap-8 min-h-[450px]">
+                            <Skeleton className="w-full lg:w-[60%] h-[450px] rounded-[2rem]" />
+                            <div className="w-full lg:w-[40%] flex flex-col gap-8">
+                                <Skeleton className="w-full flex-1 rounded-[2rem] min-h-[300px]" />
+                                <Skeleton className="w-16 h-16 rounded-full" />
                             </div>
-                        </motion.div>
-
-                        <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                        </div>
+                    ) : carouselJets.length > 0 && (
+                        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
                             <motion.div
-                                key={`right-${carouselIndex}`}
-                                initial={{ opacity: 0, x: 30 }}
+                                key={`left-${carouselIndex}`}
+                                initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.1 }}
-                                className="w-full rounded-[2rem] overflow-hidden relative group shadow-md flex-1 min-h-[300px]"
+                                transition={{ duration: 0.5 }}
+                                className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg aspect-[4/3] lg:aspect-auto"
                             >
                                 <img
-                                    src={carouselJets[(carouselIndex + 1) % carouselJets.length].img.src || carouselJets[(carouselIndex + 1) % carouselJets.length].img}
-                                    alt={carouselJets[(carouselIndex + 1) % carouselJets.length].name}
+                                    src={carouselJets[carouselIndex]?.img?.src || carouselJets[carouselIndex]?.img}
+                                    alt={carouselJets[carouselIndex]?.name}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                                <div className="absolute bottom-4 left-4 right-4 z-10">
-                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
+                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
                                         <div className="flex items-center gap-2.5 mb-2">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                                <Plane className="text-[#113A74] w-4 h-4 scale-75" />
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <Plane className="text-[#113A74] w-5 h-5" />
                                             </div>
-                                            <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{carouselJets[(carouselIndex + 1) % carouselJets.length].name}</h3>
+                                            <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{carouselJets[carouselIndex]?.name}</h3>
                                         </div>
-                                        <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
-                                            Unmatched performance and elegance in the skies.
+                                        <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
+                                            {carouselJets[carouselIndex]?.desc}
                                         </p>
                                     </div>
                                 </div>
                             </motion.div>
 
-                            <div className="flex justify-start">
-                                <button
-                                    onClick={handleNextSlide}
-                                    className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
-                                >
-                                    <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
-                                </button>
+                            <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                                {carouselJets.length > 1 && (
+                                    <motion.div
+                                        key={`right-${carouselIndex}`}
+                                        initial={{ opacity: 0, x: 30 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.5, delay: 0.1 }}
+                                        className="w-full rounded-[2rem] overflow-hidden relative group shadow-md flex-1 min-h-[300px]"
+                                    >
+                                        <img
+                                            src={carouselJets[(carouselIndex + 1) % carouselJets.length]?.img?.src || carouselJets[(carouselIndex + 1) % carouselJets.length]?.img}
+                                            alt={carouselJets[(carouselIndex + 1) % carouselJets.length]?.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                                        <div className="absolute bottom-4 left-4 right-4 z-10">
+                                            <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                                <div className="flex items-center gap-2.5 mb-2">
+                                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                        <Plane className="text-[#113A74] w-4 h-4 scale-75" />
+                                                    </div>
+                                                    <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{carouselJets[(carouselIndex + 1) % carouselJets.length]?.name}</h3>
+                                                </div>
+                                                <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
+                                                    {carouselJets[(carouselIndex + 1) % carouselJets.length]?.desc}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                <div className="flex justify-start">
+                                    <button
+                                        onClick={handleNextSlide}
+                                        className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
+                                    >
+                                        <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
@@ -486,7 +545,7 @@ const PrivateJetsPage = () => {
             <AdventureSection />
 
             {/* Gallery Loop Section */}
-            <GalleryLoop />
+            <GalleryLoop images={cmsData?.hero_slider} loading={isLoadingCMS} />
         </div>
     );
 };

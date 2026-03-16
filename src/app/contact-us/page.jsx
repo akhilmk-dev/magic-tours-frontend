@@ -8,6 +8,7 @@ import * as Yup from 'yup';
 import { Mail, Phone, MapPin, Send, MessageSquare, Loader2, Globe, Clock, CheckCircle2 } from 'lucide-react';
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
+import InternationalPhoneInput from '../../components/common/InternationalPhoneInput';
 
 // Assets
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
@@ -22,6 +23,7 @@ const ContactSchema = Yup.object().shape({
         .email('Invalid email')
         .required('Email is required'),
     phone: Yup.string()
+        .matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format')
         .required('Phone number is required'),
     subject: Yup.string()
         .required('Subject is required'),
@@ -199,7 +201,7 @@ const ContactUsPage = () => {
                                 validationSchema={ContactSchema}
                                 onSubmit={handleSubmit}
                             >
-                                {({ values, errors, touched, isValid }) => (
+                                {({ values, errors, touched, isValid, setFieldValue }) => (
                                     <Form className="space-y-6 relative z-10">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
@@ -236,17 +238,11 @@ const ContactUsPage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Phone Number</label>
-                                                <div className="relative">
-                                                    <Field 
-                                                        name="phone" 
-                                                        placeholder="+971 -- --- ----" 
-                                                        className={`w-full bg-[#f8fafc] border ${touched.phone && errors.phone ? 'border-red-300' : 'border-slate-100'} rounded-2xl py-4 px-6 text-sm font-bold outline-none focus:border-[#113A74] focus:bg-white transition-all transition-duration-300 shadow-sm`}
-                                                    />
-                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#113A74]/20">
-                                                        <Phone size={18} />
-                                                    </div>
-                                                </div>
-                                                <ErrorMessage name="phone" component="div" className="text-red-500 text-[10px] font-bold uppercase ml-1" />
+                                                <InternationalPhoneInput
+                                                    value={values.phone}
+                                                    onChange={(val) => setFieldValue('phone', val)}
+                                                    error={touched.phone && errors.phone}
+                                                />
                                             </div>
 
                                             <div className="space-y-2">

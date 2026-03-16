@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind, Loader2, CheckCircle2 } from 'lucide-react';
 import { useFormik } from 'formik';
@@ -20,25 +20,49 @@ import GalleryLoop from '../../components/Home/GalleryLoop';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
-const CABIN_TYPES = ['Interior', 'Ocean View', 'Balcony', 'Suite'];
-const CRUISE_LINES = ['Royal Caribbean', 'Carnival', 'Norwegian', 'MSC Cruises', 'Princess Cruises', 'Celebrity Cruises', 'Disney Cruise Line'];
+const ICON_MAP = {
+    Anchor: Anchor,
+    Globe: Globe,
+    Wind: Wind,
+    Compass: Compass,
+    Ship: Ship
+};
+
+const Skeleton = ({ className }) => (
+    <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`}></div>
+);
 
 const CruisesPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
     const { user, openAuthModal } = useCustomerAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
+    const [cmsData, setCmsData] = useState(null);
+    const [isLoadingCMS, setIsLoadingCMS] = useState(true);
 
-    const cruiseCategories = [
-        { id: 1, name: "Luxury Cruises", img: luxuryCruiseImg, desc: "Five-star amenities and unparalleled service on the world's finest ships." },
-        { id: 2, name: "Adventure Cruises", img: adventureCruiseImg, desc: "Explore remote corners of the globe with expert-led expeditions." },
-        { id: 3, name: "River Cruises", img: cruiseInterior, desc: "Intimate journeys through the heart of iconic continents." },
-        { id: 4, name: "Family Cruises", img: luxuryCruiseImg, desc: "Fun-filled voyages with activities for every generation." },
-        { id: 5, name: "World Cruises", img: adventureCruiseImg, desc: "The ultimate voyage covering multiple continents over several months." }
-    ];
+    useEffect(() => {
+        const fetchCMSData = async () => {
+            try {
+                setIsLoadingCMS(true);
+                const response = await api.get('/cruise-cms');
+                if (response.data) {
+                    setCmsData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Cruise CMS data:', error);
+            } finally {
+                setIsLoadingCMS(false);
+            }
+        };
+        fetchCMSData();
+    }, []);
 
-    const currentCategory = cruiseCategories[carouselIndex];
-    const nextCategory = cruiseCategories[(carouselIndex + 1) % cruiseCategories.length];
+    const cruiseCategories = cmsData?.items || [];
+    const cruiseGalleryImages = cmsData?.hero_slider || [];
+    const currentCategory = cruiseCategories[carouselIndex] || null;
+    const nextCategory = cruiseCategories[(carouselIndex + 1) % cruiseCategories.length] || null;
+
+    const CABIN_TYPES = ['Interior', 'Ocean View', 'Balcony', 'Suite'];
 
     const handleNextSlide = () => {
         setCarouselIndex((prev) => (prev + 1) % cruiseCategories.length);
@@ -77,7 +101,7 @@ const CruisesPage = () => {
                     ...values
                 };
 
-                await api.post('/cruise-enquiries', payload);
+                await api.post('/cruise/frontend/create', payload);
                 setSubmitStatus('success');
                 formik.resetForm();
                 setTimeout(() => setSubmitStatus(null), 5000);
@@ -96,12 +120,18 @@ const CruisesPage = () => {
             <section className="relative w-full h-screen flex items-center justify-end overflow-hidden">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
-                    <img
-                        src={cruiseHero.src || cruiseHero}
-                        alt="Luxury Cruises"
-                        className="w-full h-full object-cover object-center brightness-[1.05] grayscale-[5%] contrast-[1.02]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
+                    {isLoadingCMS ? (
+                        <Skeleton className="w-full h-full rounded-none" />
+                    ) : (
+                        <>
+                            <img
+                                src={cmsData?.hero_image || cruiseHero.src || cruiseHero}
+                                alt={cmsData?.hero_title || "Luxury Cruises"}
+                                className="w-full h-full object-cover object-center brightness-[1.05] grayscale-[5%] contrast-[1.02]"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
+                        </>
+                    )}
                 </div>
 
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
@@ -111,13 +141,23 @@ const CruisesPage = () => {
                         transition={{ duration: 0.8 }}
                         className="w-full md:w-[50%] lg:w-[45%] text-right pt-20"
                     >
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                            <span className="text-[#113A74]">Exceptional Ocean </span>
-                            <span className="text-[#FFA500]">Cruises</span>
-                        </h1>
-                        <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
-                            Embark on a journey of discovery across the world's most beautiful oceans. From Caribbean sunrises to Mediterranean sunsets, we offer the pinnacle of maritime travel.
-                        </p>
+                        {isLoadingCMS ? (
+                            <div className="space-y-4">
+                                <Skeleton className="h-12 w-[80%] ml-auto" />
+                                <Skeleton className="h-12 w-[60%] ml-auto" />
+                                <Skeleton className="h-20 w-full ml-auto mt-6" />
+                            </div>
+                        ) : (
+                            <>
+                                <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
+                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -1).join(' ')} </span>
+                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-1)}</span>
+                                </h1>
+                                <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
+                                    {cmsData?.hero_description}
+                                </p>
+                            </>
+                        )}
                     </motion.div>
                 </div>
             </section>
@@ -132,19 +172,28 @@ const CruisesPage = () => {
                         transition={{ duration: 0.6 }}
                         className="w-full lg:w-[55%] space-y-6"
                     >
-                        <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                            <span className="text-[#113A74]">Discover the Art of<br /></span>
-                            <span className="text-[#FFA500]">High Seas Luxury</span>
-                        </h2>
+                        {isLoadingCMS ? (
+                            <div className="space-y-6">
+                                <Skeleton className="h-10 w-[70%]" />
+                                <Skeleton className="h-10 w-[50%]" />
+                                <div className="space-y-4 pt-4">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[90%]" />
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
+                                    <span className="text-[#113A74]">Discover the Art of<br /></span>
+                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('High Seas ').pop()}</span>
+                                </h2>
 
-                        <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
-                            <p>
-                                Experience a world where every detail is curated for your comfort. Our cruise collections bring together the finest liners and most inspiring itineraries, ensuring that your time at sea is as rewarding as your time in port. 
-                            </p>
-                            <p>
-                                Whether you're seeking a serene river journey through Europe's heart or a grand oceanic crossing, our experts are dedicated to finding the perfect match for your travel style. Indulge in world-class dining, exceptional entertainment, and breathtaking views that only a cruise can provide.
-                            </p>
-                        </div>
+                                <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
+                                    <p>{cmsData?.section_description}</p>
+                                </div>
+                            </>
+                        )}
                     </motion.div>
 
                     <motion.div
@@ -155,11 +204,15 @@ const CruisesPage = () => {
                         className="w-full lg:w-[40%] lg:ml-auto"
                     >
                         <div className="rounded-[1.5rem] overflow-hidden shadow-xl aspect-[4/3] lg:aspect-[5/4] w-full">
-                            <img
-                                src={cruiseInterior.src || cruiseInterior}
-                                alt="Luxurious Cruise Interior"
-                                className="w-full h-full object-cover"
-                            />
+                            {isLoadingCMS ? (
+                                <Skeleton className="w-full h-full" />
+                            ) : (
+                                <img
+                                    src={cmsData?.section_image || cruiseInterior.src || cruiseInterior}
+                                    alt={cmsData?.section_title}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                     </motion.div>
                 </div>
@@ -178,103 +231,117 @@ const CruisesPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative min-h-[450px]">
-                        <motion.div
-                            key={`left-${carouselIndex}`}
-                            initial={{ opacity: 0, x: -30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg aspect-[4/3] lg:aspect-auto"
-                        >
-                            <img
-                                src={currentCategory.img.src || currentCategory.img}
-                                alt={currentCategory.name}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-
-                            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
-                                <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
-                                    <div className="flex items-center gap-2.5 mb-2">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                            <Ship className="text-[#113A74] w-5 h-5" />
-                                        </div>
-                                        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{currentCategory.name}</h3>
-                                    </div>
-                                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
-                                        {currentCategory.desc}
-                                    </p>
-                                </div>
+                    {isLoadingCMS ? (
+                        <div className="flex flex-col lg:flex-row gap-8 min-h-[450px]">
+                            <Skeleton className="w-full lg:w-[60%] h-[450px] rounded-[2rem]" />
+                            <div className="w-full lg:w-[40%] flex flex-col gap-8">
+                                <Skeleton className="w-full flex-1 rounded-[2rem] min-h-[300px]" />
+                                <Skeleton className="w-16 h-16 rounded-full" />
                             </div>
-                        </motion.div>
-
-                        <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                        </div>
+                    ) : (
+                        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch relative">
                             <motion.div
-                                key={`right-${carouselIndex}`}
-                                initial={{ opacity: 0, x: 30 }}
+                                key={`left-${carouselIndex}`}
+                                initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.1 }}
-                                className="w-full rounded-[2rem] overflow-hidden relative group shadow-md flex-1 min-h-[300px]"
+                                transition={{ duration: 0.5 }}
+                                className="w-full lg:w-[60%] relative rounded-[2rem] overflow-hidden group shadow-lg h-[300px] md:h-[420px] lg:h-[480px]"
                             >
                                 <img
-                                    src={nextCategory.img.src || nextCategory.img}
-                                    alt={nextCategory.name}
+                                    src={currentCategory?.img?.src || currentCategory?.img}
+                                    alt={currentCategory?.name || "Cruise"}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                                <div className="absolute bottom-4 left-4 right-4 z-10">
-                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-8 lg:right-8 z-10">
+                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
                                         <div className="flex items-center gap-2.5 mb-2">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                                <Compass className="text-[#113A74] w-4 h-4" />
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <Ship className="text-[#113A74] w-5 h-5" />
                                             </div>
-                                            <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{nextCategory.name}</h3>
+                                            <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold font-heading mb-1">{currentCategory?.name}</h3>
                                         </div>
-                                        <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
-                                            {nextCategory.desc}
+                                        <p className="text-white/70 text-xs sm:text-sm leading-relaxed max-w-lg">
+                                            {currentCategory?.desc}
                                         </p>
                                     </div>
                                 </div>
                             </motion.div>
 
-                            <div className="flex justify-start">
-                                <button
-                                    onClick={handleNextSlide}
-                                    className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
+                            <div className="w-full lg:w-[40%] flex flex-col justify-between gap-8 h-full">
+                                <motion.div
+                                    key={`right-${carouselIndex}`}
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.1 }}
+                                className="w-full rounded-[2rem] overflow-hidden relative group shadow-md h-[280px] lg:h-[380px]"
                                 >
-                                    <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
-                                </button>
+                                    <img
+                                        src={nextCategory?.img?.src || nextCategory?.img}
+                                        alt={nextCategory?.name}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                                    <div className="absolute bottom-4 left-4 right-4 z-10">
+                                        <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4">
+                                            <div className="flex items-center gap-2.5 mb-2">
+                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <Compass className="text-[#113A74] w-4 h-4" />
+                                                </div>
+                                                <h3 className="text-white text-base sm:text-lg font-bold font-heading mb-1 truncate">{nextCategory?.name}</h3>
+                                            </div>
+                                            <p className="text-white/70 text-xs leading-relaxed max-w-xs line-clamp-2">
+                                                {nextCategory?.desc}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                <div className="flex justify-start">
+                                    <button
+                                        onClick={handleNextSlide}
+                                        className="w-14 h-14 md:w-16 md:h-16 border border-[#113A74]/30 rounded-full flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm bg-transparent"
+                                    >
+                                        <ArrowUpRight className="w-6 h-6 transition-transform group-hover:rotate-45" strokeWidth={1.5} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
             {/* Destiny Highlights */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                        { title: "Mediterranean", count: "140+ Cruises", icon: <Anchor className="text-[#FFA500]" /> },
-                        { title: "Caribbean", count: "210+ Cruises", icon: <Globe className="text-[#113A74]" /> },
-                        { title: "Alaska", count: "85+ Cruises", icon: <Wind className="text-[#FFA500]" /> },
-                        { title: "Northern Europe", count: "115+ Cruises", icon: <Compass className="text-[#113A74]" /> }
-                    ].map((dest, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1 }}
-                            className="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-[#113A74]/5 hover:-translate-y-1 transition-all group"
-                        >
-                            <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                {dest.icon}
-                            </div>
-                            <h4 className="text-[#113A74] font-bold text-xl mb-2">{dest.title}</h4>
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">{dest.count}</p>
-                        </motion.div>
-                    ))}
+                    {isLoadingCMS ? (
+                        Array(4).fill(0).map((_, i) => (
+                            <Skeleton key={i} className="h-[200px] rounded-3xl" />
+                        ))
+                    ) : (
+                        cmsData?.highlights?.map((dest, i) => {
+                            const IconComponent = ICON_MAP[dest.icon] || Globe;
+                            return (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-[#113A74]/5 hover:-translate-y-1 transition-all group"
+                                >
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                        <IconComponent className={i % 2 === 0 ? "text-[#FFA500]" : "text-[#113A74]"} />
+                                    </div>
+                                    <h4 className="text-[#113A74] font-bold text-xl mb-2">{dest.title}</h4>
+                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">{dest.count}</p>
+                                </motion.div>
+                            );
+                        })
+                    )}
                 </div>
             </section>
 
@@ -462,7 +529,7 @@ const CruisesPage = () => {
             <AdventureSection />
 
             {/* Gallery Loop Section */}
-            <GalleryLoop />
+            <GalleryLoop images={cruiseGalleryImages} loading={isLoadingCMS} />
         </div>
     );
 };

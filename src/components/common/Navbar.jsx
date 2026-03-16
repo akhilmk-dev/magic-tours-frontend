@@ -12,17 +12,17 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
     return (
         <div className={clsx(
             "border-b transition-all duration-300",
-            isTransparent ? "bg-transparent border-white/10 text-white/80" : "bg-[#fcfcfc] border-gray-100 text-gray-500"
+            isTransparent ? "bg-transparent border-white/10 text-gray-500" : "bg-[#fcfcfc] border-gray-100 text-gray-500"
         )}>
             <div className="px-3 sm:px-4 md:px-6 flex justify-between items-center text-[11px] sm:text-[12px] font-medium w-full py-1.5">
                 {/* Left: Location & Phone */}
                 <div className="flex items-center gap-3 sm:gap-6">
                     <div className="hidden sm:flex items-center gap-1.5">
-                        <MapPin size={13} className={isTransparent ? "text-white/60" : "text-gray-400"} />
+                        <MapPin size={13} className="text-gray-400" />
                         <span>Doha, Qatar</span>
                     </div>
-                    <div className={clsx("flex items-center gap-1.5 sm:border-l sm:pl-6", isTransparent ? "border-white/10" : "border-gray-200")}>
-                        <Phone size={13} className={isTransparent ? "text-white/60" : "text-gray-400"} />
+                    <div className="flex items-center gap-1.5 sm:border-l sm:pl-6 border-gray-200">
+                        <Phone size={13} className="text-gray-400" />
                         <span>+974 444 8888</span>
                     </div>
                 </div>
@@ -33,20 +33,20 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                         <span>QAR</span>
                         <ChevronDown size={12} />
                     </div>
-                    <div className={clsx("w-px h-3 hidden sm:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
-                    <Link href="/faq" className={clsx("transition-colors hidden sm:block", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>FAQ</Link>
-                    <div className={clsx("w-px h-3 hidden md:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
-                    <Link href="/support" className={clsx("transition-colors hidden md:block", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>Support</Link>
-                    <div className={clsx("w-px h-3 hidden lg:block", isTransparent ? "bg-white/10" : "bg-gray-200")} />
+                    <div className="w-px h-3 hidden sm:block bg-gray-200" />
+                    <Link href="/faq" className="transition-colors hidden sm:block hover:text-[#0D0D0C]">FAQ</Link>
+                    <div className="w-px h-3 hidden md:block bg-gray-200" />
+                    <Link href="/support" className="transition-colors hidden md:block hover:text-[#0D0D0C]">Support</Link>
+                    <div className="w-px h-3 hidden lg:block bg-gray-200" />
                     {user ? (
-                        <Link href="/profile" className={clsx("flex items-center gap-2 transition-all hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>
+                        <Link href="/profile" className="flex items-center gap-2 transition-all hidden lg:flex hover:text-[#0D0D0C]">
                             <div className="w-6 h-6 rounded-full bg-[#113A74] text-white flex items-center justify-center font-bold text-xs shadow-sm">
                                 {user.name?.charAt(0).toUpperCase() || 'U'}
                             </div>
                             <span className="font-bold">{user.name?.split(' ')[0] || 'Profile'}</span>
                         </Link>
                     ) : (
-                        <button onClick={() => onOpenAuthModal('login')} className={clsx("items-center gap-1.5 transition-colors hidden lg:flex", isTransparent ? "hover:text-white" : "hover:text-[#0D0D0C]")}>
+                        <button onClick={() => onOpenAuthModal('login')} className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C]">
                             Sign In / Register
                             <User size={14} />
                         </button>
@@ -66,7 +66,7 @@ export default function Navbar() {
     const { user, logout, openAuthModal } = useCustomerAuth();
 
     // Check if we are on pages that should have a transparent navbar initially
-    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels' || pathname === '/contact-us' || pathname === '/yachts' || pathname === '/cruise';
+    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels' || pathname === '/contact-us' || pathname === '/yachts' || pathname === '/cruise' || pathname === '/visa';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -84,7 +84,7 @@ export default function Navbar() {
         { name: 'Cruise', path: '/cruise' },
         { name: 'Hotels', path: '/hotels' },
         { name: 'Tours', path: '/tours' },
-        { name: 'Visa Services', path: '/visa-application' },
+        { name: 'Visa Services', path: '/visa' },
         { name: 'IDL', path: '/idl' },
         { name: 'Private Jets', path: '/private-jets' },
         { name: 'Yachts', path: '/yachts' },
@@ -108,7 +108,7 @@ export default function Navbar() {
                 <div className="px-3 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}
                     <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-                        <img src={isTransparent ? logoWhite.src : logo.src} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+                        <img src={logo.src} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
                     </Link>
 
                     {/* Desktop Menu */}
@@ -136,7 +136,7 @@ export default function Navbar() {
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className={clsx(
                             "lg:hidden p-2 transition-colors",
-                            isTransparent ? "text-white" : "text-[#0D0D0C]"
+                            isTransparent ? "text-[#0D0D0C]" : "text-[#0D0D0C]"
                         )}
                     >
                         {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}

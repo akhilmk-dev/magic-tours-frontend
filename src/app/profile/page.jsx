@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
-import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText } from 'lucide-react';
+import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText, Globe, Info, Users } from 'lucide-react';
+import ProfileSkeletons, { ProfileCardSkeleton } from '../../components/skeletons/ProfileSkeletons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -11,19 +12,22 @@ const ProfilePage = () => {
     const { user, logout, loading: authLoading, openAuthModal } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
     const [idlApplications, setIdlApplications] = useState([]);
+    const [visaApplications, setVisaApplications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' or 'idl'
+    const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'idl', or 'visa'
     const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [bookingsRes, idlRes] = await Promise.all([
+                const [bookingsRes, idlRes, visaRes] = await Promise.all([
                     api.get('/bookings/frontend/my').catch(() => ({ data: [] })),
-                    api.get('/idl/my').catch(() => ({ data: [] }))
+                    api.get('/idl/my').catch(() => ({ data: [] })),
+                    api.get('/visa/my?page=1&limit=50').catch(() => ({ data: [] }))
                 ]);
                 setBookings(bookingsRes.data || bookingsRes || []);
                 setIdlApplications(idlRes.data || []);
+                setVisaApplications(visaRes.data || []);
             } catch (err) {
                 console.error('Failed to fetch data:', err);
             } finally {
@@ -39,11 +43,7 @@ const ProfilePage = () => {
     }, [user, authLoading]);
 
     if (authLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="animate-spin text-primary" size={40} />
-            </div>
-        );
+        return <ProfileSkeletons />;
     }
 
     if (!user) {
@@ -94,7 +94,7 @@ const ProfilePage = () => {
                             <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">Quick Links</h3>
                             <div className="flex flex-col gap-3">
                                 <Link
-                                    href="/visa-application"
+                                    href="/visa"
                                     className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -112,7 +112,7 @@ const ProfilePage = () => {
                                     Apply for IDL
                                 </Link>
                                 <Link
-                                    href="/packages"
+                                    href="/tours"
                                     className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -127,10 +127,10 @@ const ProfilePage = () => {
                     {/* Main Content - Tabs & Data */}
                     <div className="lg:col-span-3">
                         {/* Tabs */}
-                        <div className="bg-white rounded-full shadow-sm p-1.5 flex gap-2 mb-8 max-w-md">
+                        <div className="bg-white rounded-full shadow-sm p-1.5 flex flex-wrap gap-2 mb-8 max-w-fit">
                             <button
                                 onClick={() => setActiveTab('bookings')}
-                                className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'bookings'
+                                className={`py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'bookings'
                                     ? 'bg-[#113A74] text-white shadow-md'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
                                     }`}
@@ -138,8 +138,17 @@ const ProfilePage = () => {
                                 My Bookings
                             </button>
                             <button
+                                onClick={() => setActiveTab('visa')}
+                                className={`py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'visa'
+                                    ? 'bg-[#113A74] text-white shadow-md'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    }`}
+                            >
+                                Visa Applications
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('idl')}
-                                className={`flex-1 py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'idl'
+                                className={`py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'idl'
                                     ? 'bg-[#113A74] text-white shadow-md'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
                                     }`}
@@ -149,8 +158,10 @@ const ProfilePage = () => {
                         </div>
 
                         {loading ? (
-                            <div className="flex justify-center py-20">
-                                <Loader2 className="animate-spin text-[#113A74]" size={40} />
+                            <div className="space-y-6">
+                                {[1, 2, 3].map((i) => (
+                                    <ProfileCardSkeleton key={i} />
+                                ))}
                             </div>
                         ) : activeTab === 'bookings' ? (
                             bookings.length === 0 ? (
@@ -160,14 +171,13 @@ const ProfilePage = () => {
                                     </div>
                                     <h3 className="text-2xl font-black text-[#113A74] mb-3">No bookings yet</h3>
                                     <p className="text-gray-500 mb-8 max-w-sm mx-auto">You haven't made any bookings yet. Start exploring the world with our tailored travel packages.</p>
-                                    <Link href="/packages" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                    <Link href="/tours" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
                                         Browse Packages
                                     </Link>
                                 </div>
                             ) : (
                                 <div className="space-y-6">
                                     {bookings.map((booking) => {
-                                        // Support both old and new API field names
                                         const adultDouble = booking.guest_adult_double ?? booking.count_adult_double ?? 0;
                                         const adultSingle = booking.guest_adult_single ?? booking.count_adult_single ?? 0;
                                         const adultTriple = booking.guest_adult_triple ?? booking.count_adult_triple ?? 0;
@@ -181,7 +191,6 @@ const ProfilePage = () => {
 
                                         return (
                                             <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
-                                                {/* Header */}
                                                 <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
                                                     <div className="flex-1">
                                                         <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -207,7 +216,6 @@ const ProfilePage = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Details grid */}
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                                     <div>
                                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
@@ -231,24 +239,88 @@ const ProfilePage = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                {/* Room breakdown */}
-                                                {(adultDouble + adultSingle + adultTriple + childBed + childNoBed + infant > 0) && (
-                                                    <div className="mt-6 pt-6 border-t border-gray-50">
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Room Breakdown</p>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {adultDouble > 0 && <span className="text-xs bg-blue-50   text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-blue-100">{adultDouble} Double Room{adultDouble > 1 ? 's' : ''} ({adultDouble * 2} pax)</span>}
-                                                            {adultSingle > 0 && <span className="text-xs bg-indigo-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-indigo-100">{adultSingle} Single Room{adultSingle > 1 ? 's' : ''}</span>}
-                                                            {adultTriple > 0 && <span className="text-xs bg-purple-50 text-[#113A74] px-3 py-1.5 font-bold rounded-lg border border-purple-100">{adultTriple} Triple Room{adultTriple > 1 ? 's' : ''} ({adultTriple * 3} pax)</span>}
-                                                            {childBed > 0 && <span className="text-xs bg-green-50  text-green-700  px-3 py-1.5 font-bold rounded-lg border border-green-100">{childBed} Child (with bed)</span>}
-                                                            {childNoBed > 0 && <span className="text-xs bg-green-50  text-green-700  px-3 py-1.5 font-bold rounded-lg border border-green-100">{childNoBed} Child (no bed)</span>}
-                                                            {infant > 0 && <span className="text-xs bg-orange-50 text-orange-600 px-3 py-1.5 font-bold rounded-lg border border-orange-100">{infant} Infant{infant > 1 ? 's' : ''}</span>}
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )
+                        ) : activeTab === 'visa' ? (
+                            /* Visa Applications View */
+                            visaApplications.length === 0 ? (
+                                <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
+                                    <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                        <FileText className="text-gray-400" size={40} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-[#113A74] mb-3">No Visa Applications</h3>
+                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">Get expert assistance for your travel visas. Submit your application online.</p>
+                                    <Link href="/visa" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                        Apply for Visa
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {visaApplications.map((visa) => (
+                                        <div key={visa.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
+                                            <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
+                                                <div className="flex-1">
+                                                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                                            visa.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
+                                                            visa.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                            visa.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
+                                                            'bg-gray-100 text-gray-600'
+                                                        }`}>
+                                                            {visa.status || 'Pending'}
+                                                        </span>
+                                                        <span className="text-xs font-bold text-gray-400">#{visa.id?.split('-').pop()?.toUpperCase()}</span>
+                                                    </div>
+                                                    <h3 className="text-xl font-black text-[#113A74] mb-1">
+                                                        {visa.visa_name || 'Visa Application'}
+                                                    </h3>
+                                                    <p className="text-sm font-bold text-[#FFA500] uppercase tracking-wide">
+                                                        {visa.countries?.name || 'International'}
+                                                    </p>
+                                                </div>
+                                                <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl shrink-0">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Applied On</p>
+                                                    <p className="text-xl font-black text-[#113A74]">
+                                                        {visa.created_at ? new Date(visa.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Calendar size={16} className="text-[#FFA500] shrink-0" />
+                                                        {visa.travel_date ? new Date(visa.travel_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Passengers</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Users size={16} className="text-[#FFA500] shrink-0" />
+                                                        {visa.number_of_passengers || 0} Pax
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Category</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74] capitalize">
+                                                        <Info size={16} className="text-[#FFA500] shrink-0" />
+                                                        {visa.visa_category || 'Standard'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Nationality</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Globe size={16} className="text-[#FFA500] shrink-0" />
+                                                        {visa.nationality || '—'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )
                         ) : (

@@ -22,16 +22,27 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [bookingsRes, idlRes, visaRes] = await Promise.all([
+                const [bookingsRes, idlRes, visaRes, favoritePackagesRes] = await Promise.all([
                     api.get('/bookings/frontend/my').catch(() => ({ data: [] })),
                     api.get('/idl/my').catch(() => ({ data: [] })),
                     api.get('/visa/my?page=1&limit=50').catch(() => ({ data: [] })),
-                    api.get('/customers/favorites/').catch(() => ({ data: [] }))
+                    api.get('/customers/favorites').catch(() => ({ data: [] }))
                 ]);
-                setBookings(bookingsRes.data || bookingsRes || []);
-                setIdlApplications(idlRes.data || []);
-                setVisaApplications(visaRes.data || []);
-                setFavoritePackages(favoritePackagesRes.data || favoritePackagesRes || []);
+                const ensureArray = (res) => {
+                    if (Array.isArray(res)) return res;
+                    if (res && Array.isArray(res.data)) return res.data;
+                    if (res && typeof res === 'object') {
+                        // Look for any array property if data isn't one (e.g. favorites: [])
+                        const possibleArray = Object.values(res).find(val => Array.isArray(val));
+                        if (possibleArray) return possibleArray;
+                    }
+                    return [];
+                };
+
+                setBookings(ensureArray(bookingsRes));
+                setIdlApplications(ensureArray(idlRes));
+                setVisaApplications(ensureArray(visaRes));
+                setFavoritePackages(ensureArray(favoritePackagesRes));
             } catch (err) {
                 console.error('Failed to fetch data:', err);
             } finally {
@@ -224,7 +235,7 @@ const ProfilePage = () => {
                                                     <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl shrink-0">
                                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
                                                         <p className="text-2xl font-black text-[#113A74]">
-                                                            {totalAmount != null ? `AED ${totalAmount.toLocaleString()}` : '—'}
+                                                            {totalAmount != null ? `QAR ${totalAmount.toLocaleString()}` : '—'}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -432,7 +443,7 @@ const ProfilePage = () => {
                                                 <h3 className="text-lg font-black text-[#113A74] mb-2 line-clamp-1">{pkg.title}</h3>
                                                 <p className="text-gray-400 text-sm mb-6 line-clamp-2">{pkg.description}</p>
                                                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
-                                                    <span className="text-[#FFA500] font-black">AED {pkg.price}</span>
+                                                    <span className="text-[#FFA500] font-black">QAR {pkg.price}</span>
                                                     <Link href={`/packages/${pkg.id}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
                                                         View Details
                                                     </Link>

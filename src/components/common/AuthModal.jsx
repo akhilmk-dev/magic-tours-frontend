@@ -9,7 +9,19 @@ import InternationalPhoneInput from './InternationalPhoneInput';
 import logo from '../../assets/logo.png';
 
 const AuthModal = () => {
-    const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal, login, register } = useCustomerAuth();
+    const { 
+        isAuthModalOpen, authModalView, openAuthModal, closeAuthModal, 
+        login, register, forgotPassword, verifyOtp, resetPassword 
+    } = useCustomerAuth();
+
+    // Forgot Password Flow States
+    const [forgotEmail, setForgotEmail] = useState('');
+    const [forgotOtp, setForgotOtp] = useState('');
+    const [forgotLoading, setForgotLoading] = useState(false);
+    const [forgotError, setForgotError] = useState('');
+    const [forgotSuccess, setForgotSuccess] = useState('');
+    const [showResetPassword, setShowResetPassword] = useState(false);
+    const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
 
     // Login State
     const [loginEmail, setLoginEmail] = useState('');
@@ -92,6 +104,81 @@ const AuthModal = () => {
             }
         }
     });
+
+    // Handle Forgot Password Request
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        setForgotLoading(true);
+        setForgotError('');
+        try {
+            const result = await forgotPassword(forgotEmail);
+            if (result.success) {
+                openAuthModal('verify-otp');
+            } else {
+                setForgotError(result.error);
+            }
+        } catch (err) {
+            setForgotError(err.message);
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    // Handle OTP Verification
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        setForgotLoading(true);
+        setForgotError('');
+        try {
+            const result = await verifyOtp(forgotEmail, forgotOtp);
+            if (result.success) {
+                openAuthModal('reset-password');
+            } else {
+                setForgotError(result.error);
+            }
+        } catch (err) {
+            setForgotError(err.message);
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    // Reset Password Formik
+    const resetPasswordFormik = useFormik({
+        initialValues: {
+            password: '',
+            confirmPassword: ''
+        },
+        validationSchema: Yup.object({
+            password: Yup.string().min(8, 'Password must be at least 8 characters').required('Required'),
+            confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Required')
+        }),
+        onSubmit: async (values) => {
+            setForgotLoading(true);
+            setForgotError('');
+            try {
+                const result = await resetPassword({
+                    email: forgotEmail,
+                    otp: forgotOtp,
+                    password: values.password,
+                    confirmPassword: values.confirmPassword
+                });
+                if (result.success) {
+                    setForgotSuccess('Password reset successful! Redirecting to login...');
+                    setTimeout(() => {
+                        setForgotSuccess('');
+                        openAuthModal('login');
+                    }, 3000);
+                } else {
+                    setForgotError(result.error);
+                }
+            } catch (err) {
+                setForgotError(err.message);
+            } finally {
+                setForgotLoading(false);
+            }
+        }
+    });
     
     // Reset state on modal close/open
     useEffect(() => {
@@ -107,8 +194,15 @@ const AuthModal = () => {
             setRegisterSuccess(false);
             setShowRegisterPassword(false);
             setShowRegisterConfirmPassword(false);
+
+            // Reset Forgot Password State
+            setForgotEmail('');
+            setForgotOtp('');
+            setForgotError('');
+            setForgotSuccess('');
+            resetPasswordFormik.resetForm();
         }
-    }, [isAuthModalOpen, registerFormik.resetForm]);
+    }, [isAuthModalOpen]);
 
     return (
         <AnimatePresence>
@@ -193,6 +287,16 @@ const AuthModal = () => {
                                             </div>
                                         </div>
 
+                                        <div className="flex justify-end pt-1">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => openAuthModal('forgot-password')}
+                                                className="text-[10px] font-black text-[#FFA500] hover:text-[#e69500] uppercase tracking-wider transition-colors"
+                                            >
+                                                Forgot Password?
+                                            </button>
+                                        </div>
+
                                         <div className="pt-2">
                                             <button
                                                 type="submit"
@@ -215,6 +319,201 @@ const AuthModal = () => {
                                                     Register Now
                                                 </button>
                                             </p>
+                                        </div>
+                                    </form>
+                                </>
+                            ) : authModalView === 'forgot-password' ? (
+                                /* --- FORGOT PASSWORD VIEW --- */
+                                <>
+                                    <div className="text-center mb-6 mt-4">
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
+                                            <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
+                                        </motion.div>
+                                        <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Forgot Password</h2>
+                                        <p className="text-gray-500 text-xs font-medium">Enter your email and we'll send you an OTP</p>
+                                    </div>
+
+                                    <form className="space-y-4" onSubmit={handleForgotPassword}>
+                                        {forgotError && (
+                                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="bg-red-50/80 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center">
+                                                {forgotError}
+                                            </motion.div>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Email Address</label>
+                                            <div className="relative group">
+                                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-6 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
+                                                    placeholder="your@email.com"
+                                                    value={forgotEmail}
+                                                    onChange={(e) => setForgotEmail(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <button
+                                                type="submit"
+                                                disabled={forgotLoading}
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                            >
+                                                {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                    <>
+                                                        <span>Send OTP</span>
+                                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        <div className="text-center pt-4">
+                                            <button type="button" onClick={() => openAuthModal('login')} className="text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-[#113A74] transition-colors">
+                                                Back to Login
+                                            </button>
+                                        </div>
+                                    </form>
+                                </>
+                            ) : authModalView === 'verify-otp' ? (
+                                /* --- VERIFY OTP VIEW --- */
+                                <>
+                                    <div className="text-center mb-6 mt-4">
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
+                                            <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
+                                        </motion.div>
+                                        <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Verify OTP</h2>
+                                        <p className="text-gray-500 text-xs font-medium">Enter the 5-digit code sent to {forgotEmail}</p>
+                                    </div>
+
+                                    <form className="space-y-4" onSubmit={handleVerifyOtp}>
+                                        {forgotError && (
+                                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="bg-red-50/80 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center">
+                                                {forgotError}
+                                            </motion.div>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Enter OTP</label>
+                                            <div className="relative group">
+                                                <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    maxLength={5}
+                                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-6 outline-none transition-all text-sm font-bold text-center tracking-[1em] text-[#113A74] placeholder:text-gray-300"
+                                                    placeholder="00000"
+                                                    value={forgotOtp}
+                                                    onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <button
+                                                type="submit"
+                                                disabled={forgotLoading}
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                            >
+                                                {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                    <>
+                                                        <span>Verify Code</span>
+                                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        <div className="text-center pt-4">
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                                Didn't receive code?
+                                                <button type="button" onClick={handleForgotPassword} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors underline decoration-2 underline-offset-4">
+                                                    Resend Code
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </form>
+                                </>
+                            ) : authModalView === 'reset-password' ? (
+                                /* --- RESET PASSWORD VIEW --- */
+                                <>
+                                    <div className="text-center mb-6 mt-4">
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
+                                            <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
+                                        </motion.div>
+                                        <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">New Password</h2>
+                                        <p className="text-gray-500 text-xs font-medium">Create a new secure password for your account</p>
+                                    </div>
+
+                                    <form className="space-y-4" onSubmit={resetPasswordFormik.handleSubmit}>
+                                        {forgotError && (
+                                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="bg-red-50/80 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center">
+                                                {forgotError}
+                                            </motion.div>
+                                        )}
+                                        {forgotSuccess && (
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-green-50/80 border border-green-200 text-green-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center">
+                                                {forgotSuccess}
+                                            </motion.div>
+                                        )}
+
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">New Password</label>
+                                                <div className="relative group">
+                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
+                                                    <input
+                                                        type={showResetPassword ? "text" : "password"}
+                                                        name="password"
+                                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-12 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
+                                                        placeholder="••••••••"
+                                                        {...resetPasswordFormik.getFieldProps('password')}
+                                                    />
+                                                    <button type="button" onClick={() => setShowResetPassword(!showResetPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#113A74] transition-colors">
+                                                        {showResetPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                    </button>
+                                                </div>
+                                                {resetPasswordFormik.touched.password && resetPasswordFormik.errors.password && (
+                                                    <div className="text-red-500 text-[10px] font-bold uppercase px-2">{resetPasswordFormik.errors.password}</div>
+                                                )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Confirm New Password</label>
+                                                <div className="relative group">
+                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
+                                                    <input
+                                                        type={showResetConfirmPassword ? "text" : "password"}
+                                                        name="confirmPassword"
+                                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 pl-14 pr-12 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
+                                                        placeholder="••••••••"
+                                                        {...resetPasswordFormik.getFieldProps('confirmPassword')}
+                                                    />
+                                                    <button type="button" onClick={() => setShowResetConfirmPassword(!showResetConfirmPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#113A74] transition-colors">
+                                                        {showResetConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                    </button>
+                                                </div>
+                                                {resetPasswordFormik.touched.confirmPassword && resetPasswordFormik.errors.confirmPassword && (
+                                                    <div className="text-red-500 text-[10px] font-bold uppercase px-2">{resetPasswordFormik.errors.confirmPassword}</div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <button
+                                                type="submit"
+                                                disabled={forgotLoading || forgotSuccess}
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                            >
+                                                {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                    <>
+                                                        <span>Reset Password</span>
+                                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
                                     </form>
                                 </>

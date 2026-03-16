@@ -88,6 +88,7 @@ export default function Navbar() {
         { name: 'IDL', path: '/idl' },
         { name: 'Private Jets', path: '/private-jets' },
         { name: 'Yachts', path: '/yachts' },
+        { name: 'Itinerary Builder', path: '/itinerary-builder' },
         { name: 'Contact Us', path: '/contact-us' },
     ];
 

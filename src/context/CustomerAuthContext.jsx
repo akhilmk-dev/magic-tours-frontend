@@ -26,12 +26,31 @@ export const CustomerAuthProvider = ({ children }) => {
         if (!user) return;
         setLoadingFavorites(true);
         try {
-            const response = await api.get('/customers/favorites/');
-            // Expecting data to be an array of packages or IDs
-            const favIds = (response.data || response || []).map(p => p.id || p.package_id || p);
-            setFavorites(favIds);
+            const response = await api.get('/customers/favorites');
+            let data = response.data || response;
+            
+            // Safer array extraction (consistent with ProfilePage)
+            if (!Array.isArray(data) && typeof data === 'object') {
+                const arrayProp = Object.values(data).find(Array.isArray);
+                if (arrayProp) data = arrayProp;
+            }
+
+            if (Array.isArray(data)) {
+                // Extract IDs carefully. Check for p.package_id, p.id, or p itself.
+                // If it's a join object, p.package_id is often the correct pointer.
+                const favIds = data.map(p => {
+                    const id = p.package_id || p.id || (typeof p === 'string' || typeof p === 'number' ? p : null);
+                    return id ? String(id) : null;
+                }).filter(id => id !== null);
+                
+                // Only update if we actually got valid IDs or if the response was an empty array (meaning intentional clear)
+                setFavorites(favIds);
+                // Also update localStorage immediately for consistency
+                localStorage.setItem('favorites', JSON.stringify(favIds));
+            }
         } catch (error) {
             console.error('Failed to fetch favorites:', error);
+            // On error, let the localStorage version persist
         } finally {
             setLoadingFavorites(false);
         }
@@ -43,25 +62,25 @@ export const CustomerAuthProvider = ({ children }) => {
             return;
         }
 
-        const isFavorited = favorites.includes(packageId);
+        const pid = String(packageId);
+        const isFavorited = favorites.includes(pid);
         
         // Optimistic update
         setFavorites(prev => 
-            isFavorited ? prev.filter(id => id !== packageId) : [...prev, packageId]
+            isFavorited ? prev.filter(id => id !== pid) : [...prev, pid]
         );
 
         try {
             if (isFavorited) {
-                // If the API supports toggle or specific delete
                 await api.delete(`/customers/favorites/${packageId}`);
             } else {
-                await api.post('/customers/favorites/', { package_id: packageId });
+                await api.post(`/customers/favorites/${packageId}`);
             }
         } catch (error) {
             console.error('Failed to toggle favorite:', error);
             // Rollback on error
             setFavorites(prev => 
-                isFavorited ? [...prev, packageId] : prev.filter(id => id !== packageId)
+                isFavorited ? [...prev, pid] : prev.filter(id => id !== pid)
             );
         }
     }, [user, favorites, openAuthModal]);
@@ -73,13 +92,30 @@ export const CustomerAuthProvider = ({ children }) => {
         if (storedUser) {
             try {
                 setUser(JSON.parse(storedUser));
+                // Also load persisted favorites
+                const storedFavs = localStorage.getItem('favorites');
+                if (storedFavs) {
+                    setFavorites(JSON.parse(storedFavs));
+                }
             } catch (e) {
-                console.error("Failed to parse stored user", e);
+                console.error("Failed to parse stored auth data", e);
                 localStorage.removeItem('user');
+                localStorage.removeItem('favorites');
             }
         }
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            // Only sync if we have something or after loading is finished to avoid clearing on mount
+            if (favorites.length > 0 || !loadingFavorites) {
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            }
+        } else {
+            localStorage.removeItem('favorites');
+        }
+    }, [favorites, user, loadingFavorites]);
 
     useEffect(() => {
         if (user) {
@@ -126,6 +162,45 @@ export const CustomerAuthProvider = ({ children }) => {
         }
     }, []);
 
+    const forgotPassword = useCallback(async (email) => {
+        try {
+            await api.post('/customers/forgot-password', { email });
+            return { success: true };
+        } catch (error) {
+            console.error('Forgot password failed:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || error.message || 'Failed to send OTP'
+            };
+        }
+    }, []);
+
+    const verifyOtp = useCallback(async (email, otp) => {
+        try {
+            await api.post('/customers/verify-otp', { email, otp });
+            return { success: true };
+        } catch (error) {
+            console.error('OTP verification failed:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || error.message || 'Invalid OTP'
+            };
+        }
+    }, []);
+
+    const resetPassword = useCallback(async (payload) => {
+        try {
+            await api.post('/customers/reset-password', payload);
+            return { success: true };
+        } catch (error) {
+            console.error('Password reset failed:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || error.message || 'Failed to reset password'
+            };
+        }
+    }, []);
+
     const logout = useCallback(async () => {
         if (api.logout) {
             await api.logout();
@@ -135,13 +210,17 @@ export const CustomerAuthProvider = ({ children }) => {
             localStorage.removeItem('refreshToken');
         }
         setUser(null);
-    }, []);
+        setFavorites([]);
+        localStorage.removeItem('favorites');
+        openAuthModal('login');
+    }, [openAuthModal]);
 
     return (
         <CustomerAuthContext.Provider value={{
             user, login, register, logout, loading,
             favorites, loadingFavorites, toggleFavorite,
-            isAuthModalOpen, authModalView, openAuthModal, closeAuthModal
+            isAuthModalOpen, authModalView, openAuthModal, closeAuthModal,
+            forgotPassword, verifyOtp, resetPassword
         }}>
             {children}
         </CustomerAuthContext.Provider>

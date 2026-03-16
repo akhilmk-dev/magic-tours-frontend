@@ -48,11 +48,11 @@ const staticSlides = [
 const HeroSkeleton = () => (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-900 animate-pulse">
         <div className="absolute inset-0 z-0 bg-slate-800/50" />
-        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-20 pb-32 flex flex-col justify-center">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-32 sm:pt-40 lg:pt-48 pb-32 flex flex-col justify-center">
             <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
                 <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%]">
                     <div className="h-4 w-32 bg-slate-700/50 rounded mb-4" />
-                    <div className="h-16 sm:h-24 w-full bg-slate-700/50 rounded mb-6" />
+                    <div className="h-12 sm:h-20 w-full bg-slate-700/50 rounded mb-6" />
                     <div className="h-4 w-3/4 bg-slate-700/50 rounded mb-8" />
                     <div className="h-14 w-40 bg-slate-700/50 rounded-full" />
                 </div>
@@ -202,7 +202,7 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-20 sm:pt-24 md:pt-28 lg:pt-20 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-32 sm:pt-40 lg:pt-48 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center">
                 <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
                     {/* Left Content */}
                     <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%] text-center lg:text-left">
@@ -217,7 +217,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 <span className="text-[#FDB338] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[10px] sm:text-xs md:text-sm mb-2 sm:mb-4 block">
                                     {slides[currentSlide].location}
                                 </span>
-                                <h1 className="text-[32px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] font-bold text-white leading-[1.1] mb-3 sm:mb-6 tracking-tight">
+                                <h1 className="text-[28px] sm:text-4xl md:text-5xl lg:text-6xl xl:text-[80px] font-bold text-white leading-[1.1] mb-3 sm:mb-6 tracking-tight">
                                     {slides[currentSlide].title} <br />
                                     <span className="text-[#FDB338] font-medium">
                                         {slides[currentSlide].subtitle}

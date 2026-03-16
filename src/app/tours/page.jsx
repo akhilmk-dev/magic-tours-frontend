@@ -10,6 +10,7 @@ import GalleryLoop from '../../components/Home/GalleryLoop';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 import bookingImg from '../../assets/booking-img.png';
+import FavoriteButton from '../../components/common/FavoriteButton';
 
 const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onClose, showPromo = true }) => {
     const [localFilters, setLocalFilters] = useState(filters);
@@ -245,6 +246,10 @@ const TourCard = ({ id, image, title, package_name, description, price, days, ni
     <Link href={`/packages/${id}`} className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
         <div className="relative aspect-[4/3] overflow-hidden">
             <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <FavoriteButton 
+                packageId={id} 
+                className="absolute top-3 right-3 z-20"
+            />
             <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
                 <Calendar size={13} className="opacity-90" />
                 <span>{days} days, {nights} Nights</span>

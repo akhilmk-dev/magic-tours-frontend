@@ -42,6 +42,14 @@ const PackageDetailsPage = () => {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
+    const [promos, setPromos] = useState([]);
+
+    useEffect(() => {
+        fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/package_details')
+            .then(res => res.json())
+            .then(data => setPromos(data?.data?.promotions || []))
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         setMounted(true);
@@ -648,15 +656,16 @@ const PackageDetailsPage = () => {
                             )}
                         </div>
 
-                        {/* Discount Banner Placeholder (Matches screenshot cut-off) */}
-                        <div className="rounded-[1.5rem] overflow-hidden mt-8 shadow-md">
-                            <img src={bgImg.src || bgImg} alt="Special Discount Offering" className="w-full h-auto object-cover" />
-                        </div>
-
-                        {/* Booking Image */}
-                        <div className="mt-8 flex justify-center w-full">
-                            <img src={bookingImg.src || bookingImg} alt="Booking Information" className="w-full h-auto object-contain rounded-3xl shadow-sm" />
-                        </div>
+                        {/* Dynamic Promotion Banners */}
+                        {promos.length > 0 && (
+                            <div className="mt-8 space-y-6">
+                                {promos.map((promo, idx) => (
+                                    <Link key={idx} href="/tours" className="block rounded-[1.5rem] overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                                        <img src={promo.image_url} alt={`Promotion ${idx + 1}`} className="w-full h-auto object-cover" />
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

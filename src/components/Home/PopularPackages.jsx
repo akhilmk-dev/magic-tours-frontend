@@ -173,7 +173,7 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
     const handlePrev = () => slide(-1);
 
     return (
-        <section className="py-16 bg-white relative overflow-hidden font-sans">
+        <section className="py-16 bg-white relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0">
                 <svg width="100%" height="100%" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -289,14 +289,14 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                                     <span className={`block text-[10px] font-bold uppercase ${isFocused ? 'text-gray-400' : 'text-white/50'}`}>Onwards</span>
                                                 </div>
                                                 {!isFocused && (
-                                                    <button className="text-[12px] font-bold text-[#8E99AF] hover:text-white transition-colors mt-1 text-left">
+                                                    <button className="text-[13px] font-heading font-bold text-[#8E99AF] hover:text-white transition-colors mt-1 text-left">
                                                         See More
                                                     </button>
                                                 )}
                                             </div>
 
                                             <div className="flex flex-col items-end">
-                                                <button className={`px-7 py-3 rounded-full font-bold text-[12px] transition-all whitespace-nowrap
+                                                <button className={`px-7 py-3 rounded-full font-heading font-bold text-[14px] transition-all whitespace-nowrap
                                                     ${isFocused ? 'bg-brand-magic text-white shadow-xl hover:scale-105' : 'bg-[#FFA500] text-brand-heading shadow-md hover:scale-105'}
                                                 `}>
                                                     Book Now

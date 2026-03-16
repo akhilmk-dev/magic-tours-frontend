@@ -109,7 +109,7 @@ export default function Packages() {
                                         <span className="text-2xl font-black text-[#FFA500]">${pkg.price || '59'}</span>
                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter self-end mb-1">Per day</span>
                                     </div>
-                                    <button className="w-full px-5 py-2.5 rounded-full bg-secondary text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#1a3355] transition-all shadow-lg">
+                                    <button className="w-full px-5 py-2.5 rounded-full bg-secondary text-white font-heading font-bold text-[13px] hover:bg-[#1a3355] transition-all shadow-lg">
                                         Book Now
                                     </button>
                                 </div>

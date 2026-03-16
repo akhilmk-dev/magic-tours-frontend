@@ -9,6 +9,7 @@ export const CustomerAuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
+    const [favoriteIdsMap, setFavoriteIdsMap] = useState({}); // packageId -> favoriteId
     const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalView, setAuthModalView] = useState('login'); // 'login' or 'register'
@@ -36,16 +37,24 @@ export const CustomerAuthProvider = ({ children }) => {
             }
 
             if (Array.isArray(data)) {
-                // Extract IDs carefully. Check for p.package_id, p.id, or p itself.
-                // If it's a join object, p.package_id is often the correct pointer.
-                const favIds = data.map(p => {
-                    const id = p.package_id || p.id || (typeof p === 'string' || typeof p === 'number' ? p : null);
-                    return id ? String(id) : null;
-                }).filter(id => id !== null);
+                const favIds = [];
+                const favMap = {};
                 
-                // Only update if we actually got valid IDs or if the response was an empty array (meaning intentional clear)
+                data.forEach(p => {
+                    const packageId = p.package_id || (typeof p === 'object' ? p.id : (typeof p === 'string' || typeof p === 'number' ? p : null));
+                    const favoriteId = p.id; // The unique ID for the favorite record
+                    
+                    if (packageId) {
+                        const pidStr = String(packageId);
+                        favIds.push(pidStr);
+                        if (favoriteId) {
+                            favMap[pidStr] = favoriteId;
+                        }
+                    }
+                });
+                
                 setFavorites(favIds);
-                // Also update localStorage immediately for consistency
+                setFavoriteIdsMap(favMap);
                 localStorage.setItem('favorites', JSON.stringify(favIds));
             }
         } catch (error) {
@@ -72,9 +81,22 @@ export const CustomerAuthProvider = ({ children }) => {
 
         try {
             if (isFavorited) {
-                await api.delete(`/customers/favorites/${packageId}`);
+                const favoriteId = favoriteIdsMap[pid];
+                // Use favorite ID if available, fallback to package ID if not (should not happen with sync)
+                await api.delete(`/customers/favorites/${favoriteId || packageId}`);
+                
+                setFavoriteIdsMap(prev => {
+                    const newMap = { ...prev };
+                    delete newMap[pid];
+                    return newMap;
+                });
             } else {
-                await api.post(`/customers/favorites/${packageId}`);
+                const response = await api.post(`/customers/favorites/${packageId}`);
+                const newFav = response.data || response;
+                // If the API returns the new favorite record, store its ID
+                if (newFav && newFav.id) {
+                    setFavoriteIdsMap(prev => ({ ...prev, [pid]: newFav.id }));
+                }
             }
         } catch (error) {
             console.error('Failed to toggle favorite:', error);
@@ -82,6 +104,8 @@ export const CustomerAuthProvider = ({ children }) => {
             setFavorites(prev => 
                 isFavorited ? [...prev, pid] : prev.filter(id => id !== pid)
             );
+            // Re-fetch to ensure sync if something went wrong
+            fetchFavorites();
         }
     }, [user, favorites, openAuthModal]);
 

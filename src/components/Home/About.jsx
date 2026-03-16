@@ -9,7 +9,7 @@ import towerImg from '../../assets/Image.png';
 
 export default function About() {
     return (
-        <section className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden font-sans">
+        <section className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden">
             {/* Background Decorative Element (Eiffel Tower Silhouette from Image.png) */}
             <div className="absolute right-[-2%] bottom-0 opacity-[0.25] pointer-events-none select-none z-0">
                 <img
@@ -140,7 +140,7 @@ export default function About() {
                                         ))}
                                     </ul>
 
-                                    <Link href="/contact-us" className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
+                                    <Link href="/contact-us" className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-heading font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
                                         Explore More
                                         <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
                                     </Link>

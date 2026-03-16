@@ -207,7 +207,7 @@ const AuthModal = () => {
     return (
         <AnimatePresence>
             {isAuthModalOpen && (
-                <div className="fixed inset-0 z-[100] flex justify-center font-inter p-4 py-12 overflow-y-auto custom-scrollbar">
+                <div className="fixed inset-0 z-[100] flex justify-center p-4 py-12 overflow-y-auto custom-scrollbar">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -291,7 +291,7 @@ const AuthModal = () => {
                                             <button 
                                                 type="button" 
                                                 onClick={() => openAuthModal('forgot-password')}
-                                                className="text-[10px] font-black text-[#FFA500] hover:text-[#e69500] uppercase tracking-wider transition-colors"
+                                                className="text-[11px] font-heading font-bold text-[#FFA500] hover:text-[#e69500] transition-colors"
                                             >
                                                 Forgot Password?
                                             </button>
@@ -301,7 +301,7 @@ const AuthModal = () => {
                                             <button
                                                 type="submit"
                                                 disabled={loginLoading}
-                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
                                             >
                                                 {loginLoading ? <Loader2 className="animate-spin" size={18} /> : (
                                                     <>
@@ -313,9 +313,9 @@ const AuthModal = () => {
                                         </div>
 
                                         <div className="text-center pt-4">
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                            <p className="text-sm font-medium text-gray-400">
                                                 Don't have an account?
-                                                <button type="button" onClick={() => openAuthModal('register')} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors underline decoration-2 underline-offset-4">
+                                                <button type="button" onClick={() => openAuthModal('register')} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors font-heading font-bold hover:underline underline-offset-4">
                                                     Register Now
                                                 </button>
                                             </p>
@@ -359,7 +359,7 @@ const AuthModal = () => {
                                             <button
                                                 type="submit"
                                                 disabled={forgotLoading}
-                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
                                             >
                                                 {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
                                                     <>
@@ -371,7 +371,7 @@ const AuthModal = () => {
                                         </div>
 
                                         <div className="text-center pt-4">
-                                            <button type="button" onClick={() => openAuthModal('login')} className="text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-[#113A74] transition-colors">
+                                            <button type="button" onClick={() => openAuthModal('login')} className="text-sm font-heading font-bold text-gray-400 hover:text-[#113A74] transition-colors">
                                                 Back to Login
                                             </button>
                                         </div>
@@ -415,7 +415,7 @@ const AuthModal = () => {
                                             <button
                                                 type="submit"
                                                 disabled={forgotLoading}
-                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
                                             >
                                                 {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
                                                     <>
@@ -427,9 +427,9 @@ const AuthModal = () => {
                                         </div>
 
                                         <div className="text-center pt-4">
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                            <p className="text-sm font-medium text-gray-400">
                                                 Didn't receive code?
-                                                <button type="button" onClick={handleForgotPassword} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors underline decoration-2 underline-offset-4">
+                                                <button type="button" onClick={handleForgotPassword} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors font-heading font-bold hover:underline underline-offset-4">
                                                     Resend Code
                                                 </button>
                                             </p>
@@ -505,7 +505,7 @@ const AuthModal = () => {
                                             <button
                                                 type="submit"
                                                 disabled={forgotLoading || forgotSuccess}
-                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
                                             >
                                                 {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
                                                     <>
@@ -644,7 +644,7 @@ const AuthModal = () => {
                                                     <button
                                                         type="submit"
                                                         disabled={registerFormik.isSubmitting}
-                                                        className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-4 px-8 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                                        className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-4 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
                                                     >
                                                         {registerFormik.isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (
                                                             <>
@@ -656,9 +656,9 @@ const AuthModal = () => {
                                                 </div>
 
                                                 <div className="text-center pt-2">
-                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                                    <p className="text-sm font-medium text-gray-400">
                                                         Already have an account?
-                                                        <button type="button" onClick={() => openAuthModal('login')} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors underline decoration-2 underline-offset-4">
+                                                        <button type="button" onClick={() => openAuthModal('login')} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors font-heading font-bold hover:underline underline-offset-4">
                                                             Sign In
                                                         </button>
                                                     </p>

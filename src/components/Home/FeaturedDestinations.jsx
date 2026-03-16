@@ -134,7 +134,7 @@ export default function FeaturedDestinations() {
                             Choosing a destination can be exciting but also a bit overwhelming with so many amazing places out there! Let's narrow it down a little. Are you dreaming of peaceful nature, buzzing cities, historical wonders, or relaxing beaches?
                         </p>
 
-                        <button className="inline-flex items-center gap-2 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-5 md:px-6 py-2.5 md:py-3 rounded-full font-semibold transition-all shadow-lg group text-xs md:text-sm">
+                        <button className="inline-flex items-center gap-2 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-5 md:px-6 py-2.5 md:py-3 rounded-full font-heading font-bold transition-all shadow-lg group text-xs md:text-sm">
                             Explore More Destinations
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>

@@ -92,7 +92,7 @@ export default function WondersOfQatar({ spotlights, loading }) {
                                             <h3 className="text-brand-magic text-lg sm:text-xl font-bold mb-1">
                                                 {items[currentSlide].title}
                                             </h3>
-                                            <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+                                            <span className="text-gray-400 text-xs font-heading font-medium tracking-normal">
                                                 {items[currentSlide].subtitle}
                                             </span>
                                         </motion.div>
@@ -136,7 +136,7 @@ export default function WondersOfQatar({ spotlights, loading }) {
                             Discover the breathtaking fusion of tradition and modernity in Qatar. From the architectural marvels of the Museum of Islamic Art to the vibrant markets of Souq Waqif, every corner tells a story of heritage and innovation.
                         </p>
 
-                        <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
+                        <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
                             Explore More
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>

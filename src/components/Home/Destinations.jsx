@@ -61,7 +61,7 @@ export default function Destinations() {
                         </p>
 
                         <Link href="/destinations">
-                            <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-bold text-sm hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
+                            <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
                                 Discover More
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </button>
@@ -73,21 +73,23 @@ export default function Destinations() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                             {tripCategories.map((trip) => (
                                 <Link href={trip.link} key={trip.id} className="group cursor-pointer">
-                                    <div className="flex flex-col h-full rounded-[2.2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_20px_60px_rgba(15,30,50,0.15)] hover:-translate-y-2">
-                                        <div className="aspect-square overflow-hidden relative">
+                                    <div className="flex flex-col h-full transition-all duration-500 hover:shadow-[0_20px_60px_rgba(15,30,50,0.18)] hover:-translate-y-2">
+                                        {/* Image — rounded top corners */}
+                                        <div className="aspect-square overflow-hidden relative rounded-t-[2.2rem]">
                                             <img
                                                 src={trip.image}
                                                 alt={trip.name}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                         </div>
 
-                                        <div className="pb-8 pt-5 px-4 text-center bg-white group-hover:bg-brand-magic transition-all duration-500">
-                                            <h3 className="text-[22px] font-bold mb-1 text-brand-heading transition-colors group-hover:text-white">
+                                        {/* Footer: white normally, dark navy on hover */}
+                                        {/* Bottom-left rounded, bottom-right square (as per design) */}
+                                        <div className="pb-8 pt-5 px-4 text-center bg-white group-hover:bg-brand-magic transition-colors duration-500 rounded-bl-[2.2rem] rounded-br-none">
+                                            <h3 className="text-[22px] font-heading font-bold mb-1 text-brand-heading group-hover:text-white transition-colors duration-500">
                                                 {trip.name}
                                             </h3>
-                                            <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 group-hover:text-white/60 transition-colors duration-500">
+                                            <span className="text-[13px] font-heading font-medium text-gray-400 group-hover:text-white/70 transition-colors duration-500">
                                                 See More
                                             </span>
                                         </div>

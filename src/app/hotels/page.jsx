@@ -6,8 +6,6 @@ import { MapPin, Globe, Wifi, Coffee, Wind, Tv, ChevronLeft, ChevronRight, Searc
 import { api } from '../../api/client';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
-import bookingImg from '../../assets/booking-img.png';
-import backgroundImg from '../../assets/Background.png';
 
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
@@ -179,6 +177,14 @@ function HotelsContent() {
     const [searchInput, setSearchInput] = useState(searchParams.get('search') || "");
     const [cityId, setCityId] = useState(searchParams.get('city_id') || "");
     const [cityInput, setCityInput] = useState(searchParams.get('city_id') ? searchParams.get('city_id').split(',') : []);
+    const [promos, setPromos] = useState([]);
+
+    useEffect(() => {
+        fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/hotel_listing')
+            .then(r => r.json())
+            .then(data => setPromos(data?.data?.promotions || []))
+            .catch(() => {});
+    }, []);
 
     const fetchHotels = async (activePage = page, searchQuery = search, activeCity = cityId) => {
         setLoading(true);
@@ -369,26 +375,20 @@ function HotelsContent() {
                             </form>
                         </div>
 
-                        {/* Promotion Banners */}
-                        <div className="rounded-[2rem] overflow-hidden shadow-xl group border border-slate-100">
-                            <img
-                                src={bookingImg.src || bookingImg}
-                                alt="Promo 1"
-                                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                        </div>
-                        <div className="relative rounded-[2rem] overflow-hidden shadow-xl group border border-slate-100 tracking-tight">
-                            <img
-                                src={backgroundImg.src || backgroundImg}
-                                alt="Promo 2"
-                                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-[4/5]"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#113A74]/80 to-transparent flex flex-col justify-end p-8 text-white">
-                                <span className="bg-[#FFA500] text-black text-[10px] font-black px-3 py-1 rounded-full w-fit mb-4 text-center">LIMITED OFFER</span>
-                                <h5 className="text-2xl font-bold leading-tight mb-2">Summer Luxury Retreats</h5>
-                                <p className="text-xs text-white/80 font-medium text-left">Book now and get 30% off on premium suites worldwide.</p>
-                            </div>
-                        </div>
+                        {/* Promotion Banners from API */}
+                        {promos.map((promo, i) => (
+                            <Link
+                                key={i}
+                                href="/tours"
+                                className="block rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                            >
+                                <img
+                                    src={promo.image_url}
+                                    alt={`Promotion ${i + 1}`}
+                                    className="w-full h-auto object-cover"
+                                />
+                            </Link>
+                        ))}
                     </aside>
 
                     {/* Hotels Grid Area */}

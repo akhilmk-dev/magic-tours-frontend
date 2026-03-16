@@ -90,7 +90,7 @@ const VisaServices = () => {
                     </div>
 
                     {/* CTA Button */}
-                    <Link href="/visa-application" className="inline-flex items-center gap-2 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-heading font-bold px-6 py-3 rounded-full text-xs sm:text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
+                    <Link href="/visa-application" className="inline-flex items-center gap-2 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-heading font-heading font-bold px-6 py-3 rounded-full text-xs sm:text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
                         Explore More
                         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </Link>

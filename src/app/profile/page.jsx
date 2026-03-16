@@ -8,7 +8,6 @@ import FavoriteButton from '../../components/common/FavoriteButton';
 import ProfileSkeletons, { ProfileCardSkeleton } from '../../components/skeletons/ProfileSkeletons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
 const ProfilePage = () => {
     const { user, logout, loading: authLoading, openAuthModal } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
@@ -427,30 +426,33 @@ const ProfilePage = () => {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {favoritePackages.map((pkg) => (
-                                        <div key={pkg.id} className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100 group flex flex-col">
-                                            <div className="relative h-48 overflow-hidden">
-                                                <img 
-                                                    src={pkg.image} 
-                                                    alt={pkg.title} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                                <div className="absolute top-4 right-4 z-20">
-                                                    <FavoriteButton packageId={pkg.id} />
+                                    {favoritePackages.map((pkg) => {
+                                        const packageId = pkg.package_id || pkg.id;
+                                        return (
+                                            <div key={pkg.id} className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100 group flex flex-col">
+                                                <div className="relative h-48 overflow-hidden">
+                                                    <img 
+                                                        src={pkg.image} 
+                                                        alt={pkg.title} 
+                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute top-4 right-4 z-20">
+                                                        <FavoriteButton packageId={packageId} />
+                                                    </div>
+                                                </div>
+                                                <div className="p-6 flex-1 flex flex-col">
+                                                    <h3 className="text-lg font-black text-[#113A74] mb-2 line-clamp-1">{pkg.title}</h3>
+                                                    <p className="text-gray-400 text-sm mb-6 line-clamp-2">{pkg.description}</p>
+                                                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+                                                        <span className="text-[#FFA500] font-black">QAR {pkg.price}</span>
+                                                        <Link href={`/packages/${packageId}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
+                                                            View Details
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="p-6 flex-1 flex flex-col">
-                                                <h3 className="text-lg font-black text-[#113A74] mb-2 line-clamp-1">{pkg.title}</h3>
-                                                <p className="text-gray-400 text-sm mb-6 line-clamp-2">{pkg.description}</p>
-                                                <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
-                                                    <span className="text-[#FFA500] font-black">QAR {pkg.price}</span>
-                                                    <Link href={`/packages/${pkg.id}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
-                                                        View Details
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )
                         )}

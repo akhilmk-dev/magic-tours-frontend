@@ -51,7 +51,7 @@ const SpecialOffer = () => {
                                 Unlock exclusive deals and hand-picked travel experiences just for you. From seasonal discounts to members-only perks, we ensure your next adventure is as rewarding as it is unforgettable.
                             </p>
 
-                            <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
+                            <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-heading font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
                                 Start Booking
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </button>

@@ -16,18 +16,18 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
         )}>
             <div className="px-3 sm:px-4 md:px-6 flex justify-between items-center text-[11px] sm:text-[12px] font-medium w-full py-1.5">
                 {/* Left: Location & Phone */}
-                <div className="flex items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-3 sm:gap-6 text-[#0D0D0C]">
                     <div className="hidden sm:flex items-center gap-1.5">
-                        <MapPin size={13} className="text-gray-400" />
+                        <MapPin size={13} className="text-[#0D0D0C]/60" />
                         <span>Doha, Qatar</span>
                     </div>
                     <div className="flex items-center gap-1.5 sm:border-l sm:pl-6 border-gray-200">
-                        <Phone size={13} className="text-gray-400" />
+                        <Phone size={13} className="text-[#0D0D0C]/60" />
                         <span>+974 444 8888</span>
                     </div>
                 </div>
                 {/* Right: Currency, FAQ, etc. */}
-                <div className="flex items-center gap-3 sm:gap-5">
+                <div className="flex items-center gap-3 sm:gap-5 text-[#0D0D0C]">
                     <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
                         <img src="https://flagcdn.com/w20/qa.png" alt="Qatar" className="w-4 h-auto rounded-sm" />
                         <span>QAR</span>
@@ -46,7 +46,7 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                             <span className="font-bold">{user.name?.split(' ')[0] || 'Profile'}</span>
                         </Link>
                     ) : (
-                        <button onClick={() => onOpenAuthModal('login')} className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C]">
+                        <button onClick={() => onOpenAuthModal('login')} className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C] font-heading font-bold">
                             Sign In / Register
                             <User size={14} />
                         </button>
@@ -113,7 +113,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* Desktop Menu */}
-                    <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+                    <div className="hidden lg:flex items-center gap-6 xl:gap-8 font-heading">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}

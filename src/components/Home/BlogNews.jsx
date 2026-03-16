@@ -109,7 +109,7 @@ export default function BlogNews({ blogs, loading }) {
 
                                 {/* Read More */}
                                 <div className="pt-4 border-t border-gray-100 flex items-center justify-between group/link cursor-pointer">
-                                    <span className="text-xs font-bold text-gray-500 group-hover/link:text-primary transition-colors">Read More</span>
+                                    <span className="text-sm font-heading font-bold text-gray-500 group-hover/link:text-primary transition-colors">Read More</span>
                                     <ArrowRight size={14} className="text-gray-400 group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
                                 </div>
                             </div>

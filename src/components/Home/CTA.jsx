@@ -25,7 +25,7 @@ export default function CTA() {
                             Discover the world's most breathtaking destinations with our expertly curated travel packages. From serene beaches to vibrant cityscapes, we provide unparalleled experiences that stay with you forever.
                         </p>
 
-                        <button className="bg-white text-brand-heading px-8 py-4 rounded-full font-bold hover:bg-[#FFA500] hover:text-white transition-all shadow-lg inline-flex items-center gap-2">
+                        <button className="bg-white text-brand-heading px-8 py-4 rounded-full font-heading font-bold hover:bg-[#FFA500] hover:text-white transition-all shadow-lg inline-flex items-center gap-2">
                             Started Now
                             <Send size={18} />
                         </button>

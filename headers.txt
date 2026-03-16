@@ -1,0 +1,11 @@
+HTTP/1.1 500 Internal Server Error
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch, Accept-Encoding
+Cache-Control: no-store, must-revalidate
+X-Powered-By: Next.js
+ETag: "tqbc5v4pst3x7"
+Content-Type: text/html; charset=utf-8
+Content-Length: 5083
+Date: Mon, 16 Mar 2026 18:14:46 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

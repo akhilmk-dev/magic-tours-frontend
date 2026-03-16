@@ -187,8 +187,8 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onCl
                     </div>
                 </FilterSection>
 
-                <div className="mt-2">
-                    <button onClick={handleApply} className="w-full bg-[#113A74] text-white py-2.5 rounded-full font-bold text-xs hover:bg-[#0d2a56] transition-colors shadow-md">Apply Filters</button>
+                <div className="mt-2 text-center lg:text-left">
+                    <button onClick={handleApply} className="w-full bg-[#113A74] text-white py-3 rounded-full font-heading font-bold text-sm hover:bg-[#0d2a56] transition-all shadow-md active:scale-95">Apply Filters</button>
                 </div>
             </div>
         </div>
@@ -210,7 +210,7 @@ const SortHeader = ({ sort, setSort, onOpenFilters }) => {
                 <h2 className="text-xl md:text-2xl font-bold text-[#113A74] tracking-tight">Available <span className="text-[#FFA500]">Tour Packages</span></h2>
                 <button
                     onClick={onOpenFilters}
-                    className="lg:hidden flex items-center gap-2 bg-[#113A74] text-white px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-[#113A74]/20 active:scale-95 transition-transform"
+                    className="lg:hidden flex items-center gap-2 bg-[#113A74] text-white px-5 py-2.5 rounded-xl text-sm font-heading font-bold shadow-lg shadow-[#113A74]/20 active:scale-95 transition-all"
                 >
                     <SlidersHorizontal size={14} />
                     <span>Filters</span>
@@ -221,7 +221,7 @@ const SortHeader = ({ sort, setSort, onOpenFilters }) => {
                     onClick={() => setOpen(prev => !prev)}
                     className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm min-w-[200px] cursor-pointer hover:border-slate-300 transition-colors group"
                 >
-                    <span className="text-slate-500 text-[11px] font-bold uppercase tracking-tight">Sort ({currentLabel})</span>
+                    <span className="text-slate-500 text-[12px] font-heading font-bold">Sort ({currentLabel})</span>
                     <ChevronDown size={14} className={`text-slate-400 ml-auto transition-all ${open ? 'rotate-180' : ''}`} />
                 </button>
                 {open && (
@@ -261,7 +261,7 @@ const TourCard = ({ id, image, title, package_name, description, price, days, ni
             {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
             <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
             <div className="flex items-center justify-between mt-auto">
-                <span className="px-5 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-xs font-bold group-hover:bg-[#113A74] group-hover:text-white transition-all uppercase tracking-wider">Book Now</span>
+                <span className="px-6 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold group-hover:bg-[#113A74] group-hover:text-white transition-all shadow-sm">Book Now</span>
                 <div className="text-right">
                     <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-xs font-black uppercase">AED</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
                     <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider">onwards</p>
@@ -322,7 +322,7 @@ const ToursContent = () => {
     const fetchPackages = async (activeFilters = filters, activePage = page, activeSort = sort) => {
         setLoading(true);
         try {
-            let url = `/packages/frontend/list?page=${activePage}&limit=12&sort=${activeSort}`;
+            let url = `/packages/frontend/list?page=${activePage}&limit=6&sort=${activeSort}`;
             if (activeFilters.destination) url += `&destination_id=${activeFilters.destination}`;
             if (activeFilters.cities.length > 0) url += `&city_id=${activeFilters.cities.join(',')}`;
             if (activeFilters.categories.length > 0) url += `&category=${activeFilters.categories.join(',')}`;

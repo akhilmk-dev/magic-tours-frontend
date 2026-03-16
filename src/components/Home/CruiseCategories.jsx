@@ -156,7 +156,7 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
                             Experience luxury on the open sea with our unforgettable cruise journeys.
                         </p>
 
-                        <button 
+                        <button
                             onClick={() => router.push('/cruise')}
                             className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group"
                         >

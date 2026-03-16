@@ -48,7 +48,7 @@ const SpecialOffer = () => {
                                 Dreams <span className="text-white">Come True</span>
                             </h2>
                             <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8 max-w-sm mx-auto lg:mx-0">
-                                There are many variations of passages of Lorem Ipsum available but the majority.
+                                Unlock exclusive deals and hand-picked travel experiences just for you. From seasonal discounts to members-only perks, we ensure your next adventure is as rewarding as it is unforgettable.
                             </p>
 
                             <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">

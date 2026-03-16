@@ -11,7 +11,7 @@ const staticSlides = [
         id: 1,
         image: flightImg.src || flightImg,
         title: 'Bombardier Global 7500',
-        description: 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet.',
+        description: 'Redefining long-range travel with a spacious four-zone cabin and unparalleled smooth ride technology.',
     },
     {
         id: 2,
@@ -105,8 +105,7 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
                         </h2>
 
                         <p className="text-gray-500 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-xl">
-                            Lorem ipsum dolor sit amet consectetur. Diam tempor tortor neque id tempor mi
-                            egestas.There are many variations of passages of Lorem Ipsum availab but .
+                            Experience the ultimate in luxury, privacy, and efficiency with our bespoke private jet charter services. Whether for business or leisure, we provide seamless travel solutions tailored to your schedule and preferences.
                         </p>
 
                         {/* Features */}
@@ -118,7 +117,7 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
                                 <div>
                                     <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Safe Traveling</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
-                                        Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                                        Your safety is our top priority. We partner with only the most reputable operators who adhere to the highest international safety standards.
                                     </p>
                                 </div>
                             </div>
@@ -129,7 +128,7 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
                                 <div>
                                     <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Comfort Accommodation</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
-                                        Lorem is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                                        Enjoy unparalleled comfort in our meticulously designed cabins. From gourmet catering to state-of-the-art entertainment, every detail is crafted for your premium flight experience.
                                     </p>
                                 </div>
                             </div>

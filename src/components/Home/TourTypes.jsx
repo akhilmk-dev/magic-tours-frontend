@@ -2,12 +2,12 @@ import React from 'react';
 import { Mountain, Palmtree, Tent, Binoculars, Map, Bike } from 'lucide-react';
 
 const types = [
-    { icon: <Mountain size={32} />, name: 'Paragliding', desc: 'Lorem ipsum types' },
-    { icon: <Palmtree size={32} />, name: 'Wildlife', desc: 'Lorem ipsum types' },
-    { icon: <Tent size={32} />, name: 'Hang Gliding', desc: 'Lorem ipsum types' },
-    { icon: <Binoculars size={32} />, name: 'Adventure', desc: 'Lorem ipsum types' },
-    { icon: <Map size={32} />, name: 'Hunting', desc: 'Lorem ipsum types' },
-    { icon: <Bike size={32} />, name: 'Nature', desc: 'Lorem ipsum types' }
+    { icon: <Mountain size={32} />, name: 'Paragliding', desc: 'Experience the thrill of soaring high above breathtaking landscapes.' },
+    { icon: <Palmtree size={32} />, name: 'Wildlife', desc: 'Discover exotic animals and diverse ecosystems in their natural habitat.' },
+    { icon: <Tent size={32} />, name: 'Hang Gliding', desc: 'Feel the rush of wind as you glide gracefully through the sky.' },
+    { icon: <Binoculars size={32} />, name: 'Adventure', desc: 'Embark on exhilarating journeys that push your boundaries.' },
+    { icon: <Map size={32} />, name: 'Hunting', desc: 'Explore tradition with expert-led sustainable tracking expeditions.' },
+    { icon: <Bike size={32} />, name: 'Nature', desc: 'Immerse yourself in the tranquility of untouched wilderness.' },
 ];
 
 export default function TourTypes() {

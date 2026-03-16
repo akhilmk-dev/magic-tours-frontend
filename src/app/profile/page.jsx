@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
-import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText, Globe, Info, Users } from 'lucide-react';
+import { User, Package, Calendar, MapPin, Clock, LogOut, Loader2, FileText, Globe, Info, Users, Heart } from 'lucide-react';
+import FavoriteButton from '../../components/common/FavoriteButton';
 import ProfileSkeletons, { ProfileCardSkeleton } from '../../components/skeletons/ProfileSkeletons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,8 +14,9 @@ const ProfilePage = () => {
     const [bookings, setBookings] = useState([]);
     const [idlApplications, setIdlApplications] = useState([]);
     const [visaApplications, setVisaApplications] = useState([]);
+    const [favoritePackages, setFavoritePackages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'idl', or 'visa'
+    const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'idl', 'visa', or 'favorites'
     const router = useRouter();
 
     useEffect(() => {
@@ -23,11 +25,13 @@ const ProfilePage = () => {
                 const [bookingsRes, idlRes, visaRes] = await Promise.all([
                     api.get('/bookings/frontend/my').catch(() => ({ data: [] })),
                     api.get('/idl/my').catch(() => ({ data: [] })),
-                    api.get('/visa/my?page=1&limit=50').catch(() => ({ data: [] }))
+                    api.get('/visa/my?page=1&limit=50').catch(() => ({ data: [] })),
+                    api.get('/customers/favorites/').catch(() => ({ data: [] }))
                 ]);
                 setBookings(bookingsRes.data || bookingsRes || []);
                 setIdlApplications(idlRes.data || []);
                 setVisaApplications(visaRes.data || []);
+                setFavoritePackages(favoritePackagesRes.data || favoritePackagesRes || []);
             } catch (err) {
                 console.error('Failed to fetch data:', err);
             } finally {
@@ -154,6 +158,15 @@ const ProfilePage = () => {
                                     }`}
                             >
                                 IDL Applications
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('favorites')}
+                                className={`py-3 px-6 text-sm font-black transition-all rounded-full ${activeTab === 'favorites'
+                                    ? 'bg-[#113A74] text-white shadow-md'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#113A74]'
+                                    }`}
+                            >
+                                My Favorites
                             </button>
                         </div>
 
@@ -323,7 +336,7 @@ const ProfilePage = () => {
                                     ))}
                                 </div>
                             )
-                        ) : (
+                        ) : activeTab === 'idl' ? (
                             /* IDL Applications View */
                             idlApplications.length === 0 ? (
                                 <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
@@ -382,6 +395,47 @@ const ProfilePage = () => {
                                                         </div>
                                                         Driver(s)
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        ) : (
+                            /* My Favorites View */
+                            favoritePackages.length === 0 ? (
+                                <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
+                                    <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                        <Heart className="text-gray-400" size={40} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-[#113A74] mb-3">No Favorites Yet</h3>
+                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">Found something you like? Heart it to save it for later and it will show up here.</p>
+                                    <Link href="/tours" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                        Explore Packages
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {favoritePackages.map((pkg) => (
+                                        <div key={pkg.id} className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100 group flex flex-col">
+                                            <div className="relative h-48 overflow-hidden">
+                                                <img 
+                                                    src={pkg.image} 
+                                                    alt={pkg.title} 
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                />
+                                                <div className="absolute top-4 right-4 z-20">
+                                                    <FavoriteButton packageId={pkg.id} />
+                                                </div>
+                                            </div>
+                                            <div className="p-6 flex-1 flex flex-col">
+                                                <h3 className="text-lg font-black text-[#113A74] mb-2 line-clamp-1">{pkg.title}</h3>
+                                                <p className="text-gray-400 text-sm mb-6 line-clamp-2">{pkg.description}</p>
+                                                <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+                                                    <span className="text-[#FFA500] font-black">AED {pkg.price}</span>
+                                                    <Link href={`/packages/${pkg.id}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
+                                                        View Details
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>

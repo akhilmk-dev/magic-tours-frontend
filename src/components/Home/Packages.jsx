@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Loader2, Plane, Calendar, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
 import { useRouter } from 'next/navigation';
+import FavoriteButton from '../common/FavoriteButton';
 
 export default function Packages() {
     const [packages, setPackages] = useState([]);
@@ -68,12 +69,15 @@ export default function Packages() {
                             onClick={() => router.push(`/packages/${pkg.id}`)}
                             className="bg-white rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden group hover:-translate-y-3 transition-all duration-500 cursor-pointer border border-white"
                         >
-                            {/* Card Image */}
                             <div className="relative h-60 overflow-hidden">
                                 <img
                                     src={pkg.image || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800&auto=format&fit=crop"}
                                     alt={pkg.title}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <FavoriteButton 
+                                    packageId={pkg.id} 
+                                    className="absolute top-4 right-4 z-20"
                                 />
                             </div>
 

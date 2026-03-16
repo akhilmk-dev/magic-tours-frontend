@@ -22,7 +22,7 @@ export default function CTA() {
                             <span>Dreams Come True</span>
                         </h2>
                         <p className="text-white/80 max-w-xl mx-auto mb-10 text-lg">
-                            There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration.
+                            Discover the world's most breathtaking destinations with our expertly curated travel packages. From serene beaches to vibrant cityscapes, we provide unparalleled experiences that stay with you forever.
                         </p>
 
                         <button className="bg-white text-brand-heading px-8 py-4 rounded-full font-bold hover:bg-[#FFA500] hover:text-white transition-all shadow-lg inline-flex items-center gap-2">

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plane, Star, Calendar, MapPin } from 'lucide-react';
+import FavoriteButton from '../common/FavoriteButton';
 
 const staticPackageData = [
     {
@@ -239,6 +240,12 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                             <Calendar size={14} className="text-white" />
                                             <span className="text-[10px] font-bold">{pkg.duration}</span>
                                         </div>
+
+                                        {/* Favorite Button */}
+                                        <FavoriteButton 
+                                            packageId={pkg.id} 
+                                            className="absolute top-4 right-4 z-20"
+                                        />
 
                                         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
                                         <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white z-10">

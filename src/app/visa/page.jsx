@@ -15,6 +15,8 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRouter } from 'next/navigation';
 
 // Country codes remain static as they usually include flags and logic that doesn't change much
+import ServicePageSkeleton from '../../components/skeletons/ServiceSkeletons';
+
 const COUNTRY_CODES = [
     { code: "+971", name: "UAE", flag: "🇦🇪" },
     { code: "+966", name: "KSA", flag: "🇸🇦" },
@@ -186,7 +188,15 @@ const validationSchema = Yup.object().shape({
             fullName: Yup.string().required('Required'),
             nationality: Yup.string().required('Required'),
             dob: Yup.string().required('Required'),
-            passportExpiry: Yup.string().required('Required'),
+            passportExpiry: Yup.string()
+                .required('Required')
+                .test('is-valid-passport', 'Must have 6 months validity', value => {
+                    if (!value) return false;
+                    const expiryDate = new Date(value);
+                    const sixMonthsFromNow = new Date();
+                    sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+                    return expiryDate >= sixMonthsFromNow;
+                }),
             profilePhoto: Yup.mixed().required('Required'),
             passportPhoto: Yup.mixed().required('Required'),
         })
@@ -309,11 +319,7 @@ const VisaServicesPage = () => {
     };
 
     if (!isMounted || (isMounted && authLoading)) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-                <Loader2 className="animate-spin text-[#113A74]" size={40} />
-            </div>
-        );
+        return <ServicePageSkeleton />;
     }
 
     if (!user) {

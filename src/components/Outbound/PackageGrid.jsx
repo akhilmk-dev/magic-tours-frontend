@@ -2,6 +2,7 @@
 import React from 'react';
 import { MapPin, Clock, User, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Link from 'next/link';
+import FavoriteButton from '../common/FavoriteButton';
 
 const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }) => {
 
@@ -62,6 +63,10 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                 src={pkg.image}
                                 alt={pkg.title}
                                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                            />
+                            <FavoriteButton 
+                                packageId={pkg.id} 
+                                className="absolute top-4 right-4 z-20"
                             />
                             {/* Tag */}
                             <span className={`absolute top-4 left-4 ${pkg.is_featured ? 'bg-primary' : 'bg-secondary'} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Star, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
 import { useRouter } from 'next/navigation';
+import FavoriteButton from '../common/FavoriteButton';
 
 const FeaturedPackages = () => {
     const [packages, setPackages] = useState([]);
@@ -61,6 +62,10 @@ const FeaturedPackages = () => {
                                     src={pkg.image || "https://images.unsplash.com/photo-1540541338287-41700207dee6"}
                                     alt={pkg.title}
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                />
+                                <FavoriteButton 
+                                    packageId={pkg.id} 
+                                    className="absolute top-4 right-4 z-20"
                                 />
                                 <span className={`absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
                                     {pkg.category || "Premium"}

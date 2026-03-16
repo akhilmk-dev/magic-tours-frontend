@@ -133,8 +133,7 @@ export default function WondersOfQatar({ spotlights, loading }) {
                         </h2>
 
                         <p className="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg">
-                            Lorem ipsum dolor sit amet consectetur. Diam tempor tortor neque id tempor mi egestas.
-                            There are many variations of passages of Lorem Ipsum availab but .
+                            Discover the breathtaking fusion of tradition and modernity in Qatar. From the architectural marvels of the Museum of Islamic Art to the vibrant markets of Souq Waqif, every corner tells a story of heritage and innovation.
                         </p>
 
                         <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">

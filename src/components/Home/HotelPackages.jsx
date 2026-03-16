@@ -19,7 +19,7 @@ const staticHotels = [
         image: hotel1.src || hotel1,
         location: 'Tokyo City Japan',
         title: 'Oceanview Villa Premier Deluxe Room',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         discount: '20% OFF',
         isLarge: true
     },
@@ -28,7 +28,7 @@ const staticHotels = [
         image: hotel2.src || hotel2,
         location: 'Swiss Alps',
         title: 'Premier Deluxe Room',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -36,7 +36,7 @@ const staticHotels = [
         image: hotel3.src || hotel3,
         location: 'Paris, France',
         title: 'Mountain View Room',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -44,7 +44,7 @@ const staticHotels = [
         image: hotel4.src || hotel4,
         location: 'Maldives',
         title: 'Premier Oceanview Villa',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -52,7 +52,7 @@ const staticHotels = [
         image: hotel5.src || hotel5,
         location: 'New York, USA',
         title: 'Waldorf Astoria Hotels',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -60,7 +60,7 @@ const staticHotels = [
         image: hotel6.src || hotel6,
         location: 'London, UK',
         title: 'Royal Heritage Suite',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         discount: '15% OFF',
         isLarge: true
     },
@@ -69,7 +69,7 @@ const staticHotels = [
         image: hotel7.src || hotel7,
         location: 'Dubai, UAE',
         title: 'Skyline Penthouse',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -77,7 +77,7 @@ const staticHotels = [
         image: hotel8.src || hotel8,
         location: 'Santorini, Greece',
         title: 'Infinite Blue Villa',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -85,7 +85,7 @@ const staticHotels = [
         image: hotel1.src || hotel1, // Reuse for demo
         location: 'Kyoto, Japan',
         title: 'Zen Garden Heritage',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     },
     {
@@ -93,7 +93,7 @@ const staticHotels = [
         image: hotel2.src || hotel2, // Reuse for demo
         location: 'Aspen, USA',
         title: 'Snow Peak Lodge',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting',
+        desc: 'Unwind in the lap of luxury with world-class amenities and stunning views tailored for an unforgettable stay.',
         isLarge: false
     }
 ];

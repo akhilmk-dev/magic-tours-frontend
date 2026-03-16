@@ -65,7 +65,6 @@ const HotelCardSkeleton = () => (
                 <div className="h-5 w-14 bg-slate-200 rounded-full"></div>
                 <div className="h-5 w-14 bg-slate-200 rounded-full"></div>
             </div>
-            <div className="h-9 bg-slate-200 rounded-full mt-auto"></div>
         </div>
     </div>
 );
@@ -140,10 +139,6 @@ const HotelCard = ({ name, country, city_name, overview, facilities, categories:
                         ))}
                     </div>
                 )}
-
-                <button className="w-full bg-[#113A74] text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-[#0d2a56] transition-all shadow-md shadow-[#113A74]/10 mt-auto">
-                    View Details
-                </button>
             </div>
         </div>
     );

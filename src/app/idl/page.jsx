@@ -14,7 +14,149 @@ import { useToast } from '../../context/ToastContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRouter } from 'next/navigation';
 
+import ServicePageSkeleton from '../../components/skeletons/ServiceSkeletons';
+
 const API_BASE = 'https://magic-apis.staff-b0c.workers.dev';
+
+// Country codes remain static as they usually include flags and logic that doesn't change much
+const COUNTRY_CODES = [
+    { code: "+971", name: "UAE", flag: "🇦🇪" },
+    { code: "+966", name: "KSA", flag: "🇸🇦" },
+    { code: "+974", name: "Qatar", flag: "🇶🇦" },
+    { code: "+91", name: "India", flag: "🇮🇳" },
+    { code: "+1", name: "USA/Canada", flag: "🇺🇸" },
+    { code: "+44", name: "UK", flag: "🇬🇧" },
+    { code: "+65", name: "Singapore", flag: "🇸🇬" }
+];
+
+// Reusable Custom Select Component
+const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, placeholder, error, touched, isCountry = false, isCode = false, isVisa = false, isDestination = false, isLoading = false }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = React.useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const findOption = () => {
+        if (isCode) return options.find(opt => opt.code === value);
+        if (isCountry || isDestination) return options.find(opt => opt.name === value || opt.id === value);
+        if (isVisa) return options.find(opt => opt.visa_id === value);
+        return options.find(opt => (opt.value === value || opt === value));
+    };
+
+    const selectedOption = findOption();
+
+    const getDisplayLabel = () => {
+        if (isLoading) return 'Loading...';
+        if (!value) return placeholder || 'Select option';
+        if (isCode) return `${selectedOption?.flag} ${selectedOption?.code}`;
+        if (isCountry || isDestination) return `📍 ${selectedOption?.name}`;
+        if (isVisa) return selectedOption?.visa_name;
+        return selectedOption?.label || selectedOption?.name || selectedOption;
+    };
+
+    return (
+        <div className={`space-y-2 relative ${isCode ? 'w-[120px] shrink-0' : 'w-full'} ${isOpen ? 'z-[101]' : 'z-auto'}`} ref={containerRef}>
+            {label && (
+                <label className="text-xs font-bold text-[#113A74]/70 uppercase tracking-widest flex items-center gap-2 px-1">
+                    {Icon && <Icon size={14} className="text-[#FFA500]" />}
+                    {label} <span className="text-red-500 font-bold">*</span>
+                </label>
+            )}
+            <div 
+                onClick={() => !isLoading && setIsOpen(!isOpen)}
+                className={`w-full bg-gray-50 border-2 ${touched && error ? 'border-red-100' : 'border-transparent'} hover:border-[#FFA500]/20 focus-within:border-[#FFA500]/30 rounded-2xl ${isCode ? 'py-4 px-4' : 'py-4 px-6'} flex items-center justify-between cursor-pointer transition-all min-h-[56px] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+                <div className="flex items-center gap-2 truncate">
+                    <span className={`text-sm font-semibold truncate ${value ? 'text-[#113A74]' : 'text-gray-400'}`}>
+                        {getDisplayLabel()}
+                    </span>
+                </div>
+                {!isLoading && <ChevronDown size={14} className={`text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />}
+                {isLoading && <Loader2 size={14} className="animate-spin text-gray-400" />}
+            </div>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute z-[100] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 max-h-[250px] overflow-y-auto custom-scrollbar"
+                    >
+                        {options.length === 0 ? (
+                            <div className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">No options available</div>
+                        ) : (
+                            options.map((option, idx) => {
+                                const optVal = isCode ? option.code : (isDestination || isCountry ? option.name : (isVisa ? option.visa_id : (option.value || option.name || option)));
+                                const optID = isDestination || isCountry ? option.id : null;
+                                const optLabel = isCode ? `${option.flag} ${option.code} (${option.name})` : (isVisa ? option.visa_name : (option.name || option.label || option));
+                                const isSelected = isDestination || isCountry ? optID === value : optVal === value;
+                                
+                                return (
+                                    <div
+                                        key={idx}
+                                        onClick={() => {
+                                            if (isDestination || isCountry) {
+                                                setFieldValue(name, option.id);
+                                            } else {
+                                                setFieldValue(name, optVal);
+                                            }
+                                            setIsOpen(false);
+                                        }}
+                                        className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-3 ${isSelected ? 'bg-[#113A74] text-white' : 'hover:bg-gray-50 text-[#113A74]'}`}
+                                    >
+                                        <span className="truncate">{optLabel}</span>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            {!isCode && touched && error && <div className="text-red-500 text-[10px] font-bold uppercase px-1">{error}</div>}
+        </div>
+    );
+};
+
+// Error handle for Mobile field
+const MobileInput = ({ nameCode, nameNumber, options, values, setFieldValue, touched, errors }) => {
+    return (
+        <div className="space-y-2">
+            <label className="text-xs font-bold text-[#113A74]/70 uppercase tracking-widest flex items-center gap-2 px-1">
+                <Phone size={14} className="text-[#FFA500]" />
+                Mobile Number <span className="text-red-500 font-bold">*</span>
+            </label>
+            <div className="flex gap-2 items-start">
+                <CustomSelect
+                    name={nameCode}
+                    options={options}
+                    value={values[nameCode]}
+                    setFieldValue={setFieldValue}
+                    isCode={true}
+                    touched={touched[nameCode]}
+                    error={errors[nameCode]}
+                />
+                <div className="flex-1 space-y-2">
+                    <Field
+                        name={nameNumber}
+                        placeholder="000 0000"
+                        className={`w-full bg-gray-50 border-2 ${touched[nameNumber] && errors[nameNumber] ? 'border-red-100' : 'border-transparent'} focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 px-6 outline-none transition-all text-sm font-semibold text-[#113A74] min-h-[56px]`}
+                    />
+                    <ErrorMessage name={nameNumber} component="div" className="text-red-500 text-[10px] font-bold uppercase px-1" />
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // Upload a single file and return its public URL
 const uploadFile = async (file) => {
@@ -26,6 +168,7 @@ const uploadFile = async (file) => {
 
 const validationSchema = Yup.object().shape({
     applicantName: Yup.string().required('Applicant Name is required'),
+    mobileCode: Yup.string().required('Required'),
     mobileNumber: Yup.string().required('Mobile Number is required'),
     numberOfDrivers: Yup.number().min(1).required('Number of Drivers is required'),
     drivers: Yup.array().of(
@@ -34,8 +177,12 @@ const validationSchema = Yup.object().shape({
             passportNumber: Yup.string().required('Passport Number is required'),
             nationality: Yup.string().required('Nationality is required'),
             dateOfBirth: Yup.string().required('Date of Birth is required'),
-            dlIssueDate: Yup.string().required('DL Issue Date is required'),
-            dlExpiryDate: Yup.string().required('DL Expiry Date is required'),
+            dlIssueDate: Yup.date()
+                .required('DL Issue Date is required')
+                .max(new Date(), 'Issue date cannot be in the future'),
+            dlExpiryDate: Yup.date()
+                .required('DL Expiry Date is required')
+                .min(new Date(), 'Expiry date cannot be in the past'),
             passportCopy: Yup.mixed().required('Passport Copy is required'),
             dlCopy: Yup.mixed().required('DL Copy is required'),
             photo: Yup.mixed().required('Passport Size Photo is required'),
@@ -139,11 +286,7 @@ const IDLPage = () => {
     }, [isMounted, authLoading, user, isAuthModalOpen, hasAttemptedAuth, openAuthModal, router]);
 
     if (!isMounted || (isMounted && authLoading)) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-                <Loader2 className="animate-spin text-[#113A74]" size={40} />
-            </div>
-        );
+        return <ServicePageSkeleton />;
     }
 
     if (!user) {
@@ -168,18 +311,11 @@ const IDLPage = () => {
 
     const initialValues = {
         applicantName: '',
+        mobileCode: '+971',
         mobileNumber: '',
         numberOfDrivers: 1,
         drivers: [{ ...emptyDriver }]
     };
-
-    if (!isMounted) {
-        return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-                <Loader2 className="animate-spin text-[#113A74]" size={40} />
-            </div>
-        );
-    }
 
     const handleSubmit = async (values) => {
         setLoading(true);
@@ -210,7 +346,7 @@ const IDLPage = () => {
             setUploadProgress('Submitting application...');
             const payload = {
                 applicant_name: values.applicantName,
-                mobile_number: values.mobileNumber,
+                mobile_number: `${values.mobileCode}${values.mobileNumber}`,
                 number_of_drivers: values.numberOfDrivers,
                 drivers: driversPayload,
             };
@@ -262,7 +398,7 @@ const IDLPage = () => {
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ values, setFieldValue }) => (
+                    {({ values, setFieldValue, touched, errors }) => (
                         <Form className="space-y-8">
                             {/* SECTION 1: APPLICATION INFO */}
                             <motion.div
@@ -298,17 +434,16 @@ const IDLPage = () => {
                                         </div>
 
                                         {/* Mobile Number */}
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#113A74]/70 uppercase tracking-widest flex items-center gap-2 px-1">
-                                                <Phone size={14} className="text-[#FFA500]" />
-                                                Mobile Number
-                                            </label>
-                                            <Field
-                                                name="mobileNumber"
-                                                placeholder="+974 0000 0000"
-                                                className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 px-6 outline-none transition-all text-sm font-semibold text-[#113A74]"
+                                        <div className="md:col-span-2">
+                                            <MobileInput
+                                                nameCode="mobileCode"
+                                                nameNumber="mobileNumber"
+                                                options={COUNTRY_CODES}
+                                                values={values}
+                                                setFieldValue={setFieldValue}
+                                                touched={touched}
+                                                errors={errors}
                                             />
-                                            <ErrorMessage name="mobileNumber" component="div" className="text-red-500 text-[10px] font-bold uppercase px-1" />
                                         </div>
 
                                         {/* Number of Drivers */}

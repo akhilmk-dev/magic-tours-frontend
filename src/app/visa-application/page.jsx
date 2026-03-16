@@ -16,6 +16,7 @@ import PassportForm from '../../components/visa/forms/PassportForm';
 import TravelForm from '../../components/visa/forms/TravelForm';
 import DocumentsForm from '../../components/visa/forms/DocumentsForm';
 import ReviewForm from '../../components/visa/forms/ReviewForm';
+import { VisaApplicationSkeleton } from '../../components/skeletons/ServiceSkeletons';
 
 const validationSchemas = [
     // Step 0: Personal Information
@@ -29,7 +30,15 @@ const validationSchemas = [
     // Step 1: Passport Details
     Yup.object().shape({
         passport_number: Yup.string().required('Passport Number is required'),
-        passport_expiry: Yup.string().required('Passport Expiry Date is required'),
+        passport_expiry: Yup.string()
+            .required('Passport Expiry Date is required')
+            .test('is-valid-passport', 'Passport must have at least 6 months of validity', value => {
+                if (!value) return false;
+                const expiryDate = new Date(value);
+                const sixMonthsFromNow = new Date();
+                sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+                return expiryDate >= sixMonthsFromNow;
+            }),
         passport_issue_place: Yup.string().required('Place of Issue is required'),
     }),
     // Step 2: Travel Information
@@ -48,11 +57,16 @@ const validationSchemas = [
 ];
 
 const VisaApplicationPage = () => {
-    const { user } = useCustomerAuth();
+    const { user, authLoading } = useCustomerAuth();
     const { success, error: toastError } = useToast();
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const initialValues = {
         first_name: user?.name?.split(' ')[0] || '',
@@ -116,6 +130,10 @@ const VisaApplicationPage = () => {
             default: return null;
         }
     };
+
+    if (!isMounted || authLoading || (loading && currentStep === 0)) {
+        return <VisaApplicationSkeleton />;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4">

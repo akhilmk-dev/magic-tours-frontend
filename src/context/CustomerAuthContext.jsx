@@ -8,8 +8,63 @@ const CustomerAuthContext = createContext(null);
 export const CustomerAuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [favorites, setFavorites] = useState([]);
+    const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalView, setAuthModalView] = useState('login'); // 'login' or 'register'
+
+    const openAuthModal = useCallback((view = 'login') => {
+        setAuthModalView(view);
+        setIsAuthModalOpen(true);
+    }, []);
+
+    const closeAuthModal = useCallback(() => {
+        setIsAuthModalOpen(false);
+    }, []);
+
+    const fetchFavorites = useCallback(async () => {
+        if (!user) return;
+        setLoadingFavorites(true);
+        try {
+            const response = await api.get('/customers/favorites/');
+            // Expecting data to be an array of packages or IDs
+            const favIds = (response.data || response || []).map(p => p.id || p.package_id || p);
+            setFavorites(favIds);
+        } catch (error) {
+            console.error('Failed to fetch favorites:', error);
+        } finally {
+            setLoadingFavorites(false);
+        }
+    }, [user]);
+
+    const toggleFavorite = useCallback(async (packageId) => {
+        if (!user) {
+            openAuthModal('login');
+            return;
+        }
+
+        const isFavorited = favorites.includes(packageId);
+        
+        // Optimistic update
+        setFavorites(prev => 
+            isFavorited ? prev.filter(id => id !== packageId) : [...prev, packageId]
+        );
+
+        try {
+            if (isFavorited) {
+                // If the API supports toggle or specific delete
+                await api.delete(`/customers/favorites/${packageId}`);
+            } else {
+                await api.post('/customers/favorites/', { package_id: packageId });
+            }
+        } catch (error) {
+            console.error('Failed to toggle favorite:', error);
+            // Rollback on error
+            setFavorites(prev => 
+                isFavorited ? [...prev, packageId] : prev.filter(id => id !== packageId)
+            );
+        }
+    }, [user, favorites, openAuthModal]);
 
     useEffect(() => {
         // align with api/client.js which clears 'user' on logout
@@ -25,6 +80,14 @@ export const CustomerAuthProvider = ({ children }) => {
         }
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            fetchFavorites();
+        } else {
+            setFavorites([]);
+        }
+    }, [user, fetchFavorites]);
 
     const login = useCallback(async (email, password) => {
         try {
@@ -63,15 +126,6 @@ export const CustomerAuthProvider = ({ children }) => {
         }
     }, []);
 
-    const openAuthModal = useCallback((view = 'login') => {
-        setAuthModalView(view);
-        setIsAuthModalOpen(true);
-    }, []);
-
-    const closeAuthModal = useCallback(() => {
-        setIsAuthModalOpen(false);
-    }, []);
-
     const logout = useCallback(async () => {
         if (api.logout) {
             await api.logout();
@@ -86,6 +140,7 @@ export const CustomerAuthProvider = ({ children }) => {
     return (
         <CustomerAuthContext.Provider value={{
             user, login, register, logout, loading,
+            favorites, loadingFavorites, toggleFavorite,
             isAuthModalOpen, authModalView, openAuthModal, closeAuthModal
         }}>
             {children}

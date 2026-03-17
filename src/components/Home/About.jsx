@@ -9,7 +9,7 @@ import towerImg from '../../assets/Image.png';
 
 export default function About() {
     return (
-        <section className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden">
+        <section className="pt-4 sm:pt-6 lg:pt-8 pb-12 sm:pb-16 lg:pb-24 bg-white relative overflow-hidden">
             {/* Background Decorative Element (Eiffel Tower Silhouette from Image.png) */}
             <div className="absolute right-[-2%] bottom-0 opacity-[0.25] pointer-events-none select-none z-0">
                 <img

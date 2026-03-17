@@ -66,7 +66,7 @@ export default function Packages() {
                     {packages.map((pkg) => (
                         <div
                             key={pkg.id}
-                            onClick={() => router.push(`/packages/${pkg.id}`)}
+                            onClick={() => router.push(`/packages/${pkg.slug || pkg.id}`)}
                             className="bg-white rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden group hover:-translate-y-3 transition-all duration-500 cursor-pointer border border-white"
                         >
                             <div className="relative h-60 overflow-hidden">

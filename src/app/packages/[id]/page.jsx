@@ -3,8 +3,8 @@
 export const runtime = 'edge';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { useRouter, useParams } from 'next/navigation';
+import { motion, useAnimation } from 'framer-motion';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '../../../context/CustomerAuthContext';
 import { api } from '../../../api/client';
@@ -33,7 +33,14 @@ import BookingModal from '../../../components/Booking/BookingModal';
 
 const PackageDetailsPage = () => {
     const params = useParams();
+    const searchParams = useSearchParams();
     const id = params.id;
+
+    useEffect(() => {
+        if (searchParams.get('book') === 'true') {
+            setIsBookingModalOpen(true);
+        }
+    }, [searchParams]);
     const [pkg, setPkg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,6 +49,10 @@ const PackageDetailsPage = () => {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
+    const [relatedCurrentIndex, setRelatedCurrentIndex] = useState(0);
+    const relatedControls = useAnimation();
+    const relatedIsTransitioning = React.useRef(false);
+    const relatedCardWidth = 398; // 350px width + 48px gap
     const [promos, setPromos] = useState([]);
 
     useEffect(() => {
@@ -89,6 +100,34 @@ const PackageDetailsPage = () => {
     }, [pkg]);
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const slideRelated = async (direction) => {
+        if (relatedIsTransitioning.current) return;
+        relatedIsTransitioning.current = true;
+
+        // Move by 3 items at a time
+        const itemsPerPage = 3;
+        let nextIndex = relatedCurrentIndex + (direction * itemsPerPage);
+        
+        // Clamp the index
+        if (nextIndex < 0) nextIndex = 0;
+        if (nextIndex >= relatedPackages.length) nextIndex = relatedCurrentIndex; // Don't move past end
+        
+        // If we want to ensure we don't show empty space at the end if there are fewer than 3 items
+        // but the user said "show next 3", so jumping is likely preferred.
+        
+        setRelatedCurrentIndex(nextIndex);
+
+        await relatedControls.start({
+            x: -nextIndex * relatedCardWidth,
+            transition: { type: "spring", stiffness: 300, damping: 30 }
+        });
+
+        relatedIsTransitioning.current = false;
+    };
+
+    const handleRelatedNext = () => slideRelated(1);
+    const handleRelatedPrev = () => slideRelated(-1);
 
     useEffect(() => {
         if (relatedImages.length <= 2) return;
@@ -781,6 +820,7 @@ const PackageDetailsPage = () => {
             <div className="bg-[#E9F7FF] py-20 mt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
+                    {/* Header */}
                     <div className="flex flex-col items-center justify-center mb-16">
                         <div className="bg-white rounded-full py-2 px-6 flex items-center gap-2 mb-6 shadow-sm">
                             <Plane className="w-4 h-4 text-[#113A74]" />
@@ -803,16 +843,10 @@ const PackageDetailsPage = () => {
                         ) : mounted && relatedPackages.length > 0 ? (
                             <motion.div
                                 className="flex gap-12"
-                                animate={{
-                                    x: [0, -1400]
-                                }}
-                                transition={{
-                                    duration: 35,
-                                    repeat: Infinity,
-                                    ease: "linear"
-                                }}
+                                animate={relatedControls}
+                                initial={{ x: 0 }}
                             >
-                                {[...relatedPackages, ...relatedPackages].map((relPkg, loopIdx) => (
+                                {relatedPackages.map((relPkg, loopIdx) => (
                                     <Link href={`/packages/${relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
                                         {/* Image Box */}
                                         <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
@@ -864,13 +898,36 @@ const PackageDetailsPage = () => {
                                 ))}
                             </motion.div>
                         ) : null}
+
+                        {/* Side Navigation Buttons */}
+                        {!relatedLoading && relatedPackages.length > 3 && (
+                            <>
+                                <button 
+                                    onClick={handleRelatedPrev}
+                                    disabled={relatedCurrentIndex === 0}
+                                    className={`absolute left-0 md:left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all z-20 shadow-xl ${relatedCurrentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hidden' : 'bg-[#FFA500] text-white hover:scale-110 active:scale-95'}`}
+                                >
+                                    <ArrowRight size={24} className="rotate-180" />
+                                </button>
+                                <button 
+                                    onClick={handleRelatedNext}
+                                    disabled={relatedCurrentIndex + 3 >= relatedPackages.length}
+                                    className={`absolute right-0 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all z-20 shadow-xl ${relatedCurrentIndex + 3 >= relatedPackages.length ? 'bg-gray-200 text-gray-400 cursor-not-allowed hidden' : 'bg-[#FFA500] text-white hover:scale-110 active:scale-95'}`}
+                                >
+                                    <ArrowRight size={24} />
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {/* Pagination Dots */}
                     <div className="flex justify-center gap-2 mt-12">
-                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
-                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
-                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                        {Array.from({ length: Math.ceil(relatedPackages.length / 3) }).map((_, i) => (
+                            <div 
+                                key={i}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${i === Math.floor(relatedCurrentIndex / 3) ? 'bg-[#FFA500] w-6' : 'bg-gray-300'}`}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>

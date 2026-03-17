@@ -138,9 +138,17 @@ const HotelCard = ({ hotel, className = "" }) => (
         )}
 
         {/* Hotel Icon Badge */}
-        <div className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-            <div className="bg-white rounded-lg p-1.5">
-                <Crown size={20} className="text-[#FDB338]" />
+        <div className="absolute top-6 right-6 w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-1">
+            <div className="bg-white rounded-xl w-full h-full flex items-center justify-center overflow-hidden">
+                {hotel.logo ? (
+                    <img 
+                        src={hotel.logo} 
+                        alt="Hotel Logo"
+                        className="w-10 h-10 object-contain p-1"
+                    />
+                ) : (
+                    <Crown size={22} className="text-[#FDB338]" />
+                )}
             </div>
         </div>
 
@@ -177,6 +185,7 @@ export default function HotelPackages({ hotels: apiHotels, loading }) {
                 location: h.country || h.address,
                 title: h.name,
                 desc: h.overview || h.description,
+                logo: h.hotel_logo_image,
                 isLarge: idx % 5 === 0 // Make every 5th item large to maintain layout
             };
         })

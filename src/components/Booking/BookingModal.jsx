@@ -136,8 +136,12 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
 
     const getActivePricing = (dateStr) => {
         if (!pkg?.pricing || !dateStr) return null;
-        const d = new Date(dateStr);
-        return pkg.pricing.find(p => d >= new Date(p.valid_from) && d <= new Date(p.valid_to)) || null;
+        const d = new Date(dateStr).toISOString().split('T')[0];
+        return pkg.pricing.find(p => {
+            const from = new Date(p.valid_from).toISOString().split('T')[0];
+            const to = new Date(p.valid_to).toISOString().split('T')[0];
+            return d >= from && d <= to;
+        }) || null;
     };
 
     const getPrice = (type, dateId) => {
@@ -146,18 +150,29 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
         const pricing = dep ? getActivePricing(dep.departure_date) : null;
         const base = pkg.price || 0;
         const map = {
-            adultSingle: pricing?.price_adult_single || pkg.default_price_adult_single || base,
-            adultDouble: pricing?.price_adult_double || pkg.default_price_adult_double || base,
-            adultTriple: pricing?.price_adult_triple || pkg.default_price_adult_triple || base,
-            childBed: pricing?.price_child_with_bed || pkg.default_price_child_with_bed || base * 0.7,
-            childNoBed: pricing?.price_child_no_bed || pkg.default_price_child_no_bed || base * 0.5,
-            infant: pricing?.price_infant || pkg.default_price_infant || base * 0.2,
+            adultSingle: pricing?.price_adult_single ?? pkg.default_price_adult_single ?? base,
+            adultDouble: pricing?.price_adult_double ?? pkg.default_price_adult_double ?? base,
+            adultTriple: pricing?.price_adult_triple ?? pkg.default_price_adult_triple ?? base,
+            childBed: pricing?.price_child_with_bed ?? pkg.default_price_child_with_bed ?? (base * 0.7),
+            childNoBed: pricing?.price_child_no_bed ?? pkg.default_price_child_no_bed ?? (base * 0.5),
+            infant: pricing?.price_infant ?? pkg.default_price_infant ?? (base * 0.2),
         };
         return map[type] ?? base;
     };
 
-    const calcTotal = (dateId, guests) =>
-        (guests || []).reduce((sum, g) => sum + getPrice(g.type, dateId), 0);
+    const calcTotal = (dateId, guests) => {
+        const types = ['adultSingle', 'adultDouble', 'adultTriple', 'childBed', 'childNoBed', 'infant'];
+        let total = 0;
+        types.forEach(type => {
+            const count = (guests || []).filter(g => g.type === type).length;
+            if (count > 0) {
+                const roomSize = GUEST_TYPES.find(gt => gt.id === type).roomSize;
+                const units = Math.ceil(count / roomSize);
+                total += units * getPrice(type, dateId);
+            }
+        });
+        return total;
+    };
 
     // ── Formik setup ──────────────────────────────────────────────────────────
 
@@ -327,11 +342,14 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         {GUEST_TYPES.map(t => {
                                             const count = values.guests.filter(g => g.type === t.id).length;
                                             if (!count) return null;
+                                            const units = Math.ceil(count / t.roomSize);
                                             return (
                                                 <div key={t.id} className="flex justify-between items-center text-xs font-semibold">
-                                                    <span className="text-white/70">{count} × {t.label}</span>
+                                                    <span className="text-white/70">
+                                                        {units} × {t.label} {t.roomSize > 1 ? 'Room' : ''} ({count} Guests)
+                                                    </span>
                                                     <span className="text-white">
-                                                        AED {(count * getPrice(t.id, values.departureDateId)).toLocaleString()}
+                                                        AED {(units * getPrice(t.id, values.departureDateId)).toLocaleString()}
                                                     </span>
                                                 </div>
                                             );
@@ -456,7 +474,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                             {GUEST_TYPES.map(t => {
                                                                 const guestCount = values.guests.filter(g => g.type === t.id).length;
-                                                                const roomCount = Math.round(guestCount / t.roomSize); // rooms booked
+                                                                const roomCount = Math.ceil(guestCount / t.roomSize); // units booked
                                                                 return (
                                                                     <div
                                                                         key={t.id}
@@ -465,7 +483,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         <div className="flex flex-col gap-0.5">
                                                                             <span className="text-sm font-bold text-[#113A74]">{t.label}</span>
                                                                             <span className="text-xs text-slate-400 font-medium">
-                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}AED {getPrice(t.id, values.departureDateId).toLocaleString()}
+                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}AED {getPrice(t.id, values.departureDateId).toLocaleString()} / {t.roomSize > 1 ? 'Room' : 'Pax'}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
@@ -473,11 +491,12 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                                 type="button"
                                                                                 disabled={roomCount === 0}
                                                                                 onClick={() => {
-                                                                                    // Remove the last roomSize guests of this type
+                                                                                    let newGuests = [...values.guests];
                                                                                     for (let i = 0; i < t.roomSize; i++) {
-                                                                                        const idx = values.guests.findLastIndex(g => g.type === t.id);
-                                                                                        if (idx !== -1) arrayHelpers.remove(idx);
+                                                                                        const idx = newGuests.findLastIndex(g => g.type === t.id);
+                                                                                        if (idx !== -1) newGuests.splice(idx, 1);
                                                                                     }
+                                                                                    setFieldValue('guests', newGuests);
                                                                                 }}
                                                                                 className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-red-200 hover:text-red-500 transition-all disabled:opacity-20"
                                                                             >
@@ -487,10 +506,11 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => {
-                                                                                    // Add roomSize guests for one room
+                                                                                    let newGuests = [...values.guests];
                                                                                     for (let i = 0; i < t.roomSize; i++) {
-                                                                                        arrayHelpers.push(makeGuest(t.id));
+                                                                                        newGuests.push(makeGuest(t.id));
                                                                                     }
+                                                                                    setFieldValue('guests', newGuests);
                                                                                 }}
                                                                                 className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#FFA500] hover:text-[#FFA500] transition-all"
                                                                             >

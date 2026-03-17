@@ -54,7 +54,7 @@ const FeaturedPackages = () => {
                     {packages.map((pkg, index) => (
                         <div
                             key={pkg.id || index}
-                            onClick={() => router.push(`/packages/${pkg.id}`)}
+                            onClick={() => router.push(`/packages/${pkg.slug || pkg.id}`)}
                             className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
                         >
                             <div className="relative h-64 overflow-hidden">

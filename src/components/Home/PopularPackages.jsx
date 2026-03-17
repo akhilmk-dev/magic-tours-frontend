@@ -100,16 +100,25 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
     };
 
     const packageData = apiPackages && apiPackages.length > 0
-        ? apiPackages.map(p => ({
-            id: p.id,
-            title: p.title,
-            location: p.location,
-            duration: p.duration,
-            type: parseCategories(p.category),
-            price: p.price,
-            description: p.description,
-            image: p.image
-        }))
+        ? apiPackages.map(p => {
+            const days = p.days || 0;
+            const nights = p.nights || 0;
+            const duration = days > 0 || nights > 0 
+                ? `${days} Days, ${nights} Nights` 
+                : (p.duration || "Contact for duration");
+
+            return {
+                id: p.id,
+                title: p.title,
+                location: p.location,
+                duration: duration,
+                type: parseCategories(p.category),
+                price: p.price,
+                currency: p.currency || 'AED',
+                description: p.description,
+                image: p.image
+            };
+        })
         : staticPackageData;
 
     // 5 sets for a massive buffer to ensure perfectly seamless looping
@@ -228,8 +237,8 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                         duration: 0.3,
                                         ease: "easeOut"
                                     }}
-                                    onClick={() => router.push(`/packages/${pkg.id}`)}
-                                    className="relative w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col shadow-none"
+                                    onClick={() => router.push(`/packages/${pkg.slug || pkg.id}`)}
+                                    className="relative w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col border border-slate-200/60 shadow-xl hover:shadow-2xl transition-all duration-300"
                                 >
                                     {/* Image Section */}
                                     <div className="relative h-[40%] w-full">
@@ -285,7 +294,7 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                         <div className="mt-auto flex items-end justify-between transition-colors">
                                             <div className="flex flex-col">
                                                 <div className="mb-0">
-                                                    <span className="text-[#FFA500] text-[20px] font-black leading-none whitespace-nowrap">AED {pkg.price}</span>
+                                                    <span className="text-[#FFA500] text-[20px] font-black leading-none whitespace-nowrap">{pkg.currency} {pkg.price}</span>
                                                     <span className={`block text-[10px] font-bold uppercase ${isFocused ? 'text-gray-400' : 'text-white/50'}`}>Onwards</span>
                                                 </div>
                                                 {!isFocused && (
@@ -296,7 +305,12 @@ export default function PopularPackages({ packages: apiPackages, loading }) {
                                             </div>
 
                                             <div className="flex flex-col items-end">
-                                                <button className={`px-7 py-3 rounded-full font-heading font-bold text-[14px] transition-all whitespace-nowrap
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        router.push(`/packages/${pkg.id}?book=true`);
+                                                    }}
+                                                    className={`px-7 py-3 rounded-full font-heading font-bold text-[14px] transition-all whitespace-nowrap
                                                     ${isFocused ? 'bg-brand-magic text-white shadow-xl hover:scale-105' : 'bg-[#FFA500] text-brand-heading shadow-md hover:scale-105'}
                                                 `}>
                                                     Book Now

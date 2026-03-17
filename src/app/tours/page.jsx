@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, LayoutGrid, List, ChevronDown, Minus, Plus, ChevronLeft, ChevronRight, Check, MapPin, SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../api/client';
@@ -242,34 +242,48 @@ const SortHeader = ({ sort, setSort, onOpenFilters }) => {
     );
 };
 
-const TourCard = ({ id, image, title, package_name, description, price, days, nights, slots }) => (
-    <Link href={`/packages/${id}`} className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-        <div className="relative aspect-[4/3] overflow-hidden">
-            <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-            <FavoriteButton 
-                packageId={id} 
-                className="absolute top-3 right-3 z-20"
-            />
-            <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
-                <Calendar size={13} className="opacity-90" />
-                <span>{days} days, {nights} Nights</span>
+const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, currency = 'AED' }) => {
+    const router = useRouter();
+    return (
+        <div 
+            onClick={() => router.push(`/packages/${slug || id}`)}
+            className="cursor-pointer bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+        >
+            <div className="relative aspect-[4/3] overflow-hidden">
+                <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <FavoriteButton 
+                    packageId={id} 
+                    className="absolute top-3 right-3 z-20"
+                />
+                <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
+                    <Calendar size={13} className="opacity-90" />
+                    <span>{days} days, {nights} Nights</span>
+                </div>
+                <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
             </div>
-            <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
-        </div>
-        <div className="p-6 flex flex-col flex-1">
-            <h3 title={title || package_name} className="text-xl md:text-2xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{title || package_name}</h3>
-            {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
-            <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
-            <div className="flex items-center justify-between mt-auto">
-                <span className="px-6 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold group-hover:bg-[#113A74] group-hover:text-white transition-all shadow-sm">Book Now</span>
-                <div className="text-right">
-                    <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-xs font-black uppercase">AED</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
-                    <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider">onwards</p>
+            <div className="p-6 flex flex-col flex-1">
+                <h3 title={title || package_name} className="text-xl md:text-2xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{title || package_name}</h3>
+                {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
+                <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
+                <div className="flex items-center justify-between mt-auto">
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/packages/${slug || id}?book=true`);
+                        }}
+                        className="px-6 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95"
+                    >
+                        Book Now
+                    </button>
+                    <div className="text-right">
+                        <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-xs font-black uppercase">{currency}</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
+                        <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider">onwards</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </Link>
-);
+    );
+};
 
 const TourCardSkeleton = () => (
     <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-[400px] animate-pulse">

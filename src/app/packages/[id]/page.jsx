@@ -49,10 +49,6 @@ const PackageDetailsPage = () => {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
-    const [relatedCurrentIndex, setRelatedCurrentIndex] = useState(0);
-    const relatedControls = useAnimation();
-    const relatedIsTransitioning = React.useRef(false);
-    const relatedCardWidth = 398; // 350px width + 48px gap
     const [promos, setPromos] = useState([]);
 
     useEffect(() => {
@@ -101,33 +97,7 @@ const PackageDetailsPage = () => {
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const slideRelated = async (direction) => {
-        if (relatedIsTransitioning.current) return;
-        relatedIsTransitioning.current = true;
 
-        // Move by 3 items at a time
-        const itemsPerPage = 3;
-        let nextIndex = relatedCurrentIndex + (direction * itemsPerPage);
-        
-        // Clamp the index
-        if (nextIndex < 0) nextIndex = 0;
-        if (nextIndex >= relatedPackages.length) nextIndex = relatedCurrentIndex; // Don't move past end
-        
-        // If we want to ensure we don't show empty space at the end if there are fewer than 3 items
-        // but the user said "show next 3", so jumping is likely preferred.
-        
-        setRelatedCurrentIndex(nextIndex);
-
-        await relatedControls.start({
-            x: -nextIndex * relatedCardWidth,
-            transition: { type: "spring", stiffness: 300, damping: 30 }
-        });
-
-        relatedIsTransitioning.current = false;
-    };
-
-    const handleRelatedNext = () => slideRelated(1);
-    const handleRelatedPrev = () => slideRelated(-1);
 
     useEffect(() => {
         if (relatedImages.length <= 2) return;
@@ -151,10 +121,27 @@ const PackageDetailsPage = () => {
 
     useEffect(() => {
         if (!id) return;
-        const fetchPackageDetail = async () => {
+        const fetchPackageDetail = async (targetId = id) => {
             try {
-                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${id}`);
-                if (!response.ok) throw new Error('Failed to fetch data');
+                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${targetId}`);
+                
+                if (!response.ok) {
+                    // Smart Resolver: If 404 and targetId is numeric, try to find slug
+                    if (response.status === 404 && !isNaN(targetId)) {
+                        const listRes = await fetch('https://magic-apis.staff-b0c.workers.dev/packages/frontend/list?page=1&limit=100');
+                        if (listRes.ok) {
+                            const listData = await listRes.json();
+                            const matchingPkg = listData.data.find(p => p.id == targetId);
+                            if (matchingPkg?.slug) {
+                                // Redirect/Update URL to use slug and retry fetch
+                                router.replace(`/packages/${matchingPkg.slug}${searchParams.toString() ? '?' + searchParams.toString() : ''}`);
+                                return fetchPackageDetail(matchingPkg.slug);
+                            }
+                        }
+                    }
+                    throw new Error('Failed to fetch data');
+                }
+
                 const data = await response.json();
                 setPkg(data.package_details || data);
                 if (data.related_packages) {
@@ -171,7 +158,7 @@ const PackageDetailsPage = () => {
         };
 
         fetchPackageDetail();
-    }, [id]);
+    }, [id, router, searchParams]);
 
     // Redundant fetchRelated removed
 
@@ -841,93 +828,92 @@ const PackageDetailsPage = () => {
                                 ))}
                             </div>
                         ) : mounted && relatedPackages.length > 0 ? (
-                            <motion.div
-                                className="flex gap-12"
-                                animate={relatedControls}
-                                initial={{ x: 0 }}
-                            >
-                                {relatedPackages.map((relPkg, loopIdx) => (
-                                    <Link href={`/packages/${relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
-                                        {/* Image Box */}
-                                        <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
-                                            <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">
-                                                27% Off
+                            (() => {
+                                const renderCard = (relPkg, loopIdx, isStatic = false) => (
+                                    <div key={`${loopIdx}-${relPkg.id}`} className={`flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] group/wrapper ${isStatic ? '' : 'pr-8 md:pr-10 lg:pr-12'}`}>
+                                        <Link 
+                                            href={`/packages/${relPkg.slug || relPkg.id}`} 
+                                            className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group/card hover:shadow-xl transition-all duration-300 h-full"
+                                        >
+                                            <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
+                                                <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">
+                                                    27% Off
+                                                </div>
+                                                <img
+                                                    src={relPkg.images?.[0] || relPkg.image || img1.src}
+                                                    className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
+                                                    alt={relPkg.title}
+                                                />
                                             </div>
-                                            <img
-                                                src={relPkg.images?.[0] || relPkg.image || img1.src}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                alt={relPkg.title}
-                                            />
+
+                                            <div className="bg-white rounded-t-[2.5rem] -mt-10 relative z-10 p-6 md:p-7 pt-8 flex flex-col flex-1">
+                                                <h3 className="text-xl md:text-2xl font-bold font-heading text-[#113A74] mb-4 line-clamp-1">{relPkg.title}</h3>
+
+                                                <div className="bg-[#FDF8F2] rounded-2xl p-5 space-y-2.5 mb-6 flex-1">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
+                                                            <Clock className="w-2.5 h-2.5 text-white" />
+                                                        </div>
+                                                        <span className="text-[11px] text-gray-600 font-semibold">{relPkg.days || '—'} Days - {relPkg.nights || '—'} Nights</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
+                                                            <MapPin className="w-2.5 h-2.5 text-white" />
+                                                        </div>
+                                                        <span className="text-[11px] text-gray-600 font-semibold">{relPkg.location || relPkg.destination?.name || 'N/A'}</span>
+                                                    </div>
+                                                    {relPkg.categories && (
+                                                        <div className="mt-2 inline-block bg-[#FFA500] text-white text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                                            {Array.isArray(relPkg.categories) ? relPkg.categories[0] : relPkg.categories}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex items-center justify-between mt-auto">
+                                                    <div className="flex items-baseline gap-1.5">
+                                                        <span className="text-sm md:text-base font-black text-[#113A74]">{relPkg.currency || 'AED'} {relPkg.price}</span>
+                                                        <span className="text-[10px] text-gray-400">onwards</span>
+                                                    </div>
+                                                    <span className="bg-[#113A74] group-hover/card:bg-[#0d2a56] text-white rounded-full py-2 px-5 text-[10px] font-bold transition-all shadow-md">
+                                                        Book Now
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                );
+
+                                if (relatedPackages.length <= 3) {
+                                    return (
+                                        <div className="flex flex-wrap justify-center gap-8 md:gap-10 lg:gap-12">
+                                            {relatedPackages.map((pkg, idx) => renderCard(pkg, idx, true))}
                                         </div>
+                                    );
+                                }
 
-                                        {/* Content Box */}
-                                        <div className="bg-white rounded-t-[2.5rem] -mt-10 relative z-10 p-6 md:p-7 pt-8 flex flex-col flex-1">
-                                            <h3 className="text-xl md:text-2xl font-bold font-heading text-[#113A74] mb-4 line-clamp-1">{relPkg.title}</h3>
+                                const minItems = 6;
+                                const baseArray = relatedPackages.length >= minItems 
+                                    ? relatedPackages 
+                                    : Array(Math.ceil(minItems / relatedPackages.length)).fill(relatedPackages).flat();
+                                
+                                const duplicatedPackages = [...baseArray, ...baseArray];
 
-                                            <div className="bg-[#FDF8F2] rounded-2xl p-5 space-y-2.5 mb-6 flex-1">
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
-                                                        <Clock className="w-2.5 h-2.5 text-white" />
-                                                    </div>
-                                                    <span className="text-[11px] text-gray-600 font-semibold">{relPkg.days || '—'} Days - {relPkg.nights || '—'} Nights</span>
-                                                </div>
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
-                                                        <MapPin className="w-2.5 h-2.5 text-white" />
-                                                    </div>
-                                                    <span className="text-[11px] text-gray-600 font-semibold">{relPkg.location || relPkg.destination?.name || 'N/A'}</span>
-                                                </div>
-                                                {relPkg.categories && (
-                                                    <div className="mt-2 inline-block bg-[#FFA500] text-white text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                                        {Array.isArray(relPkg.categories) ? relPkg.categories[0] : relPkg.categories}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="flex items-center justify-between mt-auto">
-                                                <div className="flex items-baseline gap-1.5">
-                                                    <span className="text-sm md:text-base font-black text-[#113A74]">{relPkg.currency || 'AED'} {relPkg.price}</span>
-                                                    <span className="text-[10px] text-gray-400">onwards</span>
-                                                </div>
-                                                <span className="bg-[#113A74] hover:bg-[#0d2a56] text-white rounded-full py-2 px-5 text-[10px] font-bold transition-all shadow-md">
-                                                    Book Now
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </motion.div>
+                                return (
+                                    <motion.div
+                                        className="flex w-max"
+                                        animate={{ x: ["0%", "-50%"] }}
+                                        transition={{ 
+                                            ease: "linear", 
+                                            duration: baseArray.length * 6,
+                                            repeat: Infinity 
+                                        }}
+                                        whileHover={{ animationPlayState: "paused" }}
+                                    >
+                                        {duplicatedPackages.map((relPkg, loopIdx) => renderCard(relPkg, loopIdx))}
+                                    </motion.div>
+                                );
+                            })()
                         ) : null}
-
-                        {/* Side Navigation Buttons */}
-                        {!relatedLoading && relatedPackages.length > 3 && (
-                            <>
-                                <button 
-                                    onClick={handleRelatedPrev}
-                                    disabled={relatedCurrentIndex === 0}
-                                    className={`absolute left-0 md:left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all z-20 shadow-xl ${relatedCurrentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hidden' : 'bg-[#FFA500] text-white hover:scale-110 active:scale-95'}`}
-                                >
-                                    <ArrowRight size={24} className="rotate-180" />
-                                </button>
-                                <button 
-                                    onClick={handleRelatedNext}
-                                    disabled={relatedCurrentIndex + 3 >= relatedPackages.length}
-                                    className={`absolute right-0 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all z-20 shadow-xl ${relatedCurrentIndex + 3 >= relatedPackages.length ? 'bg-gray-200 text-gray-400 cursor-not-allowed hidden' : 'bg-[#FFA500] text-white hover:scale-110 active:scale-95'}`}
-                                >
-                                    <ArrowRight size={24} />
-                                </button>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Pagination Dots */}
-                    <div className="flex justify-center gap-2 mt-12">
-                        {Array.from({ length: Math.ceil(relatedPackages.length / 3) }).map((_, i) => (
-                            <div 
-                                key={i}
-                                className={`w-2 h-2 rounded-full transition-all duration-300 ${i === Math.floor(relatedCurrentIndex / 3) ? 'bg-[#FFA500] w-6' : 'bg-gray-300'}`}
-                            />
-                        ))}
                     </div>
                 </div>
             </div>

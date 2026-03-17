@@ -64,8 +64,8 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                                 alt={pkg.title}
                                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                             />
-                            <FavoriteButton 
-                                packageId={pkg.id} 
+                            <FavoriteButton
+                                packageId={pkg.id}
                                 className="absolute top-4 right-4 z-20"
                             />
                             {/* Tag */}

@@ -25,7 +25,7 @@ const Skeleton = ({ className }) => (
     <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`}></div>
 );
 
-const YACHT_TYPES = ['Motorboat', 'Sailing Yacht', 'Catamaran', 'Dhows', 'Superyacht', 'Speedboats'];
+const YACHT_TYPES = ['Motorboat', 'Speedboats', 'Dhows', 'Catamarans', 'Gullet', 'Houseboat', 'Sailing Yacht', 'Superyacht'];
 
 const YachtsPage = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);

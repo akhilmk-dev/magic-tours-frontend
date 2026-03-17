@@ -3,8 +3,8 @@
 export const runtime = 'edge';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '../../../context/CustomerAuthContext';
 import { api } from '../../../api/client';
@@ -33,14 +33,7 @@ import BookingModal from '../../../components/Booking/BookingModal';
 
 const PackageDetailsPage = () => {
     const params = useParams();
-    const searchParams = useSearchParams();
     const id = params.id;
-
-    useEffect(() => {
-        if (searchParams.get('book') === 'true') {
-            setIsBookingModalOpen(true);
-        }
-    }, [searchParams]);
     const [pkg, setPkg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -55,7 +48,7 @@ const PackageDetailsPage = () => {
         fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/package_details')
             .then(res => res.json())
             .then(data => setPromos(data?.data?.promotions || []))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     useEffect(() => {
@@ -97,8 +90,6 @@ const PackageDetailsPage = () => {
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-
-
     useEffect(() => {
         if (relatedImages.length <= 2) return;
         const timer = setInterval(() => {
@@ -121,27 +112,10 @@ const PackageDetailsPage = () => {
 
     useEffect(() => {
         if (!id) return;
-        const fetchPackageDetail = async (targetId = id) => {
+        const fetchPackageDetail = async () => {
             try {
-                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${targetId}`);
-                
-                if (!response.ok) {
-                    // Smart Resolver: If 404 and targetId is numeric, try to find slug
-                    if (response.status === 404 && !isNaN(targetId)) {
-                        const listRes = await fetch('https://magic-apis.staff-b0c.workers.dev/packages/frontend/list?page=1&limit=100');
-                        if (listRes.ok) {
-                            const listData = await listRes.json();
-                            const matchingPkg = listData.data.find(p => p.id == targetId);
-                            if (matchingPkg?.slug) {
-                                // Redirect/Update URL to use slug and retry fetch
-                                router.replace(`/packages/${matchingPkg.slug}${searchParams.toString() ? '?' + searchParams.toString() : ''}`);
-                                return fetchPackageDetail(matchingPkg.slug);
-                            }
-                        }
-                    }
-                    throw new Error('Failed to fetch data');
-                }
-
+                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${id}`);
+                if (!response.ok) throw new Error('Failed to fetch data');
                 const data = await response.json();
                 setPkg(data.package_details || data);
                 if (data.related_packages) {
@@ -158,7 +132,7 @@ const PackageDetailsPage = () => {
         };
 
         fetchPackageDetail();
-    }, [id, router, searchParams]);
+    }, [id]);
 
     // Redundant fetchRelated removed
 
@@ -671,11 +645,10 @@ const PackageDetailsPage = () => {
                                         <div
                                             key={i}
                                             onClick={() => setCurrentImageIndex(i * 2)}
-                                            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                                                Math.floor(currentImageIndex / 2) === i
+                                            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${Math.floor(currentImageIndex / 2) === i
                                                     ? 'bg-[#113A74] w-4'
                                                     : 'bg-gray-300 w-2'
-                                            }`}
+                                                }`}
                                         />
                                     ))}
                                 </div>
@@ -807,7 +780,6 @@ const PackageDetailsPage = () => {
             <div className="bg-[#E9F7FF] py-20 mt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
-                    {/* Header */}
                     <div className="flex flex-col items-center justify-center mb-16">
                         <div className="bg-white rounded-full py-2 px-6 flex items-center gap-2 mb-6 shadow-sm">
                             <Plane className="w-4 h-4 text-[#113A74]" />
@@ -828,92 +800,76 @@ const PackageDetailsPage = () => {
                                 ))}
                             </div>
                         ) : mounted && relatedPackages.length > 0 ? (
-                            (() => {
-                                const renderCard = (relPkg, loopIdx, isStatic = false) => (
-                                    <div key={`${loopIdx}-${relPkg.id}`} className={`flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] group/wrapper ${isStatic ? '' : 'pr-8 md:pr-10 lg:pr-12'}`}>
-                                        <Link 
-                                            href={`/packages/${relPkg.slug || relPkg.id}`} 
-                                            className="bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group/card hover:shadow-xl transition-all duration-300 h-full"
-                                        >
-                                            <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
-                                                <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">
-                                                    27% Off
-                                                </div>
-                                                <img
-                                                    src={relPkg.images?.[0] || relPkg.image || img1.src}
-                                                    className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-                                                    alt={relPkg.title}
-                                                />
+                            <motion.div
+                                className="flex gap-12"
+                                animate={{
+                                    x: [0, -1400]
+                                }}
+                                transition={{
+                                    duration: 35,
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                }}
+                            >
+                                {[...relatedPackages, ...relatedPackages].map((relPkg, loopIdx) => (
+                                    <Link href={`/packages/${relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
+                                        {/* Image Box */}
+                                        <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
+                                            <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">
+                                                27% Off
                                             </div>
-
-                                            <div className="bg-white rounded-t-[2.5rem] -mt-10 relative z-10 p-6 md:p-7 pt-8 flex flex-col flex-1">
-                                                <h3 className="text-xl md:text-2xl font-bold font-heading text-[#113A74] mb-4 line-clamp-1">{relPkg.title}</h3>
-
-                                                <div className="bg-[#FDF8F2] rounded-2xl p-5 space-y-2.5 mb-6 flex-1">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
-                                                            <Clock className="w-2.5 h-2.5 text-white" />
-                                                        </div>
-                                                        <span className="text-[11px] text-gray-600 font-semibold">{relPkg.days || '—'} Days - {relPkg.nights || '—'} Nights</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
-                                                            <MapPin className="w-2.5 h-2.5 text-white" />
-                                                        </div>
-                                                        <span className="text-[11px] text-gray-600 font-semibold">{relPkg.location || relPkg.destination?.name || 'N/A'}</span>
-                                                    </div>
-                                                    {relPkg.categories && (
-                                                        <div className="mt-2 inline-block bg-[#FFA500] text-white text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                                            {Array.isArray(relPkg.categories) ? relPkg.categories[0] : relPkg.categories}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex items-center justify-between mt-auto">
-                                                    <div className="flex items-baseline gap-1.5">
-                                                        <span className="text-sm md:text-base font-black text-[#113A74]">{relPkg.currency || 'AED'} {relPkg.price}</span>
-                                                        <span className="text-[10px] text-gray-400">onwards</span>
-                                                    </div>
-                                                    <span className="bg-[#113A74] group-hover/card:bg-[#0d2a56] text-white rounded-full py-2 px-5 text-[10px] font-bold transition-all shadow-md">
-                                                        Book Now
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    </div>
-                                );
-
-                                if (relatedPackages.length <= 3) {
-                                    return (
-                                        <div className="flex flex-wrap justify-center gap-8 md:gap-10 lg:gap-12">
-                                            {relatedPackages.map((pkg, idx) => renderCard(pkg, idx, true))}
+                                            <img
+                                                src={relPkg.images?.[0] || relPkg.image || img1.src}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                alt={relPkg.title}
+                                            />
                                         </div>
-                                    );
-                                }
 
-                                const minItems = 6;
-                                const baseArray = relatedPackages.length >= minItems 
-                                    ? relatedPackages 
-                                    : Array(Math.ceil(minItems / relatedPackages.length)).fill(relatedPackages).flat();
-                                
-                                const duplicatedPackages = [...baseArray, ...baseArray];
+                                        {/* Content Box */}
+                                        <div className="bg-white rounded-t-[2.5rem] -mt-10 relative z-10 p-6 md:p-7 pt-8 flex flex-col flex-1">
+                                            <h3 className="text-xl md:text-2xl font-bold font-heading text-[#113A74] mb-4 line-clamp-1">{relPkg.title}</h3>
 
-                                return (
-                                    <motion.div
-                                        className="flex w-max"
-                                        animate={{ x: ["0%", "-50%"] }}
-                                        transition={{ 
-                                            ease: "linear", 
-                                            duration: baseArray.length * 6,
-                                            repeat: Infinity 
-                                        }}
-                                        whileHover={{ animationPlayState: "paused" }}
-                                    >
-                                        {duplicatedPackages.map((relPkg, loopIdx) => renderCard(relPkg, loopIdx))}
-                                    </motion.div>
-                                );
-                            })()
+                                            <div className="bg-[#FDF8F2] rounded-2xl p-5 space-y-2.5 mb-6 flex-1">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
+                                                        <Clock className="w-2.5 h-2.5 text-white" />
+                                                    </div>
+                                                    <span className="text-[11px] text-gray-600 font-semibold">{relPkg.days || '—'} Days - {relPkg.nights || '—'} Nights</span>
+                                                </div>
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-5 h-5 rounded-full bg-[#113A74] flex items-center justify-center shrink-0">
+                                                        <MapPin className="w-2.5 h-2.5 text-white" />
+                                                    </div>
+                                                    <span className="text-[11px] text-gray-600 font-semibold">{relPkg.location || relPkg.destination?.name || 'N/A'}</span>
+                                                </div>
+                                                {relPkg.categories && (
+                                                    <div className="mt-2 inline-block bg-[#FFA500] text-white text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                                        {Array.isArray(relPkg.categories) ? relPkg.categories[0] : relPkg.categories}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex items-baseline gap-1.5">
+                                                    <span className="text-sm md:text-base font-black text-[#113A74]">{relPkg.currency || 'AED'} {relPkg.price}</span>
+                                                    <span className="text-[10px] text-gray-400">onwards</span>
+                                                </div>
+                                                <span className="bg-[#113A74] hover:bg-[#0d2a56] text-white rounded-full py-2 px-5 text-[10px] font-bold transition-all shadow-md">
+                                                    Book Now
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </motion.div>
                         ) : null}
+                    </div>
+
+                    {/* Pagination Dots */}
+                    <div className="flex justify-center gap-2 mt-12">
+                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
+                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
                     </div>
                 </div>
             </div>

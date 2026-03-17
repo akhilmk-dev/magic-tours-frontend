@@ -218,9 +218,9 @@ const ProfilePage = () => {
                                                     <div className="flex-1">
                                                         <div className="flex flex-wrap items-center gap-2 mb-3">
                                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                                    booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                                        booking.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                                                            'bg-gray-100 text-gray-600'
+                                                                booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                    booking.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
+                                                                        'bg-gray-100 text-gray-600'
                                                                 }`}>
                                                                 {booking.status}
                                                             </span>
@@ -287,12 +287,11 @@ const ProfilePage = () => {
                                             <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
                                                 <div className="flex-1">
                                                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                            visa.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                            visa.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                            visa.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                                            'bg-gray-100 text-gray-600'
-                                                        }`}>
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${visa.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
+                                                                visa.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                    visa.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
+                                                                        'bg-gray-100 text-gray-600'
+                                                            }`}>
                                                             {visa.status || 'Pending'}
                                                         </span>
                                                         <span className="text-xs font-bold text-gray-400">#{visa.id?.split('-').pop()?.toUpperCase()}</span>
@@ -431,9 +430,9 @@ const ProfilePage = () => {
                                         return (
                                             <div key={pkg.id} className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100 group flex flex-col">
                                                 <div className="relative h-48 overflow-hidden">
-                                                    <img 
-                                                        src={pkg.image} 
-                                                        alt={pkg.title} 
+                                                    <img
+                                                        src={pkg.image}
+                                                        alt={pkg.title}
                                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                     />
                                                     <div className="absolute top-4 right-4 z-20">

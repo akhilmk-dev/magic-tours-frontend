@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    MapPin, Calendar, Users, Briefcase, 
-    Sparkles, ArrowRight, ChevronRight, 
+import {
+    MapPin, Calendar, Users, Briefcase,
+    Sparkles, ArrowRight, ChevronRight,
     CheckCircle2, Search, Loader2, Info,
     Plane, Hotel, Compass, Globe, Heart
 } from 'lucide-react';
@@ -51,7 +51,7 @@ const ItineraryBuilder = () => {
     const toggleInterest = (id) => {
         setFormData(prev => ({
             ...prev,
-            interests: prev.interests.includes(id) 
+            interests: prev.interests.includes(id)
                 ? prev.interests.filter(i => i !== id)
                 : [...prev.interests, id]
         }));
@@ -68,7 +68,7 @@ const ItineraryBuilder = () => {
             // 1. Try to match existing packages
             const matchResponse = await api.post('/packages/match', formData);
             const matches = matchResponse.data || [];
-            
+
             if (matches.length > 0) {
                 setMatchedPackages(matches);
                 setStep(4); // Move to results step
@@ -106,7 +106,7 @@ const ItineraryBuilder = () => {
         <div className="min-h-screen bg-[#fcfcfc] pt-32 pb-20">
             {/* Hero Section */}
             <div className="max-w-7xl mx-auto px-6 mb-12">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col md:flex-row md:items-end justify-between gap-6"
@@ -120,7 +120,7 @@ const ItineraryBuilder = () => {
                             Build Your <span className="text-[#FFA500]">Dreams.</span>
                         </h1>
                         <p className="text-gray-500 max-w-xl text-lg font-medium leading-relaxed">
-                            Tell us your vision, and we'll craft the perfect journey just for you. 
+                            Tell us your vision, and we'll craft the perfect journey just for you.
                             Instant matching with premium packages or AI-generated custom plans.
                         </p>
                     </div>
@@ -162,7 +162,7 @@ const ItineraryBuilder = () => {
 
                             <AnimatePresence mode="wait">
                                 {step === 1 && (
-                                    <motion.div 
+                                    <motion.div
                                         key="step1"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -174,13 +174,13 @@ const ItineraryBuilder = () => {
                                                 <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Where would you like to go?</label>
                                                 <div className="relative group">
                                                     <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-all" size={20} />
-                                                    <input 
-                                                        type="text" 
+                                                    <input
+                                                        type="text"
                                                         required
                                                         placeholder="Enter destination (e.g. Dubai, Qatar, Maldives)"
                                                         className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-3xl py-5 pl-16 pr-8 outline-none transition-all text-sm font-bold text-[#113A74] placeholder:text-gray-300"
                                                         value={formData.destination}
-                                                        onChange={(e) => setFormData({...formData, destination: e.target.value})}
+                                                        onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                                                     />
                                                 </div>
                                             </div>
@@ -190,11 +190,11 @@ const ItineraryBuilder = () => {
                                                     <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Start Date</label>
                                                     <div className="relative group">
                                                         <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-all" size={20} />
-                                                        <input 
+                                                        <input
                                                             type="date"
                                                             className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-3xl py-5 pl-16 pr-8 outline-none transition-all text-sm font-bold text-[#113A74]"
                                                             value={formData.startDate}
-                                                            onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                                                            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                                                         />
                                                     </div>
                                                 </div>
@@ -202,11 +202,11 @@ const ItineraryBuilder = () => {
                                                     <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">End Date</label>
                                                     <div className="relative group">
                                                         <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-all" size={20} />
-                                                        <input 
+                                                        <input
                                                             type="date"
                                                             className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-3xl py-5 pl-16 pr-8 outline-none transition-all text-sm font-bold text-[#113A74]"
                                                             value={formData.endDate}
-                                                            onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                                                            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                                                         />
                                                     </div>
                                                 </div>
@@ -214,7 +214,7 @@ const ItineraryBuilder = () => {
                                         </div>
 
                                         <div className="pt-4">
-                                            <button 
+                                            <button
                                                 onClick={handleNext}
                                                 disabled={!formData.destination}
                                                 className="w-full relative group overflow-hidden bg-[#113A74] text-white rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-[#1c4d91] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[#113A74]/20 flex items-center justify-center gap-3"
@@ -227,7 +227,7 @@ const ItineraryBuilder = () => {
                                 )}
 
                                 {step === 2 && (
-                                    <motion.div 
+                                    <motion.div
                                         key="step2"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -241,17 +241,17 @@ const ItineraryBuilder = () => {
                                                     <div className="flex-1 space-y-2">
                                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Adults</span>
                                                         <div className="flex items-center gap-4 bg-gray-50 rounded-2xl p-2 px-4">
-                                                            <button onClick={() => setFormData({...formData, adults: Math.max(1, formData.adults - 1)})} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">-</button>
+                                                            <button onClick={() => setFormData({ ...formData, adults: Math.max(1, formData.adults - 1) })} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">-</button>
                                                             <span className="flex-1 text-center font-black text-[#113A74]">{formData.adults}</span>
-                                                            <button onClick={() => setFormData({...formData, adults: formData.adults + 1})} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">+</button>
+                                                            <button onClick={() => setFormData({ ...formData, adults: formData.adults + 1 })} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">+</button>
                                                         </div>
                                                     </div>
                                                     <div className="flex-1 space-y-2">
                                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Children</span>
                                                         <div className="flex items-center gap-4 bg-gray-50 rounded-2xl p-2 px-4">
-                                                            <button onClick={() => setFormData({...formData, children: Math.max(0, formData.children - 1)})} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">-</button>
+                                                            <button onClick={() => setFormData({ ...formData, children: Math.max(0, formData.children - 1) })} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">-</button>
                                                             <span className="flex-1 text-center font-black text-[#113A74]">{formData.children}</span>
-                                                            <button onClick={() => setFormData({...formData, children: formData.children + 1})} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">+</button>
+                                                            <button onClick={() => setFormData({ ...formData, children: formData.children + 1 })} className="w-8 h-8 rounded-xl bg-white text-[#113A74] flex items-center justify-center font-black shadow-sm hover:bg-[#FFA500] hover:text-white transition-all">+</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -261,9 +261,9 @@ const ItineraryBuilder = () => {
                                                 <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Budget Preference</label>
                                                 <div className="grid grid-cols-3 gap-3 bg-gray-50 p-2 rounded-2xl">
                                                     {['basic', 'premium', 'luxury'].map((b) => (
-                                                        <button 
+                                                        <button
                                                             key={b}
-                                                            onClick={() => setFormData({...formData, budget: b})}
+                                                            onClick={() => setFormData({ ...formData, budget: b })}
                                                             className={`py-3 rounded-[0.9rem] text-[10px] font-black uppercase tracking-widest transition-all ${formData.budget === b ? 'bg-[#113A74] text-white shadow-lg' : 'text-gray-400 hover:text-[#113A74]'}`}
                                                         >
                                                             {b}
@@ -274,13 +274,13 @@ const ItineraryBuilder = () => {
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            <button 
+                                            <button
                                                 onClick={handleBack}
                                                 className="w-1/3 bg-gray-100 text-gray-400 rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-gray-200"
                                             >
                                                 Back
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={handleNext}
                                                 className="w-2/3 relative group overflow-hidden bg-[#113A74] text-white rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-[#1c4d91] shadow-xl shadow-[#113A74]/20 flex items-center justify-center gap-3"
                                             >
@@ -292,7 +292,7 @@ const ItineraryBuilder = () => {
                                 )}
 
                                 {step === 3 && (
-                                    <motion.div 
+                                    <motion.div
                                         key="step3"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -303,7 +303,7 @@ const ItineraryBuilder = () => {
                                             <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1 text-center block w-full">What are you interested in?</label>
                                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                                 {ITINERARY_INTERESTS.map((item) => (
-                                                    <button 
+                                                    <button
                                                         key={item.id}
                                                         onClick={() => toggleInterest(item.id)}
                                                         className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-4 ${formData.interests.includes(item.id) ? 'bg-[#FFA500]/5 border-[#FFA500] text-[#113A74]' : 'bg-white border-gray-100 text-gray-400 hover:border-[#113A74]/20'}`}
@@ -317,23 +317,23 @@ const ItineraryBuilder = () => {
 
                                         <div className="space-y-4">
                                             <label className="text-xs font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Describe your dream trip</label>
-                                            <textarea 
+                                            <textarea
                                                 rows={4}
                                                 placeholder="Tell us about specific places you want to visit, or things you want to do..."
                                                 className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-3xl py-6 px-8 outline-none transition-all text-sm font-semibold text-[#113A74] placeholder:text-gray-300 resize-none"
                                                 value={formData.suggestions}
-                                                onChange={(e) => setFormData({...formData, suggestions: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, suggestions: e.target.value })}
                                             />
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            <button 
+                                            <button
                                                 onClick={handleBack}
                                                 className="w-1/3 bg-gray-100 text-gray-400 rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-gray-200"
                                             >
                                                 Back
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={handleSubmit}
                                                 disabled={loading}
                                                 className="w-2/3 relative group overflow-hidden bg-[#FFA500] text-white rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-[#e69500] shadow-xl shadow-[#FFA500]/20 flex items-center justify-center gap-3 disabled:opacity-70"
@@ -370,7 +370,7 @@ const ItineraryBuilder = () => {
                                     </div>
                                 ) : step === 4 ? (
                                     /* --- MATCHED PACKAGES VIEW --- */
-                                    <motion.div 
+                                    <motion.div
                                         key="step4"
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -389,8 +389,8 @@ const ItineraryBuilder = () => {
                                                 <div key={pkg.id} className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all group">
                                                     <div className="relative h-48 overflow-hidden">
                                                         <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                        <FavoriteButton 
-                                                            packageId={pkg.id} 
+                                                        <FavoriteButton
+                                                            packageId={pkg.id}
                                                             className="absolute top-4 right-4 z-20"
                                                         />
                                                         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full shadow-sm">
@@ -410,7 +410,7 @@ const ItineraryBuilder = () => {
 
                                         <div className="text-center pt-6 border-t border-gray-100">
                                             <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Not exactly what you had in mind?</p>
-                                            <button 
+                                            <button
                                                 onClick={async () => {
                                                     setLoading(true);
                                                     try {
@@ -432,7 +432,7 @@ const ItineraryBuilder = () => {
                                     </motion.div>
                                 ) : step === 5 ? (
                                     /* --- AI GENERATED ITINERARY VIEW --- */
-                                    <motion.div 
+                                    <motion.div
                                         key="step5"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -445,7 +445,7 @@ const ItineraryBuilder = () => {
                                                 </div>
                                                 <h2 className="text-4xl font-black text-[#113A74]">Itinerary Submitted!</h2>
                                                 <p className="text-gray-500 max-w-md mx-auto font-medium">
-                                                    Your custom-crafted journey has been sent to our experts. 
+                                                    Your custom-crafted journey has been sent to our experts.
                                                     We'll review it and get back to you with a final package soon.
                                                 </p>
                                                 <Link href="/profile" className="inline-flex items-center gap-2 text-xs font-black text-[#FFA500] uppercase tracking-[0.3em] hover:opacity-80 transition-all pt-8">
@@ -467,8 +467,8 @@ const ItineraryBuilder = () => {
                                                         {aiItinerary?.map((day, idx) => (
                                                             <div key={idx} className="mb-10 last:mb-0">
                                                                 <div className="flex items-center gap-4 mb-4">
-                                                                    <div className="w-8 h-8 rounded-full bg-[#113A74] text-white flex items-center justify-center text-[10px] font-black">D{idx+1}</div>
-                                                                    <h4 className="text-lg font-black text-[#113A74] uppercase tracking-tight m-0">{day.title || `Day ${idx+1}`}</h4>
+                                                                    <div className="w-8 h-8 rounded-full bg-[#113A74] text-white flex items-center justify-center text-[10px] font-black">D{idx + 1}</div>
+                                                                    <h4 className="text-lg font-black text-[#113A74] uppercase tracking-tight m-0">{day.title || `Day ${idx + 1}`}</h4>
                                                                 </div>
                                                                 <p className="text-sm text-[#113A74]/80 font-medium leading-relaxed pl-12">{day.description}</p>
                                                             </div>
@@ -477,13 +477,13 @@ const ItineraryBuilder = () => {
                                                 </div>
 
                                                 <div className="flex items-center gap-4">
-                                                    <button 
+                                                    <button
                                                         onClick={() => setStep(3)}
                                                         className="w-1/3 bg-gray-100 text-gray-400 rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-gray-200"
                                                     >
                                                         Edit Info
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={handleSendToAdmin}
                                                         disabled={loading}
                                                         className="w-2/3 relative group overflow-hidden bg-[#113A74] text-white rounded-full py-6 px-10 font-black text-xs uppercase tracking-[0.4em] transition-all hover:bg-[#1c4d91] shadow-xl shadow-[#113A74]/20 flex items-center justify-center gap-3"

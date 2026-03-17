@@ -260,6 +260,7 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                     <span>{days} days, {nights} Nights</span>
                 </div>
                 <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
+
             </div>
             <div className="p-6 flex flex-col flex-1">
                 <h3 title={title || package_name} className="text-xl md:text-2xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{title || package_name}</h3>

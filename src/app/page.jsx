@@ -43,7 +43,7 @@ export default function Home() {
             <WondersOfQatar spotlights={homeData?.destination_spotlight} loading={loading} />
             <PrivateJet jets={homeData?.custom_private_jets} loading={loading} />
             <VisaServices />
-            <FeaturedDestinations />
+            <FeaturedDestinations initialDestinations={homeData?.destinations} allPackages={homeData?.packages} />
             <Gallery images={homeData?.gallery_images} loading={loading} />
             <Testimonials testimonials={homeData?.testimonials} loading={loading} />
             <SpecialOffer />

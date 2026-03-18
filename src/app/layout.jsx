@@ -38,10 +38,11 @@ const figtree = Figtree({
     display: 'swap',
 });
 
-export const metadata = {
-    title: 'Magic Tours - Luxury Travel Experiences',
-    description: 'Experience the magic of travel with our curated luxury tours, cruises, and personalized travel solutions.',
-};
+import { generatePageMetadata } from '../utils/seo';
+
+export async function generateMetadata() {
+    return await generatePageMetadata('home');
+}
 
 export default function RootLayout({ children }) {
     return (

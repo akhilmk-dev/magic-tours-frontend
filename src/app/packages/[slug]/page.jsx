@@ -566,19 +566,6 @@ const PackageDetailsPage = () => {
 
                     {/* Sidebar Area */}
                     <div className="lg:w-[30.77%] space-y-8">
-                        {/* Search Here */}
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="w-1 h-5 bg-[#113A74]"></div>
-                                <h4 className="text-[#113A74] font-bold font-heading text-lg">Search Here</h4>
-                            </div>
-                            <div className="relative">
-                                <input type="text" placeholder="Search here..." className="w-full bg-[#f4f7f9] rounded-full py-3.5 px-5 text-sm outline-none placeholder:text-gray-400 border border-gray-100/50 focus:border-[#113A74]/20 transition-colors" />
-                                <button className="absolute right-4 top-1/2 -translate-y-1/2 text-[#113A74]">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                </button>
-                            </div>
-                        </div>
 
                         {/* BOOKING FORM */}
                         <div className="bg-[#113A74] rounded-xl p-8 md:p-10 relative overflow-hidden shadow-2xl">

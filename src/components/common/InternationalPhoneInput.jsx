@@ -16,20 +16,26 @@ const InternationalPhoneInput = ({
     const [selectedCountry, setSelectedCountry] = useState(countries[0]); // Default to Qatar
     const dropdownRef = useRef(null);
 
-    // Initial value decomposition (if value starts with +, try to match country)
+    // Initial value decomposition and sync with external prop
     useEffect(() => {
-        if (value && value.startsWith('+')) {
+        if (!value) {
+            setInputValue('');
+            return;
+        }
+
+        if (value.startsWith('+')) {
             const match = countries.slice().sort((a, b) => b.dialCode.length - a.dialCode.length)
                 .find(c => value.startsWith(c.dialCode));
             if (match) {
                 setSelectedCountry(match);
                 const localPart = value.replace(match.dialCode, '').trim();
-                setInputValue(localPart);
+                // Only set if different to avoid potential feedback loops
+                if (localPart !== inputValue) setInputValue(localPart);
             }
-        } else if (value) {
-            setInputValue(value);
+        } else {
+            if (value !== inputValue) setInputValue(value);
         }
-    }, []);
+    }, [value]);
 
     const [inputValue, setInputValue] = useState('');
 

@@ -388,7 +388,7 @@ const CruisesPage = () => {
                                     {/* Row 1 */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Line</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Line <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="text" 
                                                 name="cruise_line"
@@ -396,6 +396,7 @@ const CruisesPage = () => {
                                                 {...formik.getFieldProps('cruise_line')}
                                                 className={`w-full border ${formik.touched.cruise_line && formik.errors.cruise_line ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
                                             />
+                                            {formik.touched.cruise_line && formik.errors.cruise_line && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.cruise_line}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Ship Name (Optional)</label>
@@ -412,7 +413,7 @@ const CruisesPage = () => {
                                     {/* Row 2 */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                                 <input 
@@ -423,9 +424,10 @@ const CruisesPage = () => {
                                                     className={`w-full border ${formik.touched.destination && formik.errors.destination ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                                 />
                                             </div>
+                                            {formik.touched.destination && formik.errors.destination && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.destination}</p>}
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="number" 
                                                 name="passenger_count"
@@ -433,22 +435,24 @@ const CruisesPage = () => {
                                                 {...formik.getFieldProps('passenger_count')}
                                                 className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
                                             />
+                                            {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
                                     </div>
 
                                     {/* Row 3 - Dates & Duration */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month/Date</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month/Date <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="date" 
                                                 name="departure_date"
                                                 {...formik.getFieldProps('departure_date')}
                                                 className={`w-full border ${formik.touched.departure_date && formik.errors.departure_date ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                             />
+                                            {formik.touched.departure_date && formik.errors.departure_date && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departure_date}</p>}
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration (Nights)</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration (Nights) <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="number" 
                                                 name="duration_nights"
@@ -456,12 +460,13 @@ const CruisesPage = () => {
                                                 {...formik.getFieldProps('duration_nights')}
                                                 className={`w-full border ${formik.touched.duration_nights && formik.errors.duration_nights ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                             />
+                                            {formik.touched.duration_nights && formik.errors.duration_nights && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.duration_nights}</p>}
                                         </div>
                                     </div>
 
                                     {/* Row 4 - Cabin Type */}
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type</label>
+                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type <span className="text-red-500">*</span></label>
                                         <select 
                                             name="cabin_type"
                                             {...formik.getFieldProps('cabin_type')}
@@ -469,6 +474,7 @@ const CruisesPage = () => {
                                         >
                                             {CABIN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                                         </select>
+                                        {formik.touched.cabin_type && formik.errors.cabin_type && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.cabin_type}</p>}
                                     </div>
 
                                     {/* Additional Notes */}

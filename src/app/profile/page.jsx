@@ -109,7 +109,7 @@ const ProfilePage = () => {
                             <div className="flex flex-col gap-3">
                                 <Link
                                     href="/visa"
-                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
+                                    className="flex items-center gap-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                                         <FileText size={18} />
@@ -118,7 +118,7 @@ const ProfilePage = () => {
                                 </Link>
                                 <Link
                                     href="/idl"
-                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
+                                    className="flex items-center gap-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                                         <User size={18} />
@@ -127,7 +127,7 @@ const ProfilePage = () => {
                                 </Link>
                                 <Link
                                     href="/tours"
-                                    className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] hover:bg-[#113A74]/5 text-[#113A74] rounded-2xl transition-all font-bold group"
+                                    className="flex items-center gap-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-[#113A74] rounded-2xl transition-all font-bold group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                                         <Package size={18} />
@@ -201,16 +201,11 @@ const ProfilePage = () => {
                             ) : (
                                 <div className="space-y-6">
                                     {bookings.map((booking) => {
-                                        const adultDouble = booking.guest_adult_double ?? booking.count_adult_double ?? 0;
-                                        const adultSingle = booking.guest_adult_single ?? booking.count_adult_single ?? 0;
-                                        const adultTriple = booking.guest_adult_triple ?? booking.count_adult_triple ?? 0;
-                                        const childBed = booking.guest_child_with_bed ?? booking.count_child_bed ?? 0;
-                                        const childNoBed = booking.guest_child_no_bed ?? booking.count_child_no_bed ?? 0;
-                                        const infant = booking.guest_infant ?? booking.count_infant ?? 0;
-                                        const totalPassengers = adultDouble * 2 + adultSingle + adultTriple * 3 + childBed + childNoBed + infant;
-                                        const packageTitle = booking.package_title || booking.package_name || 'Tour Package';
+                                        const totalPassengers = booking.passengers?.length || 0;
+                                        const packageTitle = booking.package_name || booking.package_title || 'Tour Package';
                                         const bookingRef = booking.display_id || booking.id?.split('-').pop()?.toUpperCase();
-                                        const totalAmount = booking.total_amount ?? booking.total ?? null;
+                                        const totalAmount = booking.total_amount ?? null;
+                                        const bookedOnDate = booking.booking_date || booking.created_at;
 
                                         return (
                                             <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
@@ -251,14 +246,14 @@ const ProfilePage = () => {
                                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Passengers</p>
                                                         <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
                                                             <User size={16} className="text-[#FFA500] shrink-0" />
-                                                            {totalPassengers} Traveler{totalPassengers !== 1 ? 's' : ''}
+                                                            {totalPassengers > 0 ? `${totalPassengers} Traveler${totalPassengers !== 1 ? 's' : ''}` : '—'}
                                                         </div>
                                                     </div>
                                                     <div className="col-span-2 md:col-span-1">
                                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Booked On</p>
                                                         <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
                                                             <Clock size={16} className="text-[#FFA500] shrink-0" />
-                                                            {booking.created_at ? new Date(booking.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                            {bookedOnDate ? new Date(bookedOnDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                                                         </div>
                                                     </div>
                                                 </div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Mail, Phone, MapPin, Send, MessageSquare, Loader2, Globe, Clock, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, Loader2, Globe, Clock, CheckCircle2, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import InternationalPhoneInput from '../../components/common/InternationalPhoneInput';
@@ -167,9 +167,14 @@ const ContactUsPage = () => {
                                     <p className="text-sm font-bold text-[#113A74]">Follow our travel updates</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    {[1, 2, 3, 4].map(i => (
+                                    {[
+                                        { icon: <Instagram size={18} />, link: '#' },
+                                        { icon: <Facebook size={18} />, link: '#' },
+                                        { icon: <Twitter size={18} />, link: '#' },
+                                        { icon: <Linkedin size={18} />, link: '#' }
+                                    ].map((social, i) => (
                                         <div key={i} className="w-10 h-10 rounded-full bg-white text-[#113A74] flex items-center justify-center hover:bg-[#FFA500] hover:text-white transition-all cursor-pointer shadow-sm border border-slate-50">
-                                            <Globe size={18} />
+                                            {social.icon}
                                         </div>
                                     ))}
                                 </div>

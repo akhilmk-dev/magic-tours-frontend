@@ -120,7 +120,6 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onCl
                         onFocus={(e) => e.target.showPicker ? e.target.showPicker() : null}
                         className="w-full text-[11px] text-slate-500 bg-transparent border-none outline-none focus:ring-0 p-0 cursor-pointer font-bold"
                     />
-                    <Calendar size={12} className="text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
             </div>
 

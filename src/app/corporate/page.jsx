@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import CorporateHero from '../../components/Corporate/CorporateHero';
 import Solutions from '../../components/Corporate/Solutions';
 import Stats from '../../components/Corporate/Stats';

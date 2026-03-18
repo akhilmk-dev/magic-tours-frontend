@@ -81,15 +81,16 @@ export default function Navbar() {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Destinations', path: '/destinations' },
-        { name: 'Cruise', path: '/cruise' },
         { name: 'Hotels', path: '/hotels' },
         { name: 'Tours', path: '/tours' },
         { name: 'Visa Services', path: '/visa' },
         { name: 'IDL', path: '/idl' },
+        { name: 'Cruise', path: '/cruise' },
         { name: 'Private Jets', path: '/private-jets' },
         { name: 'Yachts', path: '/yachts' },
-        { name: 'Itinerary Builder', path: '/itinerary-builder' },
+
         { name: 'Contact Us', path: '/contact-us' },
+
     ];
 
     const handleLogout = async () => {

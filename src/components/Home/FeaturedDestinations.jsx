@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Star, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import manClimbing from '../../assets/manClimbing.png';
 
 const FeaturedDestinationsSkeleton = () => (
@@ -26,14 +27,64 @@ const FeaturedDestinationsSkeleton = () => (
     </section>
 );
 
-export default function FeaturedDestinations() {
-    const [destinations, setDestinations] = useState([]);
-    const [loading, setLoading] = useState(true);
+const DEFAULT_DESTINATIONS = [
+    {
+        id: 'default-1',
+        name: 'Indonesia',
+        image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=800&auto=format&fit=crop',
+        listings: 24
+    },
+    {
+        id: 'default-2',
+        name: 'Bali',
+        image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800&auto=format&fit=crop',
+        listings: 32
+    },
+    {
+        id: 'default-3',
+        name: 'Mauritius',
+        image: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800&auto=format&fit=crop',
+        listings: 18
+    },
+    {
+        id: 'default-4',
+        name: 'Paris',
+        image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800&auto=format&fit=crop',
+        listings: 45
+    }
+];
+
+export default function FeaturedDestinations({ initialDestinations, allPackages = [] }) {
+    const router = useRouter();
+    const [destinations, setDestinations] = useState(initialDestinations || []);
+    const [loading, setLoading] = useState(!initialDestinations);
     // ... rest of the state
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(4);
     const sliderRef = useRef(null);
+
+    // Helper to find a matching package for a destination
+    const getMatchedPackage = (destName) => {
+        if (!allPackages || allPackages.length === 0) return null;
+        
+        // Find a package where location or title matches the destination name
+        return allPackages.find(pkg => 
+            (pkg.location && pkg.location.toLowerCase().includes(destName.toLowerCase())) ||
+            (pkg.title && pkg.title.toLowerCase().includes(destName.toLowerCase()))
+        );
+    };
+
+    const handleDestinationClick = (dest) => {
+        const matchedPkg = getMatchedPackage(dest.name);
+        if (matchedPkg) {
+            // Redirect to package detail page
+            router.push(`/packages/${matchedPkg.slug || matchedPkg.id}`);
+        } else {
+            // Fallback to tours search page filtered by destination
+            router.push(`/tours?destination_id=${dest.id}`);
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -46,21 +97,24 @@ export default function FeaturedDestinations() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Use default destinations if none are provided or fetched
+    const activeDestinations = destinations.length > 0 ? destinations : DEFAULT_DESTINATIONS;
+
     // Dynamic clone offset based on available items (max 4)
-    const cloneOffset = Math.min(4, destinations.length);
+    const cloneOffset = Math.min(4, activeDestinations.length);
 
     useEffect(() => {
+        if (initialDestinations) return;
+
         const fetchDestinations = async () => {
             try {
-                const res = await fetch('https://magic-apis.staff-b0c.workers.dev/destinations?status=Active&limit=10');
+                // Use the public frontend list endpoint which doesn't require authentication
+                const res = await fetch('https://magic-apis.staff-b0c.workers.dev/destinations/frontend/list?limit=10');
                 if (!res.ok) {
-                    if (res.status === 401) {
-                        console.warn('Destinations API returned 401. This endpoint might actually require authentication despite being on the home page.');
-                    }
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
-                const data = await res.json();
-                setDestinations(data.data || []);
+                const responseData = await res.json();
+                setDestinations(responseData.data || []);
             } catch (err) {
                 console.error('Failed to fetch destinations:', err);
             } finally {
@@ -68,19 +122,19 @@ export default function FeaturedDestinations() {
             }
         };
         fetchDestinations();
-    }, []);
+    }, [initialDestinations]);
 
-    const displayItems = destinations.length > 0
-        ? [...destinations.slice(-cloneOffset), ...destinations, ...destinations.slice(0, cloneOffset)]
+    const displayItems = activeDestinations.length > 0
+        ? [...activeDestinations.slice(-cloneOffset), ...activeDestinations, ...activeDestinations.slice(0, cloneOffset)]
         : [];
 
     const colWidth = 100 / itemsToShow;
 
     useEffect(() => {
-        if (destinations.length > 0) {
+        if (activeDestinations.length > 0) {
             setCurrentIndex(cloneOffset);
         }
-    }, [destinations.length, cloneOffset]);
+    }, [activeDestinations.length, cloneOffset]);
 
     const handleNext = () => {
         if (isTransitioning) return;
@@ -96,17 +150,17 @@ export default function FeaturedDestinations() {
 
     const handleTransitionEnd = () => {
         setIsTransitioning(false);
-        if (currentIndex >= destinations.length + cloneOffset) {
+        if (currentIndex >= activeDestinations.length + cloneOffset) {
             setCurrentIndex(cloneOffset);
         }
         if (currentIndex < cloneOffset) {
-            setCurrentIndex(destinations.length + currentIndex);
+            setCurrentIndex(activeDestinations.length + currentIndex);
         }
     };
 
     if (loading) return <FeaturedDestinationsSkeleton />;
 
-    if (destinations.length === 0) return null;
+    // Never return null, use fallback data instead if needed
 
     return (
         <section className="py-8 sm:py-10 md:py-12 bg-brand-magic relative overflow-hidden text-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] mx-2 sm:mx-4 md:mx-10 my-6 md:my-10">
@@ -134,7 +188,10 @@ export default function FeaturedDestinations() {
                             Choosing a destination can be exciting but also a bit overwhelming with so many amazing places out there! Let's narrow it down a little. Are you dreaming of peaceful nature, buzzing cities, historical wonders, or relaxing beaches?
                         </p>
 
-                        <button className="inline-flex items-center gap-2 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-5 md:px-6 py-2.5 md:py-3 rounded-full font-heading font-bold transition-all shadow-lg group text-xs md:text-sm">
+                        <button
+                            onClick={() => router.push('/destinations')}
+                            className="inline-flex items-center gap-2 bg-[#4FB8D1] hover:bg-[#3ea5bd] text-white px-5 md:px-6 py-2.5 md:py-3 rounded-full font-heading font-bold transition-all shadow-lg group text-xs md:text-sm"
+                        >
                             Explore More Destinations
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
@@ -155,7 +212,7 @@ export default function FeaturedDestinations() {
                 {/* Slider Section */}
                 <div className="w-full relative mt-6 md:mt-10 z-10">
                     {/* Slider Container */}
-                    <div className="overflow-visible py-4 md:py-6 -mx-4 px-4">
+                    <div className="overflow-hidden py-4 md:py-6">
                         <div
                             className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-in-out' : 'transition-none'} gap-3 md:gap-5`}
                             style={{ transform: `translateX(-${currentIndex * colWidth}%)` }}
@@ -164,24 +221,24 @@ export default function FeaturedDestinations() {
                             {displayItems.map((dest, index) => (
                                 <div
                                     key={`${dest.id}-${index}`}
-                                    className={`min-w-[calc(100%/1.2)] sm:min-w-[calc(100%/2.5)] lg:min-w-[calc(100%/4.2)] transition-all duration-300 ${index === currentIndex + 3 ? 'active-card' : ''}`}
+                                    className="min-w-[calc(100%/1.2)] sm:min-w-[calc(100%/2.5)] lg:min-w-[calc(100%/4.25)] transition-all duration-500 overflow-visible"
                                     style={{ width: `${colWidth}%` }}
                                 >
-                                    <div className="bg-[#152944]/60 backdrop-blur-md rounded-[1.5rem] md:rounded-[2rem] p-3 md:p-4 border border-white/10 group h-full hover:bg-white transition-all cursor-pointer shadow-2xl flex flex-col group-hover:scale-105">
-                                        <div className="rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden mb-3 md:mb-4 aspect-[4/4.5] flex-shrink-0">
+                                    <div 
+                                        onClick={() => handleDestinationClick(dest)}
+                                        className="bg-[#0F2444] border border-white/30 rounded-[2.2rem] p-3 md:p-4 group h-full hover:bg-white transition-all duration-500 cursor-pointer hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] flex flex-col hover:scale-x-[1.05] hover:scale-y-[1.02] hover:z-20 relative origin-center"
+                                    >
+                                        <div className="rounded-[1.8rem] overflow-hidden mb-3 md:mb-5 aspect-[4/4.5] flex-shrink-0">
                                             <img
                                                 src={dest.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop'}
                                                 alt={dest.name}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
                                         </div>
-                                        <div className="text-center pb-1 md:pb-2 mt-auto">
-                                            <h3 className="text-base md:text-lg font-bold mb-0.5 text-white group-hover:text-brand-heading transition-colors px-2">
+                                        <div className="text-center pb-2 md:pb-4 mt-auto">
+                                            <h3 className="text-lg md:text-xl font-heading font-bold mb-1 text-white group-hover:text-[#0F2444] transition-colors px-2">
                                                 {dest.name}
                                             </h3>
-                                            <p className="text-xs text-slate-400 group-hover:text-slate-600 transition-colors">
-                                                {Math.floor(Math.random() * 50) + 10} Listing
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -190,36 +247,27 @@ export default function FeaturedDestinations() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <div className="absolute top-[50%] -left-4 sm:-left-10 md:-left-16 -translate-y-1/2 z-50">
+                    <div className="absolute top-[40%] -left-2 sm:-left-3 md:-left-5 -translate-y-1/2 z-50">
                         <button
                             onClick={handlePrev}
-                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500] outline-none"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
                         >
-                            <ArrowLeft size={18} className="md:w-5 md:h-5" strokeWidth={2.5} />
+                            <ArrowLeft size={20} className="md:w-6 md:h-6" strokeWidth={3} />
                         </button>
                     </div>
-                    <div className="absolute top-[50%] -right-4 sm:-right-10 md:-right-16 -translate-y-1/2 z-50">
+                    <div className="absolute top-[40%] -right-2 sm:-right-3 md:-right-5 -translate-y-1/2 z-50">
                         <button
                             onClick={handleNext}
-                            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-2xl hover:bg-white hover:text-[#FFA500] transition-all border-2 border-transparent hover:border-[#FFA500] outline-none"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
                         >
-                            <ArrowRight size={18} className="md:w-5 md:h-5" strokeWidth={2.5} />
+                            <ArrowRight size={20} className="md:w-6 md:h-6" strokeWidth={3} />
                         </button>
                     </div>
                 </div>
             </div>
 
             <style jsx>{`
-                .active-card > div {
-                    background-color: white;
-                    transform: scale(1.02);
-                }
-                .active-card h3 {
-                    color: #16243D;
-                }
-                .active-card p {
-                    color: #475569;
-                }
+                /* Removed active-card classes in favor of group-hover styles defined in JSX inline classes */
             `}</style>
         </section>
     );

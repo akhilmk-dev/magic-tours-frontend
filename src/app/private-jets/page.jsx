@@ -358,7 +358,7 @@ const PrivateJetsPage = () => {
                                     {/* Row 1 */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Aircraft Type</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Aircraft Type <span className="text-red-500">*</span></label>
                                             <select 
                                                 name="jet_type"
                                                 {...formik.getFieldProps('jet_type')}
@@ -366,9 +366,10 @@ const PrivateJetsPage = () => {
                                             >
                                                 {JET_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                                             </select>
+                                            {formik.touched.jet_type && formik.errors.jet_type && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.jet_type}</p>}
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Passengers</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Passengers <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="number" 
                                                 name="passenger_count"
@@ -376,13 +377,14 @@ const PrivateJetsPage = () => {
                                                 {...formik.getFieldProps('passenger_count')}
                                                 className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
                                             />
+                                            {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
                                     </div>
 
                                     {/* Row 2 */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                                 <input 
@@ -393,9 +395,10 @@ const PrivateJetsPage = () => {
                                                     className={`w-full border ${formik.touched.departing_from && formik.errors.departing_from ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                                 />
                                             </div>
+                                            {formik.touched.departing_from && formik.errors.departing_from && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departing_from}</p>}
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                                 <input 
@@ -406,22 +409,24 @@ const PrivateJetsPage = () => {
                                                     className={`w-full border ${formik.touched.departing_to && formik.errors.departing_to ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                                 />
                                             </div>
+                                            {formik.touched.departing_to && formik.errors.departing_to && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departing_to}</p>}
                                         </div>
                                     </div>
 
                                     {/* Row 3 - Departure DateTime & Flight Class */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Date & Time</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Date & Time <span className="text-red-500">*</span></label>
                                             <input 
                                                 type="datetime-local" 
                                                 name="departure_datetime"
                                                 {...formik.getFieldProps('departure_datetime')}
                                                 className={`w-full border ${formik.touched.departure_datetime && formik.errors.departure_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
                                             />
+                                            {formik.touched.departure_datetime && formik.errors.departure_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departure_datetime}</p>}
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Service Class</label>
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Service Class <span className="text-red-500">*</span></label>
                                             <select 
                                                 name="flight_class"
                                                 {...formik.getFieldProps('flight_class')}
@@ -429,6 +434,7 @@ const PrivateJetsPage = () => {
                                             >
                                                 {FLIGHT_CLASSES.map(cls => <option key={cls} value={cls}>{cls}</option>)}
                                             </select>
+                                            {formik.touched.flight_class && formik.errors.flight_class && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.flight_class}</p>}
                                         </div>
                                     </div>
 
@@ -475,13 +481,14 @@ const PrivateJetsPage = () => {
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Date & Time</label>
+                                                    <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Date & Time <span className="text-red-500">*</span></label>
                                                     <input 
                                                         type="datetime-local" 
                                                         name="return_datetime"
                                                         {...formik.getFieldProps('return_datetime')}
                                                         className={`w-full border ${formik.touched.return_datetime && formik.errors.return_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none`} 
                                                     />
+                                                    {formik.touched.return_datetime && formik.errors.return_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.return_datetime}</p>}
                                                 </div>
                                             </motion.div>
                                         )}

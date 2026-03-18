@@ -29,16 +29,18 @@ const uploadFile = async (file) => {
 
 const validationSchema = Yup.object().shape({
     departureDateId: Yup.string().required('Please select a departure date'),
-    guests: Yup.array().of(
-        Yup.object().shape({
-            fullName: Yup.string().required('Full name is required'),
-            dob: Yup.date().required('Date of Birth is required').max(new Date(), 'DOB cannot be in the future'),
-            passportNo: Yup.string().required('Passport number is required'),
-            passportExpiry: Yup.date().required('Passport expiry is required').min(new Date(), 'Passport has expired'),
-            photo: Yup.mixed().required('Profile photo is required'),
-            passportCopy: Yup.mixed().required('Passport copy is required'),
-        })
-    )
+    guests: Yup.array()
+        .of(
+            Yup.object().shape({
+                fullName: Yup.string().required('Full name is required'),
+                dob: Yup.date().required('Date of Birth is required').max(new Date(), 'DOB cannot be in the future'),
+                passportNo: Yup.string().required('Passport number is required'),
+                passportExpiry: Yup.date().required('Passport expiry is required').min(new Date(), 'Passport has expired'),
+                photo: Yup.mixed().required('Profile photo is required'),
+                passportCopy: Yup.mixed().required('Passport copy is required'),
+            })
+        )
+        .min(1, 'At least one traveler is required')
 });
 
 // ─── FileUpload Sub-component ─────────────────────────────────────────────────
@@ -243,24 +245,54 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
             const dep = pkg.departure_dates.find(d => d.id === values.departureDateId);
             const countOf = (type) => values.guests.filter(g => g.type === type).length;
 
-            setProgress('Finalising booking…');
+            // Determine if this should be a manual request or a confirmed booking
+            const avail = dep ? Math.max(0, (dep.slots || 0) - (dep.booked_slots || 0)) : 0;
+            const isWaitlist = values.guests.length > avail;
 
-            await api.post('/bookings/frontend/create', {
-                package_id: pkg.id,
-                departure_date_id: values.departureDateId,
-                travel_date: dep.departure_date,
-                guest_adult_single: countOf('adultSingle'),
-                guest_adult_double: countOf('adultDouble'),
-                guest_adult_triple: countOf('adultTriple'),
-                guest_child_with_bed: countOf('childBed'),
-                guest_child_no_bed: countOf('childNoBed'),
-                guest_infant: countOf('infant'),
-                currency: 'AED',
-                notes: '',
-                passengers,
-            });
+            setProgress('Finalising submission…');
 
-            success('Booking placed successfully!');
+            let res;
+            if (isWaitlist) {
+                // Explicitly use the request endpoint for waitlist/manual cases
+                res = await api.post('/bookings/frontend/request', {
+                    package_id: pkg.id,
+                    departure_date_id: values.departureDateId,
+                    travel_date: dep.departure_date,
+                    guest_counts: {
+                        adult_single: countOf('adultSingle'),
+                        adult_double: countOf('adultDouble'),
+                        adult_triple: countOf('adultTriple'),
+                        child_with_bed: countOf('childBed'),
+                        child_no_bed: countOf('childNoBed'),
+                        infant: countOf('infant'),
+                    },
+                    currency: pkg.currency || 'AED',
+                    notes: '',
+                    passengers,
+                });
+            } else {
+                // Standard confirmed booking flow
+                res = await api.post('/bookings/frontend/create', {
+                    package_id: pkg.id,
+                    departure_date_id: values.departureDateId,
+                    travel_date: dep.departure_date,
+                    guest_adult_single: countOf('adultSingle'),
+                    guest_adult_double: countOf('adultDouble'),
+                    guest_adult_triple: countOf('adultTriple'),
+                    guest_child_with_bed: countOf('childBed'),
+                    guest_child_no_bed: countOf('childNoBed'),
+                    guest_infant: countOf('infant'),
+                    currency: pkg.currency || 'AED',
+                    notes: '',
+                    passengers,
+                });
+            }
+
+            if (isWaitlist || res.type === 'waitlist') {
+                success(res.message || 'Booking request submitted. Our team will contact you soon.');
+            } else {
+                success('Booking placed successfully!');
+            }
             onClose();
         } catch (err) {
             toastError(err.message || 'Failed to place booking. Please try again.');
@@ -281,7 +313,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                 onSubmit={handleSubmit}
                 enableReinitialize
             >
-                {({ values, setFieldValue }) => {
+                {({ values, setFieldValue, errors, touched }) => {
                     const total = calcTotal(values.departureDateId, values.guests);
 
                     return (
@@ -293,7 +325,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                             className="bg-white w-full md:max-w-6xl md:rounded-[2.5rem] rounded-t-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[95svh] md:max-h-[95vh] md:h-auto"
                         >
                             {/* ── Left: Summary panel ─────────────────────── */}
-                            {/* On mobile: compact top bar. On desktop: full sidebar */}
                             <div className="w-full md:w-[300px] md:min-w-[300px] bg-[#113A74] text-white relative overflow-hidden shrink-0">
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
 
@@ -310,7 +341,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-xs font-black text-white/40 uppercase">Total</p>
-                                        <p className="text-base font-black text-[#FFA500]">AED {total.toLocaleString()}</p>
+                                        <p className="text-base font-black text-[#FFA500]">{pkg.currency || 'AED'} {total.toLocaleString()}</p>
                                     </div>
                                 </div>
 
@@ -335,7 +366,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         </div>
                                     </div>
 
-                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 space-y-3 flex-1 overflow-y-auto">
+                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 space-y-3 flex-1 overflow-y-auto underline-none scrollbar-hide">
                                         <p className="text-xs font-black text-white/40 uppercase tracking-wide border-b border-white/10 pb-2 mb-2">
                                             Pricing Breakdown
                                         </p>
@@ -349,7 +380,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         {units} × {t.label} {t.roomSize > 1 ? 'Room' : ''} ({count} Guests)
                                                     </span>
                                                     <span className="text-white">
-                                                        AED {(units * getPrice(t.id, values.departureDateId)).toLocaleString()}
+                                                        {pkg.currency || 'AED'} {(units * getPrice(t.id, values.departureDateId)).toLocaleString()}
                                                     </span>
                                                 </div>
                                             );
@@ -357,7 +388,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
                                             <span className="text-xs font-black uppercase text-[#FFA500]">Grand Total</span>
                                             <div>
-                                                <span className="text-xs font-black mr-1">AED</span>
+                                                <span className="text-xs font-black mr-1">{pkg.currency || 'AED'}</span>
                                                 <span className="text-2xl font-black text-white tracking-tight">
                                                     {total.toLocaleString()}
                                                 </span>
@@ -395,7 +426,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         <div>
                                             <h3 className="text-xl font-black text-[#113A74] tracking-tight">Trip Details</h3>
                                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                                                Choose date &amp; configure travelers
+                                                Choose date & configure travelers
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -445,6 +476,21 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         {date.toLocaleDateString(undefined, { weekday: 'short' })}
                                                                     </span>
                                                                 </span>
+                                                                
+                                                                {/* Availability Indicator */}
+                                                                {(() => {
+                                                                    const avail = Math.max(0, (d.slots || 0) - (d.booked_slots || 0));
+                                                                    return (
+                                                                        <div className={`mt-1 text-[10px] font-black uppercase tracking-wider ${selected ? 'text-white/50' : 'text-slate-400'}`}>
+                                                                            {avail > 0 ? (
+                                                                                <span className={selected ? 'text-[#FFA500]' : 'text-green-600'}>{avail} Slot{avail > 1 ? 's' : ''} Left</span>
+                                                                            ) : (
+                                                                                <span className="text-red-400">Waitlist Only</span>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })()}
+
                                                                 {selected && (
                                                                     <CheckCircle size={14} className="absolute top-3 right-3 text-[#FFA500]" />
                                                                 )}
@@ -463,7 +509,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
 
                                         {/* ② Traveler Counts + ③ Guest Forms */}
                                         <FieldArray name="guests">
-                                            {(arrayHelpers) => (
+                                            {() => (
                                                 <div className="space-y-10">
 
                                                     {/* ② Traveler Counters */}
@@ -474,7 +520,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                             {GUEST_TYPES.map(t => {
                                                                 const guestCount = values.guests.filter(g => g.type === t.id).length;
-                                                                const roomCount = Math.ceil(guestCount / t.roomSize); // units booked
+                                                                const roomCount = Math.ceil(guestCount / t.roomSize);
                                                                 return (
                                                                     <div
                                                                         key={t.id}
@@ -483,7 +529,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         <div className="flex flex-col gap-0.5">
                                                                             <span className="text-sm font-bold text-[#113A74]">{t.label}</span>
                                                                             <span className="text-xs text-slate-400 font-medium">
-                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}AED {getPrice(t.id, values.departureDateId).toLocaleString()} / {t.roomSize > 1 ? 'Room' : 'Pax'}
+                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}{pkg.currency || 'AED'} {getPrice(t.id, values.departureDateId).toLocaleString()} / {t.roomSize > 1 ? 'Room' : 'Pax'}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
@@ -521,6 +567,11 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                 );
                                                             })}
                                                         </div>
+                                                        {errors.guests && typeof errors.guests === 'string' && (
+                                                            <div className="text-red-500 text-xs font-black uppercase tracking-wider mt-3 pl-4">
+                                                                {errors.guests}
+                                                            </div>
+                                                        )}
                                                     </section>
 
                                                     {/* ③ Guest Detail Forms */}
@@ -539,7 +590,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         transition={{ duration: 0.2 }}
                                                                         className="p-7 rounded-3xl border border-slate-100 bg-white shadow-sm space-y-6"
                                                                     >
-                                                                        {/* Guest header — no remove button; use counters above */}
+                                                                        {/* Guest header */}
                                                                         <div className="flex items-center gap-4">
                                                                             <div className="w-10 h-10 rounded-xl bg-[#113A74] text-white flex items-center justify-center font-black text-base shrink-0">
                                                                                 {index + 1}
@@ -599,11 +650,29 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                             )}
                                         </FieldArray>
 
-                                        {/* Submit */}
                                         <div className="pt-6 pb-8 border-t border-slate-50 flex flex-col items-center gap-6 text-center">
-                                            <p className="text-xs font-medium text-slate-400 max-w-sm">
-                                                By submitting you agree to the booking terms. All documents are securely handled.
-                                            </p>
+                                            <div className="space-y-4">
+                                                <p className="text-xs font-medium text-slate-400 max-w-sm mx-auto">
+                                                    By submitting you agree to the booking terms. All documents are securely handled.
+                                                </p>
+                                                {(() => {
+                                                    const dep = pkg.departure_dates?.find(d => d.id === values.departureDateId);
+                                                    const avail = dep ? Math.max(0, (dep.slots || 0) - (dep.booked_slots || 0)) : 0;
+                                                    const isWaitlist = values.guests.length > avail;
+                                                    if (isWaitlist) {
+                                                        return (
+                                                            <div className="bg-[#FFA500]/10 border border-[#FFA500]/20 rounded-xl p-3 flex items-center gap-3 max-w-md mx-auto">
+                                                                <Info size={16} className="text-[#FFA500] shrink-0" />
+                                                                <p className="text-[11px] font-bold text-[#113A74] text-left leading-tight">
+                                                                    WAITLIST REQUEST: Since you've requested {values.guests.length} slots and only {avail} are available, this will be processed as a manual booking request.
+                                                                </p>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </div>
+
                                             <button
                                                 type="submit"
                                                 disabled={submitting}
@@ -617,7 +686,12 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         </motion.span>
                                                     ) : (
                                                         <motion.span key="ready" className="flex items-center gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                            Confirm &amp; Pay — AED {total.toLocaleString()}
+                                                            {(() => {
+                                                                const dep = pkg.departure_dates?.find(d => d.id === values.departureDateId);
+                                                                const avail = dep ? Math.max(0, (dep.slots || 0) - (dep.booked_slots || 0)) : 0;
+                                                                const isWaitlist = values.guests.length > avail;
+                                                                return isWaitlist ? 'Submit Booking Request' : `Confirm & Pay — ${pkg.currency || 'AED'} ${total.toLocaleString()}`;
+                                                            })()}
                                                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                                         </motion.span>
                                                     )}

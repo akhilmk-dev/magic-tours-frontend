@@ -158,7 +158,7 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
 
                         <button
                             onClick={() => router.push('/cruise')}
-                            className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group"
+                            className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-full flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group"
                         >
                             <span className="text-[15px]">View Cruises</span>
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

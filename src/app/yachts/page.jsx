@@ -7,12 +7,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 // Assets
-import yachtHero from '../../assets/yacht-hero.png';
-import yachtInterior from '../../assets/yacht-interior.png';
-import yachtGrid from '../../assets/yacht-types-grid.png';
-import motorboatImg from '../../assets/yacht-motorboat.png';
-import dhowImg from '../../assets/yacht-dhow.png';
-import catamaranImg from '../../assets/yacht-catamaran.png';
+import wingBg from '../../assets/Background (1).png';
 import formBg from '../../assets/form-background.png';
 
 // Components
@@ -115,8 +110,8 @@ const YachtsPage = () => {
                     ) : (
                         <>
                             <img
-                                src={cmsData?.hero_image || yachtHero.src || yachtHero}
-                                alt={cmsData?.hero_title || "Luxury Yacht Charters"}
+                                src={cmsData?.hero_image || ''}
+                                alt={cmsData?.hero_title_1 || "Luxury Yacht Charters"}
                                 className="w-full h-full object-cover object-center"
                             />
                             <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
@@ -140,12 +135,21 @@ const YachtsPage = () => {
                         ) : (
                             <>
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -1).join(' ')} </span>
-                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-1)}</span>
+                                    <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
+                                    {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData.hero_title_2}</span>}
                                 </h1>
                                 <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
                                     {cmsData?.hero_description}
                                 </p>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="mt-8 bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90"
+                                >
+                                    Request a Charter
+                                    <ArrowRight className="w-4 h-4" />
+                                </motion.button>
                             </>
                         )}
                     </motion.div>
@@ -175,8 +179,8 @@ const YachtsPage = () => {
                         ) : (
                             <>
                                 <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                                    <span className="text-[#113A74]">Unmatched Comfort on<br /></span>
-                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('The ').pop()}</span>
+                                    <span className="text-[#113A74]">{cmsData?.section_title_1}<br /></span>
+                                    {cmsData?.section_title_2 && <span className="text-[#FFA500]">{cmsData.section_title_2}</span>}
                                 </h2>
 
                                 <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
@@ -198,8 +202,8 @@ const YachtsPage = () => {
                                 <Skeleton className="w-full h-full" />
                             ) : (
                                 <img
-                                    src={cmsData?.section_image || yachtInterior.src || yachtInterior}
-                                    alt={cmsData?.section_title}
+                                    src={cmsData?.section_image || ''}
+                                    alt={cmsData?.section_title_1 || 'Yacht Interior'}
                                     className="w-full h-full object-cover"
                                 />
                             )}
@@ -213,11 +217,11 @@ const YachtsPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
-                            <span className="text-[#113A74]">Explore Our </span>
-                            <span className="text-[#FFA500]">Fleet Types</span>
+                            <span className="text-[#113A74]">{cmsData?.items_title_1} </span>
+                            {cmsData?.items_title_2 && <span className="text-[#FFA500]">{cmsData.items_title_2}</span>}
                         </h2>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                            A diverse collection of vessels tailored to your specific maritime desires. Select from our range of modern boats and traditional dhows.
+                            {cmsData?.items_description}
                         </p>
                     </div>
 
@@ -319,11 +323,11 @@ const YachtsPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="mb-12">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-4 text-white">
-                            <span>Request a </span>
-                            <span className="text-[#FFA500]">Charter</span>
+                            <span>{cmsData?.form_title_1} </span>
+                            {cmsData?.form_title_2 && <span className="text-[#FFA500]">{cmsData.form_title_2}</span>}
                         </h2>
                         <p className="text-white/80 text-sm md:text-[13px] leading-relaxed max-w-xl">
-                            Tell us your requirements and our maritime experts will find the perfect yacht for your journey. Private events, luxury cruises, or adventure trips - we handle it all.
+                            {cmsData?.form_description}
                         </p>
                     </div>
 
@@ -446,7 +450,7 @@ const YachtsPage = () => {
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
                             <div className="relative w-full aspect-square lg:h-[618px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group border border-white/10">
                                 <img
-                                    src={yachtGrid.src || yachtGrid}
+                                    src={cmsData?.form_image || wingBg.src || wingBg}
                                     alt="Marine Fleet"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
@@ -454,10 +458,11 @@ const YachtsPage = () => {
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center mt-8">
                                     <h3 className="text-white text-3xl md:text-[2.5rem] font-bold font-heading mb-4 drop-shadow-md leading-tight">
-                                        Discover All<br />Fleet Options
+                                        {cmsData?.form_card_title_1?.split(' ').slice(0, -1).join(' ')}<br />
+                                        {cmsData?.form_card_title_2 || cmsData?.form_card_title_1?.split(' ').slice(-1)}
                                     </h3>
                                     <p className="text-white/90 text-[15px] max-w-[240px] drop-shadow-sm font-medium">
-                                        Wide range of traditional and modern vessels
+                                        {cmsData?.form_card_description}
                                     </p>
                                 </div>
                             </div>

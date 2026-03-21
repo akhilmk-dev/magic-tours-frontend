@@ -33,7 +33,7 @@ export const ToastProvider = ({ children }) => {
             {children}
 
             {/* Toast Container */}
-            <div className="fixed top-24 right-6 z-50 flex flex-col items-end pointer-events-none">
+            <div className="fixed top-24 right-6 z-[1000] flex flex-col items-end pointer-events-none">
                 <div className="pointer-events-auto">
                     {toasts.map(toast => (
                         <Toast

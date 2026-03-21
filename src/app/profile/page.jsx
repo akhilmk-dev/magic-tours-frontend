@@ -9,7 +9,7 @@ import ProfileSkeletons, { ProfileCardSkeleton } from '../../components/skeleton
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 const ProfilePage = () => {
-    const { user, logout, loading: authLoading, openAuthModal } = useCustomerAuth();
+    const { user, logout, loading: authLoading, openAuthModal, openProfileEditModal } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
     const [idlApplications, setIdlApplications] = useState([]);
     const [visaApplications, setVisaApplications] = useState([]);
@@ -86,7 +86,13 @@ const ProfilePage = () => {
                         <h1 className="text-3xl sm:text-5xl font-black mb-2">{user.name}</h1>
                         <p className="text-white/80 font-medium tracking-wide">{user.email}</p>
                     </div>
-                    <div>
+                    <div className="flex flex-wrap items-center gap-4 mt-6 sm:mt-0">
+                        <button
+                            onClick={openProfileEditModal}
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#113A74] hover:bg-gray-50 rounded-full transition-all text-sm font-black shadow-lg"
+                        >
+                            <User size={16} /> Edit Profile
+                        </button>
                         <button
                             onClick={logout}
                             className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full transition-all text-sm font-bold text-white shadow-lg"
@@ -372,7 +378,9 @@ const ProfilePage = () => {
                                                 </div>
                                                 <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl">
                                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Applied On</p>
-                                                    <p className="text-xl font-black text-[#113A74]">{new Date(idl.created_at).toLocaleDateString()}</p>
+                                                    <p className="text-xl font-black text-[#113A74]">
+                                            {idl.created_at ? new Date(idl.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                        </p>
                                                 </div>
                                             </div>
 
@@ -439,7 +447,7 @@ const ProfilePage = () => {
                                                     <p className="text-gray-400 text-sm mb-6 line-clamp-2">{pkg.description}</p>
                                                     <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
                                                         <span className="text-[#FFA500] font-black">QAR {pkg.price}</span>
-                                                        <Link href={`/packages/${packageId}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
+                                                        <Link href={`/packages/${pkg.slug || packageId}`} className="text-xs font-black uppercase tracking-widest text-[#113A74] hover:text-[#FFA500] transition-colors">
                                                             View Details
                                                         </Link>
                                                     </div>

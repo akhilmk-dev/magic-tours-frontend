@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+
 import { motion, useAnimation } from 'framer-motion';
 import { Plane, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -44,9 +45,18 @@ const CruiseCategoriesSkeleton = () => (
     </section>
 );
 
-export default function CruiseCategories({ cruises: apiCruises, loading }) {
+export default function CruiseCategories({ cruises: apiCruises, content, loading }) {
+    const defaultContent = {
+        subtitle: "Cruises",
+        heading: "Explore Our",
+        highlight: "Cruise Experiences",
+        description: "Experience luxury on the open sea with our unforgettable cruise journeys.",
+        decorative_title: "CRUISE CATEGORIES"
+    };
+
+    const sectionContent = { ...defaultContent, ...content };
+
     const router = useRouter();
-    if (loading) return <CruiseCategoriesSkeleton />;
     const cruiseCategories = apiCruises && apiCruises.length > 0
         ? apiCruises.map((c, idx) => ({
             id: c.id || idx,
@@ -55,10 +65,8 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
         }))
         : [];
 
-    if (cruiseCategories.length === 0) return null;
-
     // Duplicate data for infinite loop
-    const extendedData = [...cruiseCategories, ...cruiseCategories, ...cruiseCategories, ...cruiseCategories];
+    const extendedData = cruiseCategories.length > 0 ? [...cruiseCategories, ...cruiseCategories, ...cruiseCategories, ...cruiseCategories] : [];
 
     const [currentIndex, setCurrentIndex] = useState(cruiseCategories.length);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -82,8 +90,13 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
 
     useEffect(() => {
         // Initial position
-        controls.set({ x: -currentIndex * totalCardWidth });
-    }, [currentIndex, totalCardWidth]);
+        if (cruiseCategories.length > 0) {
+            controls.set({ x: -currentIndex * totalCardWidth });
+        }
+    }, [currentIndex, totalCardWidth, cruiseCategories.length]);
+
+    if (loading) return <CruiseCategoriesSkeleton />;
+    if (cruiseCategories.length === 0) return null;
 
     const slide = async (direction) => {
         if (isTransitioning.current) return;
@@ -144,20 +157,20 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
                             <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                             </svg>
-                            <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">Cruises</span>
+                            <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">{sectionContent.subtitle}</span>
                         </div>
 
                         <h2 className="text-[32px] md:text-[42px] lg:text-[52px] font-bold text-brand-heading leading-[1.1] mb-6">
-                            Explore Our <span className="text-[#FFA500]">Cruise</span><br />
-                            <span className="text-[#FFA500]">Experiences</span>
+                            {sectionContent.heading}{" "}
+                            <span className="text-[#FFA500]">{sectionContent.highlight}</span>
                         </h2>
 
                         <p className="text-brand-heading/80 text-sm md:text-base mb-6 lg:mb-8 max-w-md mx-auto lg:mx-0 font-medium">
-                            Experience luxury on the open sea with our unforgettable cruise journeys.
+                            {sectionContent.description}
                         </p>
 
                         <button
-                            onClick={() => router.push('/cruise')}
+                            onClick={() => router.push('/cruises')}
                             className="bg-[#FFA500] hover:bg-[#E59400] text-white font-bold py-4 px-8 rounded-full flex items-center justify-center gap-3 transition-all transform hover:translate-y-[-2px] shadow-[0_10px_20px_-5px_rgba(255,165,0,0.4)] mx-auto lg:mx-0 group"
                         >
                             <span className="text-[15px]">View Cruises</span>
@@ -237,9 +250,6 @@ export default function CruiseCategories({ cruises: apiCruises, loading }) {
                             <p className="text-white text-base md:text-lg lg:text-xl font-bold mb-3 lg:mb-4 drop-shadow-md opacity-90 lg:opacity-100">
                                 Experience the Joy of Cruising
                             </p>
-                            <h2 className="text-[28px] md:text-[48px] lg:text-[64px] font-extrabold leading-none text-[#FFA500] opacity-90 lg:opacity-70 uppercase tracking-tight font-figtree">
-                                CRUISE CATEGORIES
-                            </h2>
                         </div>
                     </div>
                 </div>

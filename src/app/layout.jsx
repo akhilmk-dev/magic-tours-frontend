@@ -2,10 +2,12 @@ import { Inter, Philosopher, El_Messiri, Plus_Jakarta_Sans, Figtree } from 'next
 import '../index.css';
 import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
+import AuthModal from '../components/common/AuthModal';
+import ProfileEditModal from '../components/common/ProfileEditModal';
+import { api } from '../api/client';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
-import ChatWidget from '../components/Chat/ChatWidget';
-import AuthModal from '../components/common/AuthModal';
+import { generatePageMetadata } from '../utils/seo';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -38,8 +40,6 @@ const figtree = Figtree({
     display: 'swap',
 });
 
-import { generatePageMetadata } from '../utils/seo';
-
 export async function generateMetadata() {
     return await generatePageMetadata('home');
 }
@@ -51,12 +51,12 @@ export default function RootLayout({ children }) {
                 <ToastProvider>
                     <CustomerAuthProvider>
                         <AuthModal />
+                        <ProfileEditModal />
                         <Navbar />
-                        <div className="flex-1">
+                        <main className="flex-grow">
                             {children}
-                        </div>
+                        </main>
                         <Footer />
-                        <ChatWidget />
                     </CustomerAuthProvider>
                 </ToastProvider>
             </body>

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User, MessageSquare, ArrowRight, Plane, Send } from 'lucide-react';
 
+
 // Import assets
 import blog1 from '../../assets/blog1.jpg';
 import blog2 from '../../assets/blog2.jpg';
@@ -23,10 +24,18 @@ const BlogNewsSkeleton = () => (
     </section>
 );
 
-export default function BlogNews({ blogs, loading }) {
+export default function BlogNews({ blogs: apiBlogs, content, loading }) {
+    const defaultContent = {
+        subtitle: "Articles",
+        line1: "Latest News &",
+        highlight: "Articles"
+    };
+
+    const sectionContent = { ...defaultContent, ...content };
+
     if (loading) return <BlogNewsSkeleton />;
 
-    const posts = blogs && blogs.length > 0 ? blogs.map((post, idx) => {
+    const posts = apiBlogs && apiBlogs.length > 0 ? apiBlogs.map((post, idx) => {
         const dateObj = post.date ? new Date(post.date) : new Date();
         const day = dateObj.getDate().toString().padStart(2, '0');
         const month = dateObj.toLocaleString('default', { month: 'short' });
@@ -48,18 +57,18 @@ export default function BlogNews({ blogs, loading }) {
         <section className="bg-[#E9F7FF] py-10 sm:py-14 lg:py-20 px-4 sm:px-8 md:px-12 lg:px-16">
             <div className="container mx-auto">
                 {/* Header */}
-                <div className="text-center mb-12 sm:mb-16">
-                    <div className="inline-flex items-center gap-3 bg-white px-6 py-2.5 rounded-full mb-6 shadow-sm border border-blue-50">
-                        <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <div className="text-center mb-16 relative">
+                    <div className="inline-flex items-center gap-3 bg-brand-magic/10 px-6 py-2.5 rounded-full mb-6 border border-brand-magic/20">
+                        <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                         </svg>
-                        <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
-                            Articles
+                        <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">
+                            {sectionContent.subtitle}
                         </span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-secondary max-w-2xl mx-auto leading-tight">
-                        Latest News & Articles from <br className="hidden sm:block" />
-                        <span className="text-[#FDB338]">the Blog Posts</span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-tight">
+                        {sectionContent.line1}{" "}
+                        <span className="text-brand-magic">{sectionContent.highlight}</span>
                     </h2>
                 </div>
 

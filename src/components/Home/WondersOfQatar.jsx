@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Plane } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
 import bgImage from '../../assets/wandersofqadar.png';
 import slide1Image from '../../assets/Image 4.png';
 
@@ -19,29 +20,41 @@ const WondersOfQatarSkeleton = () => (
     </section>
 );
 
-export default function WondersOfQatar({ spotlights, loading }) {
-    if (loading) return <WondersOfQatarSkeleton />;
+export default function WondersOfQatar({ spotlights: apiSpotlights, content, loading }) {
+    const defaultContent = {
+        subtitle: "Destination Spotlight",
+        heading1: "Explore the",
+        highlight: "Wonders of Qatar",
+        description: "Experience the perfect blend of tradition and modernity. From the bustling Souq Waqif to the futuristic skyline of West Bay, Qatar offers an unforgettable journey through culture and innovation.",
+        link_text: "Explore More"
+    };
 
-    const items = spotlights && spotlights.length > 0 ? spotlights.map((s, idx) => ({
+    const sectionContent = { ...defaultContent, ...content };
+
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
+
+    const items = apiSpotlights && apiSpotlights.length > 0 ? apiSpotlights.map((s, idx) => ({
         id: s.id || idx,
         image: s.image || (slide1Image.src || slide1Image),
         title: s.heading,
         subtitle: 'See More',
     })) : [];
 
-    if (items.length === 0) return null;
 
-    const [currentSlide, setCurrentSlide] = useState(0);
 
     const nextSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev + 1) % items.length);
+        setCurrentSlide((prev) => items.length ? (prev + 1) % items.length : 0);
     }, [items.length]);
 
     // Autoplay
     useEffect(() => {
+        if (items.length === 0) return;
         const timer = setInterval(nextSlide, 4000);
         return () => clearInterval(timer);
-    }, [nextSlide]);
+    }, [nextSlide, items.length]);
+    if (loading) return <WondersOfQatarSkeleton />;
+    if (items.length === 0) return null;
 
     return (
         <section className="relative overflow-hidden">
@@ -123,21 +136,21 @@ export default function WondersOfQatar({ spotlights, loading }) {
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                             </svg>
                             <span className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.2em] text-white/90 font-jakarta">
-                                Destination Spotlight
+                                {sectionContent.subtitle}
                             </span>
                         </div>
 
                         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-[64px] font-extrabold text-white leading-[1.1] mb-5 sm:mb-6 md:mb-8">
-                            Explore the <br />
-                            Wonders of Qatar
+                            {sectionContent.heading1} <br />
+                            {sectionContent.highlight}
                         </h2>
 
                         <p className="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg">
-                            Discover the breathtaking fusion of tradition and modernity in Qatar. From the architectural marvels of the Museum of Islamic Art to the vibrant markets of Souq Waqif, every corner tells a story of heritage and innovation.
+                            {sectionContent.description}
                         </p>
 
                         <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
-                            Explore More
+                            {sectionContent.link_text}
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>

@@ -25,6 +25,8 @@ const ContactSchema = Yup.object().shape({
     phone: Yup.string()
         .matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format')
         .required('Phone number is required'),
+    whatsapp: Yup.string()
+        .matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format'),
     subject: Yup.string()
         .required('Subject is required'),
     message: Yup.string()
@@ -59,10 +61,10 @@ const ContactUsPage = () => {
             bg: "bg-orange-50"
         },
         {
-            icon: <Mail className="text-[#113A74]" size={20} />,
-            title: "Email Address",
-            details: "info@magictours.com",
-            details2: "support@magictours.com",
+            icon: <MessageSquare className="text-[#113A74]" size={20} />,
+            title: "WhatsApp Number",
+            details: "+971 987 654 321",
+            details2: "Available 24/7",
             bg: "bg-blue-50"
         },
         {
@@ -73,11 +75,19 @@ const ContactUsPage = () => {
             bg: "bg-orange-50"
         },
         {
-            icon: <Clock className="text-[#113A74]" size={20} />,
+            icon: <Mail className="text-[#113A74]" size={20} />,
+            title: "Email Address",
+            details: "info@magictours.com",
+            details2: "support@magictours.com",
+            bg: "bg-blue-50"
+        },
+        {
+            icon: <Clock className="text-[#FFA500]" size={20} />,
             title: "Opening Hours",
             details: "Mon - Sat: 9:00 AM - 6:00 PM",
             details2: "Sunday: Closed",
-            bg: "bg-blue-50"
+            bg: "bg-orange-50",
+            fullWidth: true
         }
     ];
 
@@ -146,7 +156,7 @@ const ContactUsPage = () => {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="p-6 rounded-[2rem] border border-slate-100 bg-white hover:border-[#FFA500]/30 hover:shadow-xl hover:shadow-[#113A74]/5 transition-all group"
+                                    className={`p-6 rounded-[2rem] border-2 border-slate-200 bg-white hover:border-[#FFA500]/40 hover:shadow-xl hover:shadow-[#113A74]/10 transition-all group ${info.fullWidth ? 'sm:col-span-2' : ''}`}
                                 >
                                     <div className={`w-12 h-12 rounded-2xl ${info.bg} flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-500`}>
                                         {info.icon}
@@ -202,7 +212,7 @@ const ContactUsPage = () => {
                             </div>
 
                             <Formik
-                                initialValues={{ name: '', email: '', phone: '', subject: '', message: '' }}
+                                initialValues={{ name: '', email: '', phone: '', whatsapp: '', subject: '', message: '' }}
                                 validationSchema={ContactSchema}
                                 onSubmit={handleSubmit}
                             >
@@ -251,19 +261,28 @@ const ContactUsPage = () => {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Subject</label>
-                                                <div className="relative">
-                                                    <Field 
-                                                        name="subject" 
-                                                        placeholder="Tour Inquiry, Custom Trip..." 
-                                                        className={`w-full bg-[#f8fafc] border ${touched.subject && errors.subject ? 'border-red-300' : 'border-slate-100'} rounded-2xl py-4 px-6 text-sm font-bold outline-none focus:border-[#113A74] focus:bg-white transition-all transition-duration-300 shadow-sm`}
-                                                    />
-                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#113A74]/20">
-                                                        <CheckCircle2 size={18} />
-                                                    </div>
-                                                </div>
-                                                <ErrorMessage name="subject" component="div" className="text-red-500 text-[10px] font-bold uppercase ml-1" />
+                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">WhatsApp Number</label>
+                                                <InternationalPhoneInput
+                                                    value={values.whatsapp}
+                                                    onChange={(val) => setFieldValue('whatsapp', val)}
+                                                    error={touched.whatsapp && errors.whatsapp}
+                                                />
                                             </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Subject</label>
+                                            <div className="relative">
+                                                <Field 
+                                                    name="subject" 
+                                                    placeholder="Tour Inquiry, Custom Trip..." 
+                                                    className={`w-full bg-[#f8fafc] border ${touched.subject && errors.subject ? 'border-red-300' : 'border-slate-100'} rounded-2xl py-4 px-6 text-sm font-bold outline-none focus:border-[#113A74] focus:bg-white transition-all transition-duration-300 shadow-sm`}
+                                                />
+                                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#113A74]/20">
+                                                    <CheckCircle2 size={18} />
+                                                </div>
+                                            </div>
+                                            <ErrorMessage name="subject" component="div" className="text-red-500 text-[10px] font-bold uppercase ml-1" />
                                         </div>
 
                                         <div className="space-y-2">

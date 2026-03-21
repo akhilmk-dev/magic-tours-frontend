@@ -71,7 +71,7 @@ const InternationalPhoneInput = ({
 
     return (
         <div className={`relative ${className}`}>
-            <div className={`flex items-stretch bg-gray-50 border-2 ${error ? 'border-red-300' : 'border-transparent'} focus-within:border-[#FFA500]/30 focus-within:bg-white rounded-2xl transition-all h-[52px]`}>
+            <div className={`flex items-stretch bg-gray-50 border-2 ${error ? 'border-red-300' : 'border-transparent'} focus-within:border-[#FFA500]/30 focus-within:bg-white rounded-xl transition-all h-[44px]`}>
                 {/* Country Selector */}
                 <div 
                     className="flex items-center gap-2 px-4 cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-100"

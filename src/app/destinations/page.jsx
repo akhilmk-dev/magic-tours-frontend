@@ -226,6 +226,9 @@ export default function DestinationsPage() {
                                                             {dest.country}
                                                         </div>
                                                     </div>
+                                                    <div className="bg-[#E9F7FF] text-[#113A74] text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider whitespace-nowrap mt-1">
+                                                        {dest.package_count || 0} Packages
+                                                    </div>
                                                 </div>
 
                                                 {dest.overview && (
@@ -265,7 +268,7 @@ export default function DestinationsPage() {
                                                     )}
                                                 </div>
 
-                                                <Link href={`/tours?destination_id=${dest.id}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
+                                                <Link href={`/tours?destination=${dest.slug || dest.id}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
                                                     View Packages
                                                 </Link>
                                             </div>

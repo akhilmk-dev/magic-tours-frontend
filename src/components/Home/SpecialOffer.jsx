@@ -1,5 +1,8 @@
 import React from 'react';
-import { ArrowRight, Tent, ThumbsUp, Headset, Luggage } from 'lucide-react';
+import Link from 'next/link';
+import Skeleton from '../common/Skeleton';
+import { ArrowRight, Tent, ThumbsUp, Headset, Luggage, Plane } from 'lucide-react';
+
 import travelBoy from '../../assets/travelboy.png';
 import travelBag from '../../assets/travelbag.png';
 import offerBadge from '../../assets/offer.png';
@@ -28,7 +31,54 @@ const stats = [
     },
 ];
 
-const SpecialOffer = () => {
+const SpecialOffer = ({ content, loading }) => {
+    const subtitle = content?.subtitle || "Special Offer for You";
+    const line1 = content?.line1 || "Let's Make Your";
+    const highlight = content?.highlight || "Travel Dreams";
+    const line2 = content?.line2 || "Come True";
+    const description = content?.description || "Unlock exclusive deals and hand-picked travel experiences just for you. From seasonal discounts to members-only perks, we ensure your next adventure is as rewarding as it is unforgettable.";
+    const buttonText = content?.button_text || "Start Booking";
+    const buttonLink = content?.button_link || "/tours";
+
+    if (loading) {
+        return (
+            <section className="relative mt-12 mb-[320px] sm:mb-[280px] lg:mb-56 xl:mb-64">
+                <div className="container mx-auto px-6 sm:px-8 md:px-12 lg:px-16">
+                    <div className="bg-brand-magic rounded-[3rem] p-10 lg:p-16 relative overflow-hidden min-h-[500px] flex items-center">
+                        <div className="flex flex-col lg:flex-row items-center w-full gap-12">
+                            {/* Left Side Skeleton */}
+                            <div className="w-full lg:w-1/2 space-y-6">
+                                <Skeleton className="w-40 h-10 rounded-full bg-white/20" />
+                                <Skeleton className="w-full h-24 rounded-2xl bg-white/20" />
+                                <Skeleton className="w-full h-20 rounded-2xl bg-white/20" />
+                                <Skeleton className="w-48 h-12 rounded-full bg-white/20" />
+                            </div>
+                            {/* Right Side Skeleton */}
+                            <div className="w-full lg:w-1/2 relative min-h-[300px] flex items-center justify-center">
+                                <Skeleton className="w-[80%] aspect-square rounded-full bg-white/10" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Floating Stats Skeleton */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-[-280px] sm:bottom-[-180px] lg:bottom-[-100px] xl:bottom-[-120px] w-[92%] sm:w-[85%] lg:w-[80%] xl:w-[75%] z-40">
+                    <div className="bg-white rounded-[2.5rem] shadow-xl p-8 md:p-10">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="flex flex-col items-center gap-4">
+                                    <Skeleton className="w-16 h-16 rounded-full" />
+                                    <Skeleton className="w-1/2 h-4 rounded-md" />
+                                    <Skeleton className="w-2/3 h-6 rounded-md" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="relative mt-12 mb-[320px] sm:mb-[280px] lg:mb-56 xl:mb-64">
             {/* Top Blue Banner - Radial Gradient */}
@@ -40,21 +90,28 @@ const SpecialOffer = () => {
 
                         {/* Left Side - Content */}
                         <div className="w-full lg:w-1/2 text-center lg:text-left relative z-20 pt-4 lg:pt-20 xl:pt-24">
-                            <span className="text-[#FDB338] font-bold text-sm lg:text-base uppercase tracking-wider mb-4 block">
-                                Special Offer for You
-                            </span>
+                            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-2.5 rounded-full mb-6 border border-white/20 mx-auto lg:mx-0">
+                                <svg className="text-[#FDB338]" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                                </svg>
+                                <span className="text-[#FDB338] font-bold text-xs sm:text-sm uppercase tracking-wider">
+                                    {subtitle}
+                                </span>
+                            </div>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[52px] font-bold text-white leading-[1.1] mb-6">
-                                Let's Make Your Travel <br className="hidden sm:block" />
-                                Dreams <span className="text-white">Come True</span>
+                                {line1} <br />
+                                <span className="text-[#FFA500]">{highlight}</span> {line2}
                             </h2>
                             <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8 max-w-sm mx-auto lg:mx-0">
-                                Unlock exclusive deals and hand-picked travel experiences just for you. From seasonal discounts to members-only perks, we ensure your next adventure is as rewarding as it is unforgettable.
+                                {description}
                             </p>
 
-                            <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-heading font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
-                                Start Booking
-                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                            </button>
+                            <Link href={buttonLink}>
+                                <button className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-brand-magic font-heading font-bold px-8 py-4 rounded-full text-sm lg:text-base transition-all hover:-translate-y-1 shadow-xl group">
+                                    {buttonText}
+                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            </Link>
                         </div>
 
                         {/* Right Side - Images (Relative/Absolute mix) */}
@@ -83,7 +140,7 @@ const SpecialOffer = () => {
 
                             {/* Travel Boy (Foreground, Overlapping) */}
                             <img
-                                src={travelBoy.src || travelBoy}
+                                src={content?.image || travelBoy.src || travelBoy}
                                 alt="Happy Traveler"
                                 className="relative z-20 w-[60%] sm:w-[65%] md:w-[70%] lg:w-[85%] xl:w-[90%] transform translate-y-0"
                             />

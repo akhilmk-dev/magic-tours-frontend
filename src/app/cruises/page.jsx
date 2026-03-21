@@ -6,11 +6,7 @@ import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind, L
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-// Assets
-import cruiseHero from '../../assets/Cruise.png';
-import cruiseInterior from '../../assets/Rectangle 640.png';
-import luxuryCruiseImg from '../../assets/Image 2.png';
-import adventureCruiseImg from '../../assets/Image 3.png';
+// Assets (kept as fallback only)
 import formBg from '../../assets/form-background.png';
 import wingBg from '../../assets/Background (1).png';
 
@@ -44,7 +40,7 @@ const CruisesPage = () => {
         const fetchCMSData = async () => {
             try {
                 setIsLoadingCMS(true);
-                const response = await api.get('/cruise-cms');
+                const response = await api.get('/specialty-pages/cruise');
                 if (response.data) {
                     setCmsData(response.data);
                 }
@@ -125,8 +121,8 @@ const CruisesPage = () => {
                     ) : (
                         <>
                             <img
-                                src={cmsData?.hero_image || cruiseHero.src || cruiseHero}
-                                alt={cmsData?.hero_title || "Luxury Cruises"}
+                                src={cmsData?.hero_image || ''}
+                                alt={cmsData?.hero_title_1 || "Luxury Cruises"}
                                 className="w-full h-full object-cover object-center brightness-[1.05] grayscale-[5%] contrast-[1.02]"
                             />
                             <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/95 via-[#e6eff4]/60 to-transparent md:from-[#e6eff4]/90 md:via-[#e6eff4]/20"></div>
@@ -150,12 +146,21 @@ const CruisesPage = () => {
                         ) : (
                             <>
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -1).join(' ')} </span>
-                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-1)}</span>
+                                    <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
+                                    {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData?.hero_title_2}</span>}
                                 </h1>
                                 <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
                                     {cmsData?.hero_description}
                                 </p>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="mt-8 bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90"
+                                >
+                                    Book Your Voyage
+                                    <ArrowRight className="w-4 h-4" />
+                                </motion.button>
                             </>
                         )}
                     </motion.div>
@@ -185,8 +190,8 @@ const CruisesPage = () => {
                         ) : (
                             <>
                                 <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                                    <span className="text-[#113A74]">Discover the Art of<br /></span>
-                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('High Seas ').pop()}</span>
+                                    <span className="text-[#113A74]">{cmsData?.section_title_1}<br /></span>
+                                    {cmsData?.section_title_2 && <span className="text-[#FFA500]">{cmsData?.section_title_2}</span>}
                                 </h2>
 
                                 <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
@@ -208,8 +213,8 @@ const CruisesPage = () => {
                                 <Skeleton className="w-full h-full" />
                             ) : (
                                 <img
-                                    src={cmsData?.section_image || cruiseInterior.src || cruiseInterior}
-                                    alt={cmsData?.section_title}
+                                    src={cmsData?.section_image || ''}
+                                    alt={cmsData?.section_title_1 || 'Cruise'}
                                     className="w-full h-full object-cover"
                                 />
                             )}
@@ -223,11 +228,11 @@ const CruisesPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
-                            <span className="text-[#113A74]">Voyage </span>
-                            <span className="text-[#FFA500]">Collections</span>
+                            <span className="text-[#113A74]">{cmsData?.items_title_1} </span>
+                            {cmsData?.items_title_2 && <span className="text-[#FFA500]">{cmsData.items_title_2}</span>}
                         </h2>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                            Select from our diverse range of curated cruise experiences, each offering a unique perspective on the world's most iconic waterways.
+                            {cmsData?.items_description}
                         </p>
                     </div>
 
@@ -331,7 +336,7 @@ const CruisesPage = () => {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-[#113A74]/5 hover:-translate-y-1 transition-all group"
+                                    className="bg-white border-2 border-gray-200 rounded-3xl p-8 hover:shadow-2xl hover:shadow-[#113A74]/5 hover:-translate-y-1 transition-all group"
                                 >
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                                         <IconComponent className={i % 2 === 0 ? "text-[#FFA500]" : "text-[#113A74]"} />
@@ -358,11 +363,11 @@ const CruisesPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="mb-12">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-4 text-white">
-                            <span>Plan Your </span>
-                            <span className="text-[#FFA500]">Cruise</span>
+                            <span>{cmsData?.form_title_1} </span>
+                            {cmsData?.form_title_2 && <span className="text-[#FFA500]">{cmsData.form_title_2}</span>}
                         </h2>
                         <p className="text-white/80 text-sm md:text-[13px] leading-relaxed max-w-xl">
-                            Share your cruise preferences with us, and our travel consultants will find the best deals and itineraries for your dream voyage.
+                            {cmsData?.form_description}
                         </p>
                     </div>
 
@@ -511,7 +516,7 @@ const CruisesPage = () => {
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
                             <div className="relative w-full aspect-square lg:h-[618px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group border border-white/10">
                                 <img
-                                    src={wingBg.src || wingBg}
+                                    src={cmsData?.form_image || wingBg.src || wingBg}
                                     alt="Cruise View"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
@@ -519,10 +524,11 @@ const CruisesPage = () => {
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center mt-8">
                                     <h3 className="text-white text-3xl md:text-[2.5rem] font-bold font-heading mb-4 drop-shadow-md leading-tight">
-                                        Unforgettable<br />Voyages
+                                        {cmsData?.form_card_title_1?.split(' ').slice(0, -1).join(' ')}<br />
+                                        {cmsData?.form_card_title_2 || cmsData?.form_card_title_1?.split(' ').slice(-1)}
                                     </h3>
                                     <p className="text-white/90 text-[15px] max-w-[240px] drop-shadow-sm font-medium">
-                                        Exclusive member deals and hidden gems
+                                        {cmsData?.form_card_description}
                                     </p>
                                 </div>
                             </div>

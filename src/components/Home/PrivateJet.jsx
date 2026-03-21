@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, ArrowRight, MapPin, Shield, ArrowUpRight } from 'lucide-react';
 
+
 import airplaneBg from '../../assets/airoplane.png';
 import flightImg from '../../assets/flight.png';
 
@@ -49,8 +50,17 @@ const PrivateJetSkeleton = () => (
     </section>
 );
 
-const PrivateJet = ({ jets: apiJets, loading }) => {
-    if (loading) return <PrivateJetSkeleton />;
+const PrivateJet = ({ jets: apiJets, content, loading }) => {
+    const defaultContent = {
+        subtitle: "Premium Jet",
+        line1: "Elite Private",
+        highlight: "Jet",
+        line2: "Charters",
+        description: "Experience the ultimate in luxury, privacy, and convenience. Our private jet services offer tailor-made travel solutions for the most discerning travelers."
+    };
+
+    const sectionContent = { ...defaultContent, ...content };
+
     const slides = apiJets && apiJets.length > 0
         ? apiJets.map((j, idx) => ({
             id: j.id || idx,
@@ -60,7 +70,6 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
         }))
         : [];
 
-    if (slides.length === 0) return null;
     const [currentSlide, setCurrentSlide] = useState(0);
 
     // Clamp currentSlide if slides array shrinks when API data arrives
@@ -80,6 +89,9 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
         return () => clearInterval(timer);
     }, [nextSlide]);
 
+    if (loading) return <PrivateJetSkeleton />;
+    if (slides.length === 0) return null;
+
     return (
         <section className="relative overflow-hidden bg-[#f5f6fa]">
             {/* Top Content Area */}
@@ -89,23 +101,26 @@ const PrivateJet = ({ jets: apiJets, loading }) => {
                     {/* Left Side - Content */}
                     <div className="flex-1">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full mb-6 sm:mb-8 shadow-sm border border-gray-100">
-                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <div className="inline-flex items-center gap-3 bg-brand-magic/10 px-6 py-2.5 rounded-full mb-6 border border-brand-magic/20">
+                            <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                             </svg>
-                            <span className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
-                                Premium Jet
+                            <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">
+                                {sectionContent.subtitle}
                             </span>
                         </div>
 
                         {/* Heading */}
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-[1.1] mb-5 sm:mb-6">
-                            Elite Private{' '}
-                            <span className="text-[#FDB338] font-medium">Jet Charters</span>
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-heading mb-6 leading-[1.1]">
+                            {sectionContent.line1}{" "}
+                            <span className="text-brand-magic">
+                                {sectionContent.highlight}
+                            </span>{" "}
+                            {sectionContent.line2}
                         </h2>
 
-                        <p className="text-gray-500 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-xl">
-                            Experience the ultimate in luxury, privacy, and efficiency with our bespoke private jet charter services. Whether for business or leisure, we provide seamless travel solutions tailored to your schedule and preferences.
+                        <p className="text-[#4F5B6D] text-lg mb-10 leading-relaxed font-medium">
+                            {sectionContent.description}
                         </p>
 
                         {/* Features */}

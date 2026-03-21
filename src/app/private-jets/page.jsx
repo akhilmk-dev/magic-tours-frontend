@@ -124,8 +124,8 @@ const PrivateJetsPage = () => {
                     ) : (
                         <>
                             <img
-                                src={cmsData?.hero_image || jetImg.src || jetImg}
-                                alt={cmsData?.hero_title || "Private Jet Charter"}
+                                src={cmsData?.hero_image || ''}
+                                alt={cmsData?.hero_title_1 || "Private Jet Charter"}
                                 className="w-full h-full object-cover object-center"
                             />
                             <div className="absolute inset-0 bg-gradient-to-l from-[#e6eff4]/80 via-[#e6eff4]/40 to-transparent md:from-[#e6eff4]/70 md:via-[#e6eff4]/10"></div>
@@ -149,12 +149,21 @@ const PrivateJetsPage = () => {
                         ) : (
                             <>
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
-                                    <span className="text-[#113A74]">{cmsData?.hero_title?.split(' ').slice(0, -2).join(' ')} </span>
-                                    <span className="text-[#FFA500]">{cmsData?.hero_title?.split(' ').slice(-2).join(' ')}</span>
+                                    <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
+                                    {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData.hero_title_2}</span>}
                                 </h1>
                                 <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
                                     {cmsData?.hero_description}
                                 </p>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="mt-8 bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90"
+                                >
+                                    Request a Charter
+                                    <ArrowRight className="w-4 h-4" />
+                                </motion.button>
                             </>
                         )}
                     </motion.div>
@@ -184,8 +193,8 @@ const PrivateJetsPage = () => {
                         ) : (
                             <>
                                 <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold font-heading leading-tight mb-8">
-                                    <span className="text-[#113A74]">Seamless Journeys<br /></span>
-                                    <span className="text-[#FFA500]">{cmsData?.section_title?.split('Without ').pop()}</span>
+                                    <span className="text-[#113A74]">{cmsData?.section_title_1}<br /></span>
+                                    {cmsData?.section_title_2 && <span className="text-[#FFA500]">{cmsData.section_title_2}</span>}
                                 </h2>
 
                                 <div className="space-y-4 text-gray-500 text-sm md:text-[13px] leading-[1.8]">
@@ -207,8 +216,8 @@ const PrivateJetsPage = () => {
                                 <Skeleton className="w-full h-full" />
                             ) : (
                                 <img
-                                    src={cmsData?.section_image || interiorImg.src || interiorImg}
-                                    alt={cmsData?.section_title}
+                                    src={cmsData?.section_image || ''}
+                                    alt={cmsData?.section_title_1 || 'Private Jet'}
                                     className="w-full h-full object-cover"
                                 />
                             )}
@@ -222,11 +231,11 @@ const PrivateJetsPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6">
-                            <span className="text-[#113A74]">Featured </span>
-                            <span className="text-[#FFA500]">Fleet</span>
+                            <span className="text-[#113A74]">{cmsData?.items_title_1} </span>
+                            {cmsData?.items_title_2 && <span className="text-[#FFA500]">{cmsData.items_title_2}</span>}
                         </h2>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                            Discover our most requested aircraft. Each jet in our global network is maintained to the highest safety and service standards.
+                            {cmsData?.items_description}
                         </p>
                     </div>
 
@@ -328,11 +337,11 @@ const PrivateJetsPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="mb-12">
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-4 text-white">
-                            <span>Request a </span>
-                            <span className="text-[#FFA500]">Jet Charter</span>
+                            <span>{cmsData?.form_title_1} </span>
+                            {cmsData?.form_title_2 && <span className="text-[#FFA500]">{cmsData.form_title_2}</span>}
                         </h2>
                         <p className="text-white/80 text-sm md:text-[13px] leading-relaxed max-w-xl">
-                            Connect with our aviation specialists. Provide your travel details below, and we will prepare a bespoke charter proposal tailored to your itinerary.
+                            {cmsData?.form_description}
                         </p>
                     </div>
 
@@ -528,7 +537,7 @@ const PrivateJetsPage = () => {
                         <div className="w-full lg:w-[488px] flex lg:justify-end items-center mt-10 lg:mt-0">
                             <div className="relative w-full aspect-square lg:h-[618px] lg:w-[488px] lg:aspect-auto rounded-[1.5rem] overflow-hidden shadow-2xl group">
                                 <img
-                                    src={wingBg.src || wingBg}
+                                    src={cmsData?.form_image || wingBg.src || wingBg}
                                     alt="Private Jet View"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
@@ -536,10 +545,11 @@ const PrivateJetsPage = () => {
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center mt-8">
                                     <h3 className="text-white text-3xl md:text-[2.5rem] font-bold font-heading mb-4 drop-shadow-md leading-tight">
-                                        Elevated<br />Expectations
+                                        {cmsData?.form_card_title_1?.split(' ').slice(0, -1).join(' ')}<br />
+                                        {cmsData?.form_card_title_2 || cmsData?.form_card_title_1?.split(' ').slice(-1)}
                                     </h3>
                                     <p className="text-white/90 text-[15px] max-w-[240px] drop-shadow-sm font-medium">
-                                        Arrive in style and comfort with our elite charter solutions.
+                                        {cmsData?.form_card_description}
                                     </p>
                                 </div>
                             </div>

@@ -18,6 +18,8 @@ const staticSlides = [
         title: "Bespoke",
         subtitle: "Journeys",
         description: "Beautifully Crafted and Fairly Priced. Experience the world in unparalleled luxury.",
+        url: "/tours",
+        button_text: "Plan My Trip"
     },
     {
         id: 2,
@@ -26,6 +28,8 @@ const staticSlides = [
         title: "Tropical",
         subtitle: "Escapes",
         description: "Discover hidden paradises and pristine beaches. Your dream vacation awaits.",
+        url: "/tours",
+        button_text: "Plan My Trip"
     },
     {
         id: 3,
@@ -34,6 +38,8 @@ const staticSlides = [
         title: "Global",
         subtitle: "Adventures",
         description: "Explore the majestic beauty of volcanic landscapes and misty valleys.",
+        url: "/tours",
+        button_text: "Plan My Trip"
     },
     {
         id: 4,
@@ -42,6 +48,8 @@ const staticSlides = [
         title: "Serene",
         subtitle: "Getaways",
         description: "Unwind in the most exclusive resorts surrounded by crystal-clear waters.",
+        url: "/tours",
+        button_text: "Plan My Trip"
     }
 ];
 
@@ -67,7 +75,6 @@ const HeroSkeleton = () => (
 );
 
 export default function Hero({ slides: apiSlides, loading }) {
-    if (loading) return <HeroSkeleton />;
     const slides = apiSlides && apiSlides.length > 0 ? apiSlides : staticSlides;
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -110,6 +117,8 @@ export default function Hero({ slides: apiSlides, loading }) {
         }
         return nextIndices;
     };
+
+    if (loading) return <HeroSkeleton />;
 
     return (
         <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
@@ -202,7 +211,7 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-32 sm:pt-40 lg:pt-48 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-44 sm:pt-40 lg:pt-48 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center">
                 <div className="flex flex-col lg:flex-row lg:items-end gap-6 sm:gap-8 lg:gap-12">
                     {/* Left Content */}
                     <div className="flex-1 lg:max-w-[55%] xl:max-w-[50%] text-center lg:text-left">
@@ -229,8 +238,10 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 </p>
 
                                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-5">
-                                    <Link href="/tours" className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
-                                        <span className="text-[12px] sm:text-[14px] xl:text-[16px] tracking-wide">Plan My Trip</span>
+                                    <Link href={slides[currentSlide].url || slides[currentSlide].link || "/tours"} className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
+                                        <span className="text-[12px] sm:text-[14px] xl:text-[16px] tracking-wide">
+                                            {slides[currentSlide].button_text || "Plan My Trip"}
+                                        </span>
                                         <div className="flex items-center justify-center transition-transform group-hover:translate-x-1">
                                             <ArrowRight size={14} className="sm:size-[16px]" />
                                         </div>

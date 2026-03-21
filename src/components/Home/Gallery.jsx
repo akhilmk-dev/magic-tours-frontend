@@ -1,5 +1,6 @@
-import React from 'react';
-import { Plane } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plane, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const staticGalleryItems = [
     {
@@ -64,6 +65,16 @@ const GallerySkeleton = () => (
 );
 
 export default function Gallery({ images: apiImages, loading }) {
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setSelectedImage(null);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     if (loading) return <GallerySkeleton />;
     let galleryItems = staticGalleryItems;
     if (apiImages && apiImages.length > 0) {
@@ -97,7 +108,7 @@ export default function Gallery({ images: apiImages, loading }) {
                 {/* Mobile Grid Layout */}
                 <div className="grid grid-cols-2 gap-3 md:hidden">
                     {galleryItems.map((item) => (
-                        <div key={item.id} className="group cursor-pointer">
+                        <div key={item.id} className="group cursor-pointer" onClick={() => setSelectedImage(item)}>
                             <div className="w-full h-40 sm:h-48 rounded-2xl overflow-hidden shadow-lg transition-transform duration-500 hover:-translate-y-1">
                                 <img src={item.image} alt={item.alt} className="w-full h-full object-cover" />
                             </div>
@@ -109,7 +120,7 @@ export default function Gallery({ images: apiImages, loading }) {
                 <div className="hidden md:flex flex-nowrap items-center justify-center gap-4 lg:gap-6 pb-4">
 
                     {/* Column 1: Far Left */}
-                    <div className="flex-shrink-0 group cursor-pointer">
+                    <div className="flex-shrink-0 group cursor-pointer" onClick={() => setSelectedImage(galleryItems[0])}>
                         <div className="w-32 lg:w-40 h-40 lg:h-48 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl transition-transform duration-500 hover:-translate-y-2">
                             <img src={galleryItems[0].image} alt={galleryItems[0].alt} className="w-full h-full object-cover" />
                         </div>
@@ -117,16 +128,16 @@ export default function Gallery({ images: apiImages, loading }) {
 
                     {/* Column 2: Stacked */}
                     <div className="flex flex-col gap-3 lg:gap-4 flex-shrink-0">
-                        <div className="w-40 lg:w-44 h-44 lg:h-52 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+                        <div className="w-40 lg:w-44 h-44 lg:h-52 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2" onClick={() => setSelectedImage(galleryItems[1])}>
                             <img src={galleryItems[1].image} alt={galleryItems[1].alt} className="w-full h-full object-cover" />
                         </div>
-                        <div className="w-40 lg:w-44 h-40 lg:h-44 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+                        <div className="w-40 lg:w-44 h-40 lg:h-44 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2" onClick={() => setSelectedImage(galleryItems[2])}>
                             <img src={galleryItems[2].image} alt={galleryItems[2].alt} className="w-full h-full object-cover" />
                         </div>
                     </div>
 
                     {/* Column 3: Central Tall */}
-                    <div className="flex-shrink-0 z-10 group cursor-pointer">
+                    <div className="flex-shrink-0 z-10 group cursor-pointer" onClick={() => setSelectedImage(galleryItems[3])}>
                         <div className="w-48 lg:w-52 h-[280px] lg:h-[350px] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-2xl transition-transform duration-500 hover:-translate-y-2 border-4 border-white">
                             <img src={galleryItems[3].image} alt={galleryItems[3].alt} className="w-full h-full object-cover" />
                         </div>
@@ -134,16 +145,16 @@ export default function Gallery({ images: apiImages, loading }) {
 
                     {/* Column 4: Stacked */}
                     <div className="flex flex-col gap-3 lg:gap-4 flex-shrink-0">
-                        <div className="w-40 lg:w-44 h-40 lg:h-44 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+                        <div className="w-40 lg:w-44 h-40 lg:h-44 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2" onClick={() => setSelectedImage(galleryItems[4])}>
                             <img src={galleryItems[4].image} alt={galleryItems[4].alt} className="w-full h-full object-cover" />
                         </div>
-                        <div className="w-40 lg:w-44 h-44 lg:h-52 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+                        <div className="w-40 lg:w-44 h-44 lg:h-52 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl group cursor-pointer transition-transform duration-500 hover:-translate-y-2" onClick={() => setSelectedImage(galleryItems[5])}>
                             <img src={galleryItems[5].image} alt={galleryItems[5].alt} className="w-full h-full object-cover" />
                         </div>
                     </div>
 
                     {/* Column 5: Far Right */}
-                    <div className="flex-shrink-0 group cursor-pointer">
+                    <div className="flex-shrink-0 group cursor-pointer" onClick={() => setSelectedImage(galleryItems[6])}>
                         <div className="w-32 lg:w-40 h-40 lg:h-48 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl transition-transform duration-500 hover:-translate-y-2">
                             <img src={galleryItems[6].image} alt={galleryItems[6].alt} className="w-full h-full object-cover" />
                         </div>
@@ -151,6 +162,39 @@ export default function Gallery({ images: apiImages, loading }) {
 
                 </div>
             </div>
+
+            {/* Lightbox Overlay */}
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <button
+                            className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-white/20 hover:bg-white/40 rounded-full p-2.5 transition-colors z-[60]"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedImage(null);
+                            }}
+                        >
+                            <X size={24} />
+                        </button>
+                        <motion.img
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            src={selectedImage.image}
+                            alt={selectedImage.alt}
+                            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl z-50 cursor-default"
+                            onClick={(e) => e.stopPropagation()} // Prevent clicking the image from closing it
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 }

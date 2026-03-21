@@ -1,7 +1,7 @@
 export async function getSeoData() {
     try {
         const response = await fetch('https://magic-apis.staff-b0c.workers.dev/settings/seo', {
-            next: { revalidate: 3600 } // Revalidate every hour
+            cache: 'no-store' // Always fetch fresh — admin changes reflect immediately
         });
         if (!response.ok) throw new Error('Failed to fetch SEO data');
         const json = await response.json();

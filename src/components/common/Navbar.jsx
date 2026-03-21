@@ -39,12 +39,14 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                     <Link href="/support" className="transition-colors hidden md:block hover:text-[#0D0D0C]">Support</Link>
                     <div className="w-px h-3 hidden lg:block bg-gray-200" />
                     {user ? (
-                        <Link href="/profile" className="flex items-center gap-2 transition-all hidden lg:flex hover:text-[#0D0D0C]">
-                            <div className="w-6 h-6 rounded-full bg-[#113A74] text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                                {user.name?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                            <span className="font-bold">{user.name?.split(' ')[0] || 'Profile'}</span>
-                        </Link>
+                        <div className="flex items-center gap-4">
+                            <Link href="/profile" className="flex items-center gap-2 transition-all hidden lg:flex hover:text-[#0D0D0C]">
+                                <div className="w-6 h-6 rounded-full bg-[#113A74] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <span className="font-bold">{user.name?.split(' ')[0] || 'Profile'}</span>
+                            </Link>
+                        </div>
                     ) : (
                         <button onClick={() => onOpenAuthModal('login')} className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C] font-heading font-bold">
                             Sign In / Register
@@ -66,7 +68,7 @@ export default function Navbar() {
     const { user, logout, openAuthModal } = useCustomerAuth();
 
     // Check if we are on pages that should have a transparent navbar initially
-    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels' || pathname === '/contact-us' || pathname === '/yachts' || pathname === '/cruise' || pathname === '/visa';
+    const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels' || pathname === '/contact-us' || pathname === '/yachts' || pathname === '/cruises' || pathname === '/visa' || pathname === '/about' || pathname === '/services' || pathname === '/faq' || pathname === '/support' || pathname === '/login';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -85,10 +87,9 @@ export default function Navbar() {
         { name: 'Tours', path: '/tours' },
         { name: 'Visa Services', path: '/visa' },
         { name: 'IDL', path: '/idl' },
-        { name: 'Cruise', path: '/cruise' },
+        { name: 'Cruises', path: '/cruises' },
         { name: 'Private Jets', path: '/private-jets' },
         { name: 'Yachts', path: '/yachts' },
-
         { name: 'Contact Us', path: '/contact-us' },
 
     ];
@@ -126,7 +127,7 @@ export default function Navbar() {
                             >
                                 {link.name}
                                 {link.dropdown && <ChevronDown size={12} />}
-                                {(pathname === link.path && !isTransparent) && (
+                                {(pathname === link.path) && (
                                     <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0D0D0C]" />
                                 )}
                             </Link>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { Plane, ArrowRight, MapPin, Crown } from 'lucide-react';
 
 // Import assets
@@ -168,8 +169,16 @@ const HotelCard = ({ hotel, className = "" }) => (
     </div>
 );
 
-export default function HotelPackages({ hotels: apiHotels, loading }) {
-    if (loading) return <HotelPackagesSkeleton />;
+export default function HotelPackages({ hotels: apiHotels, content, loading }) {
+    const defaultContent = {
+        subtitle: "Premium Hotels",
+        heading: "Discover Exclusive",
+        highlight: "Hotel",
+        line1: "Packages",
+        line2: "For Every Taste & Occasion"
+    };
+
+    const sectionContent = { ...defaultContent, ...content };
     const hotels = apiHotels && apiHotels.length > 0
         ? apiHotels.map((h, idx) => {
             let hotelImages = [];
@@ -212,25 +221,28 @@ export default function HotelPackages({ hotels: apiHotels, loading }) {
         return () => clearInterval(interval);
     }, [slides.length]);
 
+    if (loading) return <HotelPackagesSkeleton />;
+
     return (
         <section className="py-20 bg-white overflow-hidden">
             <div className="container mx-auto px-4 md:px-12 lg:px-16">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-                    <div>
-                        <div className="inline-flex items-center gap-3 bg-blue-50 px-6 py-3 rounded-full mb-6 border border-blue-100">
-                            <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 sm:mb-16 md:mb-20">
+                    <div className="max-w-3xl">
+                        <div className="inline-flex items-center gap-3 bg-[#F2F5FF] px-6 py-3 rounded-full mb-6 border border-gray-100 shadow-sm">
+                            <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                             </svg>
-                            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">
-                                Premium Hotels
+                            <span className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.2em] text-brand-magic">
+                                {sectionContent.subtitle}
                             </span>
                         </div>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-brand-heading mb-3 font-heading leading-tight">
-                            Discover Exclusive Hotel Packages
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[64px] font-bold text-brand-heading mb-4 leading-[1.1]">
+                            {sectionContent.heading} <span className="text-[#FFA500]">{sectionContent.highlight}</span> <br />
+                            {sectionContent.line1}
                         </h2>
-                        <h3 className="text-3xl sm:text-4xl font-bold text-[#FDB338] font-heading">
-                            For Every Taste & Occasion
+                        <h3 className="text-xl sm:text-2xl md:text-3xl text-gray-500 font-medium">
+                            {sectionContent.line2}
                         </h3>
                     </div>
 

@@ -57,11 +57,11 @@ export default function Footer() {
                     <div>
                         <h4 className="text-xl font-bold text-secondary mb-8 font-heading">Quick Links</h4>
                         <ul className="space-y-4">
-                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Company Registration</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Hotels</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Transport</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">Vendor Registration for Tour Operators</Link></li>
-                            <li><Link href="/contact" className="text-gray-500 hover:text-primary transition-colors text-sm">Get In Touch</Link></li>
+                            <li><Link href="/about" className="text-gray-500 hover:text-primary transition-colors text-sm">About Us</Link></li>
+                            <li><Link href="/services" className="text-gray-500 hover:text-primary transition-colors text-sm">Our Services</Link></li>
+                            <li><Link href="/tours" className="text-gray-500 hover:text-primary transition-colors text-sm">Tour Packages</Link></li>
+                            <li><Link href="/faq" className="text-gray-500 hover:text-primary transition-colors text-sm">FAQ</Link></li>
+                            <li><Link href="/contact-us" className="text-gray-500 hover:text-primary transition-colors text-sm">Get In Touch</Link></li>
                         </ul>
                     </div>
 
@@ -93,8 +93,9 @@ export default function Footer() {
                         <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                         <Link href="/about" className="hover:text-primary transition-colors">About</Link>
                         <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
-                        <Link href="/faq" className="hover:text-primary transition-colors">Faq</Link>
-                        <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+                        <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>
+                        <Link href="/support" className="hover:text-primary transition-colors">Support</Link>
+                        <Link href="/contact-us" className="hover:text-primary transition-colors">Contact</Link>
                     </div>
                 </div>
             </div>

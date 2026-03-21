@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../api/client';
+import { useToast } from './ToastContext';
 
 const CustomerAuthContext = createContext(null);
 
@@ -12,7 +13,10 @@ export const CustomerAuthProvider = ({ children }) => {
     const [favoriteIdsMap, setFavoriteIdsMap] = useState({}); // packageId -> favoriteId
     const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [authModalView, setAuthModalView] = useState('login'); // 'login' or 'register'
+    const [authModalView, setAuthModalView] = useState('login');
+    const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
+    const { success: toastSuccess } = useToast();
+    const router = useRouter();
 
     const openAuthModal = useCallback((view = 'login') => {
         setAuthModalView(view);
@@ -22,6 +26,49 @@ export const CustomerAuthProvider = ({ children }) => {
     const closeAuthModal = useCallback(() => {
         setIsAuthModalOpen(false);
     }, []);
+
+    const openProfileEditModal = useCallback(() => {
+        setIsProfileEditModalOpen(true);
+    }, []);
+
+    const closeProfileEditModal = useCallback(() => {
+        setIsProfileEditModalOpen(false);
+    }, []);
+
+    const updateUser = useCallback((newData) => {
+        setUser(prev => {
+            if (!prev) return newData;
+            
+            // Check if anything actually changed to avoid infinite re-render loops
+            const isDifferent = Object.keys(newData).some(key => 
+                newData[key] !== undefined && newData[key] !== prev[key]
+            );
+
+            if (!isDifferent) return prev;
+
+            const updated = { ...prev, ...newData };
+            localStorage.setItem('user', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+
+    const fetchProfile = useCallback(async () => {
+        // Use a stored version of the user ID or check the token directly via api client
+        // to avoid dependency on the 'user' object itself which causes loops
+        try {
+            const response = await api.get('/customers/profile');
+            const profileData = response.data || response;
+            if (profileData && profileData.name) {
+                // Update user state only, don't return a new user object if data is identical 
+                // (though updateUser already does a functional update)
+                updateUser(profileData);
+            }
+            return profileData;
+        } catch (error) {
+            console.error('Failed to fetch profile:', error);
+            return null;
+        }
+    }, [updateUser]); // Removed 'user' dependency to break the loop
 
     const fetchFavorites = useCallback(async () => {
         if (!user) return;
@@ -236,14 +283,17 @@ export const CustomerAuthProvider = ({ children }) => {
         setUser(null);
         setFavorites([]);
         localStorage.removeItem('favorites');
-        openAuthModal('login');
-    }, [openAuthModal]);
+        toastSuccess("Logged out successfully");
+        router.push('/login');
+    }, [router, toastSuccess]);
 
     return (
         <CustomerAuthContext.Provider value={{
             user, login, register, logout, loading,
             favorites, loadingFavorites, toggleFavorite,
             isAuthModalOpen, authModalView, openAuthModal, closeAuthModal,
+            isProfileEditModalOpen, openProfileEditModal, closeProfileEditModal,
+            updateUser, fetchProfile,
             forgotPassword, verifyOtp, resetPassword
         }}>
             {children}
@@ -262,19 +312,11 @@ export const useCustomerAuth = () => {
 export const ProtectedRoute = ({ children }) => {
     const { user, loading, isAuthModalOpen, openAuthModal } = useCustomerAuth();
     const router = useRouter();
-    const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
-
     useEffect(() => {
         if (!loading && !user) {
-            if (!isAuthModalOpen && !hasAttemptedAuth) {
-                openAuthModal('login');
-                setHasAttemptedAuth(true); // Mark that we've prompted them
-            } else if (!isAuthModalOpen && hasAttemptedAuth) {
-                // If they closed the modal without logging in, send them to home
-                router.push('/');
-            }
+            openAuthModal('login');
         }
-    }, [user, loading, isAuthModalOpen, hasAttemptedAuth, openAuthModal, router]);
+    }, [user, loading, openAuthModal]);
 
     // Show a blank loading screen while evaluating or bouncing back to home
     if (loading || !user) {

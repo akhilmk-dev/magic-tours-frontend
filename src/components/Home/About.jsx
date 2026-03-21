@@ -1,13 +1,59 @@
 import React from 'react';
 import Link from 'next/link';
 import { Plane, Trophy, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
+
 import image01 from '../../assets/link_image_01.png';
 import image02 from '../../assets/link_image_02.png';
 import image03 from '../../assets/link_image_03.png';
 import discountImg from '../../assets/discount.png.png';
 import towerImg from '../../assets/Image.png';
 
-export default function About() {
+import Skeleton from '../common/Skeleton';
+
+export default function About({ content, loading }) {
+    const subtitle = content?.subtitle || "Get to Know Us";
+    const line1 = content?.line1 || "Experience the World";
+    const highlight = content?.highlight || "Our Company";
+    const description = content?.description || "Discover hidden gems and iconic landmarks with our expertly curated travel experiences. We specialize in crafting personalized itineraries that blend luxury with authentic local culture for every traveler.";
+    const buttonText = content?.button_text || "Explore More";
+    const buttonLink = content?.button_link || "/contact-us";
+    const image1 = content?.image1 || image01.src || image01;
+    const image2 = content?.image2 || image02.src || image02;
+
+    if (loading) {
+        return (
+            <section className="pt-4 sm:pt-6 lg:pt-8 pb-12 sm:pb-16 lg:pb-24 bg-white relative overflow-hidden">
+                <div className="container mx-auto px-6 sm:px-8 md:px-12 lg:px-16">
+                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                        {/* Left - Skeleton Images */}
+                        <div className="w-full lg:w-1/2 relative min-h-[400px] md:min-h-[500px] lg:min-h-[600px]">
+                            <Skeleton className="absolute top-0 right-[5%] w-[82%] aspect-[1/1.15] rounded-[3rem] md:rounded-[4.5rem] lg:rounded-[6rem]" />
+                            <Skeleton className="absolute bottom-[2%] md:bottom-[-5%] lg:bottom-[2%] right-[-8%] md:right-[-6%] lg:right-[-2%] w-[58%] aspect-[1.4/1] rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[2.5rem] border-[6px] md:border-[10px] border-white shadow-xl" />
+                        </div>
+                        {/* Right - Skeleton Text */}
+                        <div className="w-full lg:w-1/2">
+                            <Skeleton className="w-32 h-10 rounded-full mb-8" />
+                            <Skeleton className="w-full h-16 md:h-20 rounded-2xl mb-8" />
+                            <Skeleton className="w-full h-24 rounded-2xl mb-10" />
+                            <div className="space-y-6 mb-10">
+                                {[1, 2].map(i => (
+                                    <div key={i} className="flex gap-4">
+                                        <Skeleton className="w-14 h-14 rounded-2xl flex-shrink-0" />
+                                        <div className="flex-1 space-y-2">
+                                            <Skeleton className="w-1/3 h-6 rounded-md" />
+                                            <Skeleton className="w-full h-4 rounded-md" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <Skeleton className="w-48 h-14 rounded-full" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="pt-4 sm:pt-6 lg:pt-8 pb-12 sm:pb-16 lg:pb-24 bg-white relative overflow-hidden">
             {/* Background Decorative Element (Eiffel Tower Silhouette from Image.png) */}
@@ -29,7 +75,7 @@ export default function About() {
                             {/* 1. Main Couple Image (Background layer - Link → image-01) */}
                             <div className="absolute top-0 right-[5%] w-[82%] z-10 rounded-[3rem] md:rounded-[4.5rem] lg:rounded-[6rem] overflow-hidden shadow-2xl border-[6px] md:border-[10px] border-white">
                                 <img
-                                    src={image01.src || image01}
+                                    src={image1}
                                     alt="Traveling Couple"
                                     className="w-full aspect-[1/1.15] object-cover"
                                 />
@@ -56,7 +102,7 @@ export default function About() {
                             {/* 4. Beach Image (Overlap Bottom Right - Link → image-02) */}
                             <div className="absolute bottom-[2%] md:bottom-[-5%] lg:bottom-[2%] right-[-8%] md:right-[-6%] lg:right-[-2%] w-[58%] z-20 rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border-[6px] md:border-[10px] border-white shadow-2xl">
                                 <img
-                                    src={image02.src || image02}
+                                    src={image2}
                                     alt="Beach View"
                                     className="w-full aspect-[1.4/1] object-cover"
                                 />
@@ -72,18 +118,21 @@ export default function About() {
                                 <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                                 </svg>
-                                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-magic font-jakarta">Get to Know Us</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-magic font-jakarta">
+                                    {subtitle}
+                                </span>
                             </div>
 
-                            {/* Heading */}
                             <h2 className="text-[36px] md:text-[54px] font-extrabold text-brand-heading leading-[1.1] mb-6">
-                                Experience the World <br />
-                                <span className="text-[#FFA500]">with Our Company</span>
+                                {line1} <br />
+                                <span className="text-[#FFA500]">
+                                    {highlight}
+                                </span>
                             </h2>
 
                             {/* Description */}
                             <p className="text-gray-500 text-base leading-relaxed mb-10 max-w-lg lg:max-w-none">
-                                Discover hidden gems and iconic landmarks with our expertly curated travel experiences. We specialize in crafting personalized itineraries that blend luxury with authentic local culture for every traveler.
+                                {description}
                             </p>
 
                             {/* Features Row */}
@@ -140,8 +189,8 @@ export default function About() {
                                         ))}
                                     </ul>
 
-                                    <Link href="/contact-us" className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-heading font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
-                                        Explore More
+                                    <Link href={buttonLink} className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-heading font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
+                                        {buttonText}
                                         <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
                                     </Link>
                                 </div>

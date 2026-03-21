@@ -423,7 +423,7 @@ const PackageDetailsPage = () => {
 
                         {/* Trip Summery */}
                         <div className="space-y-4">
-                            <h3 className="text-2xl font-bold text-[#113A74] font-heading">Trip Summery</h3>
+                            <h3 className="text-2xl font-bold text-[#113A74] font-heading">Trip Summary</h3>
                             <p className="text-gray-500 text-sm leading-relaxed">
                                 Lorem Ipsum Dolor Sit Amet Consectetur. Scelerisque Facilisis Facilisis Nulla Ullamcorper Mattis. Dui Nec At Porttitor Justo Sit Viverra Commodo Est Ornare. Arcu Tristique Mauris Morbi Sed. Fermentum Rhoncus Elit In Vulputate Massa Amet Adipiscing. Suspendisse Odio Ut Sit Nisl Ridiculus. Egestas Tincidunt Purus Pharetra Ultrices. Amet Id Morbi Dignissim Nunc Feugiat Neque. Cras Fusce Sit Elementum Neque Pretium. Fermentum Mi Orci Faucibus Rhoncus Vel Volutpat Tincidunt.
                             </p>
@@ -633,8 +633,8 @@ const PackageDetailsPage = () => {
                                             key={i}
                                             onClick={() => setCurrentImageIndex(i * 2)}
                                             className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${Math.floor(currentImageIndex / 2) === i
-                                                    ? 'bg-[#113A74] w-4'
-                                                    : 'bg-gray-300 w-2'
+                                                ? 'bg-[#113A74] w-4'
+                                                : 'bg-gray-300 w-2'
                                                 }`}
                                         />
                                     ))}

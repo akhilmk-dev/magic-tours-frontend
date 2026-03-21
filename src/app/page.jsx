@@ -35,20 +35,20 @@ export default function Home() {
     return (
         <main className="overflow-x-hidden">
             <Hero slides={homeData?.hero_slides} loading={loading} />
-            <Destinations />
-            <About />
-            <PopularPackages packages={homeData?.packages} loading={loading} />
-            <CruiseCategories cruises={homeData?.custom_cruises} loading={loading} />
-            <HotelPackages hotels={homeData?.hotels} loading={loading} />
-            <WondersOfQatar spotlights={homeData?.destination_spotlight} loading={loading} />
-            <PrivateJet jets={homeData?.custom_private_jets} loading={loading} />
-            <VisaServices />
-            <FeaturedDestinations initialDestinations={homeData?.destinations} allPackages={homeData?.packages} />
+            <Destinations content={homeData?.sections_content?.destinations} loading={loading} />
+            <About content={homeData?.sections_content?.about} loading={loading} />
+            <PopularPackages packages={homeData?.packages} content={homeData?.sections_content?.popular_packages} loading={loading} />
+            <CruiseCategories cruises={homeData?.custom_cruises} content={homeData?.sections_content?.cruises} loading={loading} />
+            <HotelPackages hotels={homeData?.hotels} content={homeData?.sections_content?.hotels} loading={loading} />
+            <WondersOfQatar spotlights={homeData?.destination_spotlight} content={homeData?.sections_content?.destination_spotlight} loading={loading} />
+            <PrivateJet jets={homeData?.custom_private_jets} content={homeData?.sections_content?.private_jets} loading={loading} />
+            <VisaServices content={homeData?.sections_content?.visa} loading={loading} />
+            <FeaturedDestinations initialDestinations={homeData?.destinations} allPackages={homeData?.packages} content={homeData?.sections_content?.featured_destinations} loading={loading} />
             <Gallery images={homeData?.gallery_images} loading={loading} />
-            <Testimonials testimonials={homeData?.testimonials} loading={loading} />
-            <SpecialOffer />
-            <BlogNews blogs={homeData?.blogs} loading={loading} />
-            <AdventureSection />
+            <Testimonials testimonials={homeData?.testimonials} content={homeData?.sections_content?.testimonials} loading={loading} />
+            <SpecialOffer content={homeData?.sections_content?.special_offer} loading={loading} />
+            <BlogNews blogs={homeData?.blogs} content={homeData?.sections_content?.blogs} loading={loading} />
+            <AdventureSection content={homeData?.sections_content?.adventure} loading={loading} />
             <GalleryLoop images={homeData?.bottom_slider_images} loading={loading} />
         </main>
     );

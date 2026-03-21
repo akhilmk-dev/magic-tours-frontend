@@ -101,7 +101,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onCl
                         >
                             <option value="">All Destinations</option>
                             {filterData.destinations.map(d => (
-                                <option key={d.id} value={d.id}>{d.name}</option>
+                                <option key={d.id} value={d.slug || d.id}>{d.name}</option>
                             ))}
                         </select>
                         <ChevronDown size={11} className="text-slate-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -311,7 +311,7 @@ const Pagination = ({ page, totalPages, setPage }) => {
 
 const ToursContent = () => {
     const searchParams = useSearchParams();
-    const urlDestination = searchParams.get('destination_id') || '';
+    const urlDestination = searchParams.get('destination') || '';
 
     const [packages, setPackages] = useState([]);
     const [images, setImages] = useState([]);
@@ -337,7 +337,7 @@ const ToursContent = () => {
         setLoading(true);
         try {
             let url = `/packages/frontend/list?page=${activePage}&limit=6&sort=${activeSort}`;
-            if (activeFilters.destination) url += `&destination_id=${activeFilters.destination}`;
+            if (activeFilters.destination) url += `&destination_slug=${activeFilters.destination}`;
             if (activeFilters.cities.length > 0) url += `&city_id=${activeFilters.cities.join(',')}`;
             if (activeFilters.categories.length > 0) url += `&category=${activeFilters.categories.join(',')}`;
             if (activeFilters.maxNights) url += `&nights=${activeFilters.maxNights}`;
@@ -449,9 +449,47 @@ const ToursContent = () => {
     );
 };
 
+const ToursPageSkeleton = () => (
+    <main className="min-h-screen bg-white">
+        {/* Banner Skeleton */}
+        <section className="relative min-h-[80vh] w-full overflow-hidden flex items-center justify-center bg-slate-900 animate-pulse">
+            <div className="absolute inset-0 bg-slate-200"></div>
+            <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-20 flex flex-col items-center">
+                <div className="h-16 md:h-20 lg:h-24 w-2/3 max-w-[500px] bg-slate-300 rounded-[2rem] mb-6"></div>
+                <div className="h-4 w-48 bg-slate-300 rounded-full"></div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none translate-y-1/2">
+                <img src={gutterImg.src} alt="" className="w-full h-auto block opacity-50" />
+            </div>
+        </section>
+
+        {/* Content Skeleton */}
+        <section className="pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+                    <div className="h-8 md:h-10 w-1/2 max-w-[300px] bg-slate-200 rounded-xl animate-pulse"></div>
+                    <div className="h-10 w-[200px] bg-slate-200 rounded-xl animate-pulse shrink-0"></div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-8 items-start">
+                    {/* Sidebar Skeleton */}
+                    <div className="hidden lg:block shrink-0 w-[300px] xl:w-[320px] h-[700px] bg-white rounded-[2rem] border border-slate-100 shadow-sm animate-pulse" />
+
+                    {/* Cards Grid Skeleton */}
+                    <div className="flex-1 min-w-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {[...Array(6)].map((_, i) => <TourCardSkeleton key={'page-skel-'+i} />)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+);
+
 export default function Tours() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#113A74]"></div></div>}>
+        <Suspense fallback={<ToursPageSkeleton />}>
             <ToursContent />
         </Suspense>
     );

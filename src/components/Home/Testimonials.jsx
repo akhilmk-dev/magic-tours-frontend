@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, Quote, Plane } from 'lucide-react';
 
+
 const staticReviews = [
     {
         id: 1,
@@ -59,19 +60,28 @@ const TestimonialsSkeleton = () => (
     </section>
 );
 
-export default function Testimonials({ testimonials: apiTestimonials, loading }) {
-    if (loading) return <TestimonialsSkeleton />;
+export default function Testimonials({ testimonials: apiTestimonials, content, loading }) {
+    const defaultContent = {
+        subtitle: "Testimonial",
+        line1: "See what they are",
+        highlight: "talking about?"
+    };
+    const sectionContent = { ...defaultContent, ...content };
+
     const reviews = apiTestimonials && apiTestimonials.length > 0
         ? apiTestimonials.map(t => ({
             id: t.id,
             name: t.customer_name,
             role: t.customer_role,
             image: t.customer_image,
-            text: t.review_text
+            text: t.review_text,
+            rating: t.rating,
+            platform: t.platforms?.name,
+            platformIcon: t.platforms?.icon,
+            review_url: t.review_url
         }))
         : [];
 
-    if (reviews.length === 0) return null;
     const [currentIndex, setCurrentIndex] = useState(3);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(3);
@@ -133,19 +143,25 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
     // The "active" card is the one in the middle for desktop, or the current one for mobile
     const activeIndex = itemsToShow === 3 ? currentIndex + 1 : currentIndex;
 
+    if (loading) return <TestimonialsSkeleton />;
+    if (reviews.length === 0) return null;
+
     return (
         <section className="py-12 md:py-16 bg-white overflow-hidden">
             <div className="container mx-auto px-4">
                 {/* Header */}
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center gap-3 bg-[#F0F7FF] px-6 py-2 rounded-full mb-4 border border-blue-50">
-                        <svg className="text-brand-magic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <div className="text-center mb-16 relative">
+                    <div className="inline-flex items-center gap-3 bg-brand-magic/10 px-6 py-2.5 rounded-full mb-6 border border-brand-magic/20">
+                        <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                         </svg>
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-magic font-jakarta">Testimonial</span>
+                        <span className="text-[13px] font-bold uppercase tracking-widest text-brand-magic font-jakarta">
+                            {sectionContent.subtitle}
+                        </span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-black text-brand-heading leading-tight">
-                        See what they are <span className="text-[#FFA500]">talking about?</span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-tight">
+                        {sectionContent.line1}{" "}
+                        <span className="text-brand-magic">{sectionContent.highlight}</span>
                     </h2>
                 </div>
 
@@ -165,7 +181,10 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
                                         className="flex-shrink-0 px-2 sm:px-4"
                                         style={{ width: `${colWidth}%` }}
                                     >
-                                        <div className={`bg-white rounded-[2rem] p-6 md:p-8 transition-all duration-700 relative flex flex-col items-center h-full border ${isActive ? 'shadow-[0_20px_50px_rgba(0,0,0,0.08)] scale-100 z-10 border-slate-100' : 'shadow-none border-transparent opacity-40 scale-90'}`}>
+                                        <div 
+                                            className={`bg-white rounded-[2rem] p-6 md:p-8 transition-all duration-700 relative flex flex-col items-center h-full border ${isActive ? 'shadow-[0_20px_50px_rgba(0,0,0,0.08)] scale-100 z-10 border-slate-100' : 'shadow-none border-transparent opacity-40 scale-90'} ${review.review_url ? 'cursor-pointer hover:border-brand-magic/40 group' : ''}`}
+                                            onClick={() => review.review_url && window.open(review.review_url, '_blank', 'noopener,noreferrer')}
+                                        >
 
                                             {/* Profile Header Capsule */}
                                             <div className="flex items-center bg-[#F2F6FF] rounded-[2.5rem] p-1.5 pr-8 mb-8 relative min-w-[210px] self-start ml-2">
@@ -183,10 +202,15 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
                                                 </div>
 
                                                 <div className="flex flex-col items-start z-10 py-1">
-                                                    <div className="flex gap-0.5 mb-1">
-                                                        {[...Array(5)].map((_, i) => (
+                                                    <div className="flex gap-0.5 mb-1 items-center">
+                                                        {[...Array(review.rating || 5)].map((_, i) => (
                                                             <Star key={i} size={12} className="fill-[#FFA500] text-[#FFA500]" />
                                                         ))}
+                                                        {review.platformIcon && (
+                                                            <div className="ml-2 flex items-center justify-center w-5 h-5 rounded-full bg-white shadow-sm border border-slate-100 p-0.5" title={review.platform}>
+                                                                <img src={review.platformIcon} alt={review.platform || 'Platform'} className="w-full h-full object-contain" />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <h4 className="text-lg font-bold text-brand-heading">{review.name}</h4>
                                                     <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">{review.role}</p>
@@ -199,7 +223,7 @@ export default function Testimonials({ testimonials: apiTestimonials, loading })
                                             </p>
 
                                             {/* Quote Icon at Bottom */}
-                                            <div className="mt-auto pb-2">
+                                            <div className="mt-auto pb-2 flex items-center justify-between w-full pr-4">
                                                 <Quote size={36} className="text-[#FFA500] fill-[#FFA500]" strokeWidth={0} />
                                             </div>
                                         </div>

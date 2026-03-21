@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Star, Loader2 } from 'lucide-react';
+
 import { useRouter } from 'next/navigation';
 import manClimbing from '../../assets/manClimbing.png';
 
@@ -54,10 +55,28 @@ const DEFAULT_DESTINATIONS = [
     }
 ];
 
-export default function FeaturedDestinations({ initialDestinations, allPackages = [] }) {
+export default function FeaturedDestinations({ initialDestinations, allPackages = [], content, loading: propLoading }) {
+    const defaultContent = {
+        line1: "Most Favorite",
+        highlight: "Tour",
+        line2: "Places!",
+        description: "Explore our handpicked selection of stunning destinations that our travelers love the most. From tropical escapes to historic cities, find your next adventure here."
+    };
+
+    const sectionContent = { ...defaultContent, ...content };
+
     const router = useRouter();
     const [destinations, setDestinations] = useState(initialDestinations || []);
-    const [loading, setLoading] = useState(!initialDestinations);
+    const [loading, setLoading] = useState(propLoading !== undefined ? propLoading : !initialDestinations);
+
+    useEffect(() => {
+        if (propLoading !== undefined) {
+            setLoading(propLoading);
+        }
+    }, [propLoading]);
+
+    useEffect(() => {
+    }, [initialDestinations]);
     // ... rest of the state
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
@@ -82,7 +101,7 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
             router.push(`/packages/${matchedPkg.slug || matchedPkg.id}`);
         } else {
             // Fallback to tours search page filtered by destination
-            router.push(`/tours?destination_id=${dest.id}`);
+            router.push(`/tours?destination=${dest.slug || dest.id}`);
         }
     };
 
@@ -179,13 +198,12 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
                 {/* Header Section - Left content + Right TOP DESTINATION */}
                 <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-8">
                     <div className="w-full md:w-1/2 pt-3 relative z-20">
-                        <h4 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
-                            <span className="text-[#FFA500]">Most Favorite</span> <span className="text-white">Tour <br className="hidden md:block" />
-                                Places!</span>
-                        </h4>
-
-                        <p className="text-slate-300 text-xs md:text-sm mb-6 max-w-sm leading-relaxed">
-                            Choosing a destination can be exciting but also a bit overwhelming with so many amazing places out there! Let's narrow it down a little. Are you dreaming of peaceful nature, buzzing cities, historical wonders, or relaxing beaches?
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-white mb-6 leading-tight">
+                            {sectionContent.line1} <br />
+                            <span className="text-white">{sectionContent.highlight}</span> {sectionContent.line2}
+                        </h2>
+                        <p className="text-white/70 text-sm sm:text-base md:text-lg mb-8 max-w-xl font-medium">
+                            {sectionContent.description}
                         </p>
 
                         <button
@@ -239,6 +257,9 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
                                             <h3 className="text-lg md:text-xl font-heading font-bold mb-1 text-white group-hover:text-[#0F2444] transition-colors px-2">
                                                 {dest.name}
                                             </h3>
+                                            <p className="text-[11px] text-[#FFA500] group-hover:text-[#0F2444]/70 font-bold uppercase tracking-wider transition-colors pt-0.5">
+                                                {dest.package_count || 0} Packages
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

@@ -196,7 +196,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
             <div className="container mx-auto px-4 relative z-10">
                 {/* Header Section */}
-                <div className="text-center mb-12 sm:mb-16 md:mb-20">
+                <div className="text-center mb-8 sm:mb-12">
                     <div className="inline-flex items-center gap-3 bg-[#EEF8FF] px-6 py-3 rounded-full mb-6">
                         <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />

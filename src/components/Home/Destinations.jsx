@@ -42,7 +42,7 @@ export default function Destinations({ content, loading }) {
     const highlight = content?.highlight || "Places";
     const line2 = content?.line2 || "Around World";
     const description = content?.description || "Discover curated travel experiences and breathtaking destinations across the globe. From luxury cruises to private jet charters, we make your dream journey a reality.";
-    const buttonText = content?.button_text || "Discover More";
+    const buttonText = content?.button_text || "Discover More Destinations";
     const buttonLink = content?.button_link || "/destinations";
 
     if (loading) {
@@ -104,9 +104,9 @@ export default function Destinations({ content, loading }) {
                         </p>
 
                         <Link href={buttonLink}>
-                            <button className="flex items-center gap-4 bg-brand-magic text-white px-10 py-5 rounded-full font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20">
-                                {buttonText}
-                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-[2rem] font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20 max-w-[220px] leading-tight text-left">
+                                <span className="flex-1">{buttonText}</span>
+                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform shrink-0" />
                             </button>
                         </Link>
                     </div>

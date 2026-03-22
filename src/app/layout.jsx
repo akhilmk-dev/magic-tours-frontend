@@ -4,7 +4,6 @@ import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
 import AuthModal from '../components/common/AuthModal';
 import ProfileEditModal from '../components/common/ProfileEditModal';
-import { api } from '../api/client';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import { generatePageMetadata } from '../utils/seo';

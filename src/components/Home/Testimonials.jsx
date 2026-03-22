@@ -150,7 +150,7 @@ export default function Testimonials({ testimonials: apiTestimonials, content, l
         <section className="py-12 md:py-16 bg-white overflow-hidden">
             <div className="container mx-auto px-4">
                 {/* Header */}
-                <div className="text-center mb-16 relative">
+                <div className="text-center mb-10 relative">
                     <div className="inline-flex items-center gap-3 bg-brand-magic/10 px-6 py-2.5 rounded-full mb-6 border border-brand-magic/20">
                         <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
@@ -159,9 +159,9 @@ export default function Testimonials({ testimonials: apiTestimonials, content, l
                             {sectionContent.subtitle}
                         </span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-tight">
-                        {sectionContent.line1}{" "}
-                        <span className="text-brand-magic">{sectionContent.highlight}</span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-tight text-center">
+                        {sectionContent.line1} <br />
+                        <span className="text-[#FFA500]">{sectionContent.highlight}</span>
                     </h2>
                 </div>
 

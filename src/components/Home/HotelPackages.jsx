@@ -173,8 +173,7 @@ export default function HotelPackages({ hotels: apiHotels, content, loading }) {
     const defaultContent = {
         subtitle: "Premium Hotels",
         heading: "Discover Exclusive",
-        highlight: "Hotel",
-        line1: "Packages",
+        highlight: "Hotel Packages",
         line2: "For Every Taste & Occasion"
     };
 
@@ -227,7 +226,7 @@ export default function HotelPackages({ hotels: apiHotels, content, loading }) {
         <section className="py-20 bg-white overflow-hidden">
             <div className="container mx-auto px-4 md:px-12 lg:px-16">
                 {/* Header */}
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 sm:mb-16 md:mb-20">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-8 sm:mb-12">
                     <div className="max-w-3xl">
                         <div className="inline-flex items-center gap-3 bg-[#F2F5FF] px-6 py-3 rounded-full mb-6 border border-gray-100 shadow-sm">
                             <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -237,18 +236,16 @@ export default function HotelPackages({ hotels: apiHotels, content, loading }) {
                                 {sectionContent.subtitle}
                             </span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[64px] font-bold text-brand-heading mb-4 leading-[1.1]">
-                            {sectionContent.heading} <span className="text-[#FFA500]">{sectionContent.highlight}</span> <br />
-                            {sectionContent.line1}
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading mb-4 leading-[1.1]">
+                            {sectionContent.heading} <span className="text-[#FFA500]">{sectionContent.highlight}</span>
                         </h2>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl text-gray-500 font-medium">
-                            {sectionContent.line2}
-                        </h3>
                     </div>
 
-                    <Link href="/hotels" className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-full font-heading font-bold transition-all flex items-center gap-2 group shadow-lg w-fit h-fit">
-                        Explore More
-                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    <Link href="/hotels">
+                        <button className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-[2rem] font-heading font-bold transition-all flex items-center gap-4 group shadow-lg w-fit h-fit max-w-[190px] leading-tight text-left">
+                            <span className="flex-1">Explore more hotels</span>
+                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform shrink-0" />
+                        </button>
                     </Link>
                 </div>
 

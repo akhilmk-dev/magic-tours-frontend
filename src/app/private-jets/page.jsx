@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Plane, MapPin, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowUpRight, Plane, MapPin, ArrowRight, Loader2, CheckCircle2, Ship } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -155,15 +156,45 @@ const PrivateJetsPage = () => {
                                 <p className="text-gray-500 text-sm md:text-[13px] leading-loose max-w-sm ml-auto">
                                     {cmsData?.hero_description}
                                 </p>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="mt-8 bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90"
-                                >
-                                    Request a Charter
-                                    <ArrowRight className="w-4 h-4" />
-                                </motion.button>
+                                <div className="mt-8 flex items-center justify-end gap-4">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90 h-[54px]"
+                                    >
+                                        Request a Charter
+                                        <ArrowRight className="w-4 h-4" />
+                                    </motion.button>
+
+                                    {/* Cruise Promotion Button */}
+                                    <Link href="/cruises">
+                                        <motion.div
+                                            className="group relative flex items-center justify-start bg-[#113A74] text-white rounded-full h-[54px] cursor-pointer shadow-xl shadow-[#113A74]/20"
+                                            initial="initial"
+                                            whileHover="hover"
+                                            variants={{
+                                                initial: { width: 54 },
+                                                hover: { width: 190 }
+                                            }}
+                                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        >
+                                            <div className="flex items-center px-[17px] gap-3 shrink-0">
+                                                <Ship className="w-5 h-5 shrink-0" />
+                                                <motion.span
+                                                    variants={{
+                                                        initial: { opacity: 0, x: -10, width: 0, display: 'none' },
+                                                        hover: { opacity: 1, x: 0, width: 'auto', display: 'block' }
+                                                    }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="whitespace-nowrap font-bold text-[14px] pointer-events-none"
+                                                >
+                                                    Explore Cruises
+                                                </motion.span>
+                                            </div>
+                                        </motion.div>
+                                    </Link>
+                                </div>
                             </>
                         )}
                     </motion.div>
@@ -522,7 +553,7 @@ const PrivateJetsPage = () => {
                                             disabled={isSubmitting}
                                             className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
                                         >
-                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Request Proposal'}
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Request'}
                                             {!isSubmitting && <ArrowRight className="w-4 h-4" />}
                                         </button>
                                         {submitStatus === 'error' && (

@@ -799,7 +799,7 @@ const PackageDetailsPage = () => {
                                 }}
                             >
                                 {[...relatedPackages, ...relatedPackages].map((relPkg, loopIdx) => (
-                                    <Link href={`/packages/${relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
+                                    <Link href={`/packages/${relPkg.slug || relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
                                         {/* Image Box */}
                                         <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
                                             <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">

@@ -53,9 +53,8 @@ const PrivateJetSkeleton = () => (
 const PrivateJet = ({ jets: apiJets, content, loading }) => {
     const defaultContent = {
         subtitle: "Premium Jet",
-        line1: "Elite Private",
+        heading: "Elite Private",
         highlight: "Jet",
-        line2: "Charters",
         description: "Experience the ultimate in luxury, privacy, and convenience. Our private jet services offer tailor-made travel solutions for the most discerning travelers."
     };
 
@@ -112,11 +111,10 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
 
                         {/* Heading */}
                         <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-heading mb-6 leading-[1.1]">
-                            {sectionContent.line1}{" "}
-                            <span className="text-brand-magic">
+                            {sectionContent.heading}{" "}
+                            <span className="text-[#FFA500]">
                                 {sectionContent.highlight}
-                            </span>{" "}
-                            {sectionContent.line2}
+                            </span>
                         </h2>
 
                         <p className="text-[#4F5B6D] text-lg mb-10 leading-relaxed font-medium">

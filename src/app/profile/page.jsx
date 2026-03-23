@@ -1,5 +1,6 @@
 "use client";
 
+export const runtime = 'edge';
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';

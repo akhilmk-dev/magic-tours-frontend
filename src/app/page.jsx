@@ -1,4 +1,7 @@
 "use client";
+
+export const runtime = 'edge';
+
 import React, { useState, useEffect } from 'react';
 import Hero from '../components/Home/Hero';
 import Destinations from '../components/Home/Destinations';

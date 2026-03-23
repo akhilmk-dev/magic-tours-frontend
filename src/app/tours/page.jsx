@@ -1,4 +1,6 @@
 "use client";
+
+export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -102,7 +104,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onCl
                         >
                             <option value="">All Destinations</option>
                             {filterData.destinations.map(d => (
-                                <option key={d.id} value={d.slug || d.id}>{d.name}</option>
+                                <option key={d.id} value={d.slug}>{d.name}</option>
                             ))}
                         </select>
                         <ChevronDown size={11} className="text-slate-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -142,7 +144,11 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onCl
             <div className="flex flex-col gap-4 px-1">
                 <FilterSection title="Cities">
                     <div className="flex flex-col gap-2 mt-1">
-                        {filterData.cities.filter(c => !localFilters.destination || c.destination_id === localFilters.destination).map(city => (
+                        {filterData.cities.filter(c => {
+                            if (!localFilters.destination) return true;
+                            const dest = filterData.destinations.find(d => d.slug === localFilters.destination);
+                            return c.destination_id === dest?.id;
+                        }).map(city => (
                             <CheckItem
                                 key={city.id}
                                 label={city.name}
@@ -339,7 +345,9 @@ const ToursContent = () => {
         setLoading(true);
         try {
             let url = `/packages/frontend/list?page=${activePage}&limit=6&sort=${activeSort}`;
-            if (activeFilters.destination) url += `&destination_slug=${activeFilters.destination}`;
+            if (activeFilters.destination) {
+                url += `&destination_slug=${activeFilters.destination}`;
+            }
             if (activeFilters.cities.length > 0) url += `&city_id=${activeFilters.cities.join(',')}`;
             if (activeFilters.categories.length > 0) url += `&category=${activeFilters.categories.join(',')}`;
             if (activeFilters.maxNights) url += `&nights=${activeFilters.maxNights}`;

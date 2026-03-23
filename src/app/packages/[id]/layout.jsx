@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { api } from '../../../api/client';
 
 export async function generateMetadata({ params }) {

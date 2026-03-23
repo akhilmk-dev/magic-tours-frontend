@@ -1,4 +1,6 @@
 "use client";
+
+export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, User, Phone, Eye, EyeOff, UserPlus, X, CheckCircle, ChevronLeft } from 'lucide-react';

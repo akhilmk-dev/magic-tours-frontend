@@ -1,4 +1,6 @@
 "use client";
+
+export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MapPin, Calendar, Compass, Navigation, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -268,7 +270,7 @@ export default function DestinationsPage() {
                                                     )}
                                                 </div>
 
-                                                <Link href={`/tours?destination=${dest.slug || dest.id}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
+                                                <Link href={`/tours?destination=${dest.slug}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
                                                     View Packages
                                                 </Link>
                                             </div>

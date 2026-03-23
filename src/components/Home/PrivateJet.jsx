@@ -148,7 +148,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                         </div>
 
                         {/* CTA Button */}
-                        <Link href="/private-jets" className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group">
+                        <Link href="/private-jets" className="inline-flex items-center gap-3 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 py-4 rounded-full text-sm transition-all hover:-translate-y-1 shadow-lg shadow-[#FDB338]/20 group moving-light-border">
                             Explore More
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </Link>

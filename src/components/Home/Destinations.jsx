@@ -104,7 +104,7 @@ export default function Destinations({ content, loading }) {
                         </p>
 
                         <Link href={buttonLink}>
-                            <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-[2rem] font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20 max-w-[220px] leading-tight text-left">
+                            <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-[2rem] font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20 max-w-[220px] leading-tight text-left moving-light-border">
                                 <span className="flex-1">{buttonText}</span>
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform shrink-0" />
                             </button>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Star, Calendar, MapPin } from 'lucide-react';
 import FavoriteButton from '../common/FavoriteButton';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const staticPackageData = [
     {
@@ -93,6 +94,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
     const sectionContent = { ...defaultContent, ...content };
     const router = useRouter();
+    const { formatPrice } = useCurrency();
     const [mounted, setMounted] = useState(false);
     const controls = useAnimation();
     const isTransitioning = useRef(false);
@@ -295,7 +297,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                             {/* Price and Book Now */}
                                             <div className="mt-auto flex items-end justify-between">
                                                 <div>
-                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{pkg.currency} {pkg.price}</span>
+                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                     <span className="block text-[10px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
                                                 </div>
                                                 <button
@@ -321,7 +323,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                             {/* Price and Book Now */}
                                             <div className="mt-5 flex items-end justify-between">
                                                 <div>
-                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{pkg.currency} {pkg.price}</span>
+                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                     <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}

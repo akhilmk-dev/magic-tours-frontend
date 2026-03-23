@@ -189,7 +189,7 @@ export default function About({ content, loading }) {
                                         ))}
                                     </ul>
 
-                                    <Link href={buttonLink} className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-heading font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center">
+                                    <Link href={buttonLink} className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-full font-heading font-bold text-sm hover:translate-y-[-2px] hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/30 active:scale-95 w-full sm:w-fit justify-center moving-light-border">
                                         {buttonText}
                                         <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
                                     </Link>

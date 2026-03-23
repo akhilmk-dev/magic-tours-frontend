@@ -11,6 +11,7 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,7 @@ const makeGuest = (type = 'adultDouble') => ({
 
 const BookingModal = ({ isOpen, onClose, pkg, user }) => {
     const { success, error: toastError } = useToast();
+    const { selectedCurrency, convertPrice, formatPrice } = useCurrency();
     const [submitting, setSubmitting] = useState(false);
     const [progress, setProgress] = useState('');
 
@@ -266,7 +268,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                         child_no_bed: countOf('childNoBed'),
                         infant: countOf('infant'),
                     },
-                    currency: pkg.currency || 'AED',
+                    currency: selectedCurrency.code || pkg.currency || 'AED',
                     notes: '',
                     passengers,
                 });
@@ -282,7 +284,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                     guest_child_with_bed: countOf('childBed'),
                     guest_child_no_bed: countOf('childNoBed'),
                     guest_infant: countOf('infant'),
-                    currency: pkg.currency || 'AED',
+                    currency: selectedCurrency.code || pkg.currency || 'AED',
                     notes: '',
                     passengers,
                 });
@@ -341,7 +343,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-xs font-black text-white/40 uppercase">Total</p>
-                                        <p className="text-base font-black text-[#FFA500]">{pkg.currency || 'AED'} {total.toLocaleString()}</p>
+                                        <p className="text-base font-black text-[#FFA500]">{formatPrice(total)}</p>
                                     </div>
                                 </div>
 
@@ -380,7 +382,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         {units} × {t.label} {t.roomSize > 1 ? 'Room' : ''} ({count} Guests)
                                                     </span>
                                                     <span className="text-white">
-                                                        {pkg.currency || 'AED'} {(units * getPrice(t.id, values.departureDateId)).toLocaleString()}
+                                                        {formatPrice(units * getPrice(t.id, values.departureDateId))}
                                                     </span>
                                                 </div>
                                             );
@@ -388,9 +390,8 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
                                             <span className="text-xs font-black uppercase text-[#FFA500]">Grand Total</span>
                                             <div>
-                                                <span className="text-xs font-black mr-1">{pkg.currency || 'AED'}</span>
                                                 <span className="text-2xl font-black text-white tracking-tight">
-                                                    {total.toLocaleString()}
+                                                    {formatPrice(total)}
                                                 </span>
                                             </div>
                                         </div>
@@ -529,8 +530,8 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         <div className="flex flex-col gap-0.5">
                                                                             <span className="text-sm font-bold text-[#113A74]">{t.label}</span>
                                                                             <span className="text-xs text-slate-400 font-medium">
-                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}{pkg.currency || 'AED'} {getPrice(t.id, values.departureDateId).toLocaleString()} / {t.roomSize > 1 ? 'Room' : 'Pax'}
-                                                                            </span>
+                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}{formatPrice(getPrice(t.id, values.departureDateId))} / {t.roomSize > 1 ? 'Room' : 'Pax'}
+                                            </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
                                                                             <button
@@ -690,7 +691,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                 const dep = pkg.departure_dates?.find(d => d.id === values.departureDateId);
                                                                 const avail = dep ? Math.max(0, (dep.slots || 0) - (dep.booked_slots || 0)) : 0;
                                                                 const isWaitlist = values.guests.length > avail;
-                                                                return isWaitlist ? 'Submit Booking Request' : `Confirm & Pay — ${pkg.currency || 'AED'} ${total.toLocaleString()}`;
+                                                                return isWaitlist ? 'Submit Booking Request' : `Confirm & Pay — ${formatPrice(total)}`;
                                                             })()}
                                                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                                         </motion.span>

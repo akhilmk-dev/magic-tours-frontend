@@ -34,6 +34,39 @@
   .slide-in-from-top-2 {
     animation-name: slideInFromTop;
   }
+
+  /* Moving Light Border Animation */
+  .moving-light-border {
+    @apply relative overflow-hidden isolate shadow-lg;
+  }
+
+  .moving-light-border::before {
+    content: "";
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] pointer-events-none;
+    background: conic-gradient(
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      white,
+      rgba(255, 255, 255, 0.3),
+      transparent 25%
+    );
+    animation: border-rotate 2s linear infinite;
+    z-index: -2;
+  }
+
+  .moving-light-border::after {
+    content: "";
+    @apply absolute inset-[3px] pointer-events-none;
+    background: inherit;
+    border-radius: inherit;
+    z-index: -1;
+  }
+}
+
+@keyframes border-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes slideInFromTop {

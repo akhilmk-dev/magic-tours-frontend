@@ -242,8 +242,8 @@ export default function HotelPackages({ hotels: apiHotels, content, loading }) {
                     </div>
 
                     <Link href="/hotels">
-                        <button className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-[2rem] font-heading font-bold transition-all flex items-center gap-4 group shadow-lg w-fit h-fit max-w-[190px] leading-tight text-left">
-                            <span className="flex-1">Explore more hotels</span>
+                        <button className="bg-brand-magic hover:opacity-90 text-white px-8 py-4 rounded-[2rem] font-heading font-bold transition-all flex items-center gap-4 group shadow-lg w-fit h-fit whitespace-nowrap moving-light-border">
+                            <span>Explore more</span>
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform shrink-0" />
                         </button>
                     </Link>

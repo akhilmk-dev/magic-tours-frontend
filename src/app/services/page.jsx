@@ -42,7 +42,7 @@ const services = [
         features: ['Global jet charter', 'Luxury yacht hire', 'Bespoke itineraries', 'Dedicated concierge'],
         link: '/private-jets',
         linkLabel: 'Explore Luxury Travel',
-        img: 'https://images.unsplash.com/photo-1490551430090-a01e99e04f1d?w=600&q=70',
+        img: 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=600&q=70',
     },
     {
         icon: <Ship size={30} className="text-[#FFA500]" />,
@@ -51,7 +51,7 @@ const services = [
         features: ['All major cruise lines', 'Cabin selection assistance', 'Shore excursion planning', 'Group & private bookings'],
         link: '/cruises',
         linkLabel: 'Browse Cruises',
-        img: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?w=600&q=70',
+        img: 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?w=600&q=70',
     },
     {
         icon: <Hotel size={30} className="text-[#113A74]" />,

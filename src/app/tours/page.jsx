@@ -11,6 +11,7 @@ import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
 import bookingImg from '../../assets/booking-img.png';
 import FavoriteButton from '../../components/common/FavoriteButton';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const Sidebar = ({ filters, setFilters, onApply, filterData, filterLoading, onClose, showPromo = true }) => {
     const [localFilters, setLocalFilters] = useState(filters);
@@ -243,6 +244,7 @@ const SortHeader = ({ sort, setSort, onOpenFilters }) => {
 
 const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, currency = 'AED' }) => {
     const router = useRouter();
+    const { formatPrice } = useCurrency();
     return (
         <div 
             onClick={() => router.push(`/packages/${slug || id}`)}
@@ -265,19 +267,19 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                 <h3 title={title || package_name} className="text-xl md:text-2xl font-bold text-[#113A74] mb-2 font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">{title || package_name}</h3>
                 {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
                 <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
-                <div className="flex items-center justify-between mt-auto">
+                <div className="flex flex-col gap-4 mt-auto">
                     <button 
                         onClick={(e) => {
                             e.stopPropagation();
                             router.push(`/packages/${slug || id}?book=true`);
                         }}
-                        className="px-6 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95"
+                        className="w-fit px-8 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95"
                     >
                         Book Now
                     </button>
                     <div className="text-right">
-                        <div className="flex items-baseline gap-0.5"><span className="text-[#FFA500] text-xs font-black uppercase">{currency}</span><span className="text-[#FFA500] text-2xl font-black">{price}</span></div>
-                        <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider">onwards</p>
+                        <div className="flex items-baseline justify-end gap-0.5"><span className="text-[#FFA500] text-2xl font-black leading-none">{formatPrice(price)}</span></div>
+                        <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-1 opacity-90">onwards</p>
                     </div>
                 </div>
             </div>

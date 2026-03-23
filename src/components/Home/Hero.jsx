@@ -238,7 +238,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 </p>
 
                                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-5">
-                                    <Link href={slides[currentSlide].url || slides[currentSlide].link || "/tours"} className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group">
+                                    <Link href={slides[currentSlide].url || slides[currentSlide].link || "/tours"} className="bg-white hover:bg-gray-100 text-[#022C54] font-heading font-bold h-11 sm:h-14 md:h-[60px] xl:h-[64px] px-7 sm:px-10 xl:px-12 rounded-full flex items-center justify-center gap-3 sm:gap-4 transition-all transform hover:translate-y-[-4px] shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] group moving-light-border">
                                         <span className="text-[12px] sm:text-[14px] xl:text-[16px] tracking-wide">
                                             {slides[currentSlide].button_text || "Plan My Trip"}
                                         </span>

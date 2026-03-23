@@ -2,6 +2,7 @@ import { Inter, Philosopher, El_Messiri, Plus_Jakarta_Sans, Figtree } from 'next
 import '../index.css';
 import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
+import { CurrencyProvider } from '../context/CurrencyContext';
 import AuthModal from '../components/common/AuthModal';
 import ProfileEditModal from '../components/common/ProfileEditModal';
 import Navbar from '../components/common/Navbar';
@@ -48,15 +49,17 @@ export default function RootLayout({ children }) {
         <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable}`}>
             <body className="font-sans text-slate-900 antialiased min-h-screen flex flex-col">
                 <ToastProvider>
-                    <CustomerAuthProvider>
-                        <AuthModal />
-                        <ProfileEditModal />
-                        <Navbar />
-                        <main className="flex-grow">
-                            {children}
-                        </main>
-                        <Footer />
-                    </CustomerAuthProvider>
+                    <CurrencyProvider>
+                        <CustomerAuthProvider>
+                            <AuthModal />
+                            <ProfileEditModal />
+                            <Navbar />
+                            <main className="flex-grow">
+                                {children}
+                            </main>
+                            <Footer />
+                        </CustomerAuthProvider>
+                    </CurrencyProvider>
                 </ToastProvider>
             </body>
         </html>

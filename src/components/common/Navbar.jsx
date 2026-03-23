@@ -1,12 +1,86 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut, MapPin, Phone, ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import logo from '../../assets/logo.png';
 import logoWhite from '../../assets/logowhite.png';
+
+const getFlagCode = (currencyCode) => {
+    const map = {
+        'QAR': 'qa',
+        'AED': 'ae',
+        'USD': 'us',
+        'INR': 'in',
+        'AMD': 'am',
+        'EUR': 'eu',
+        'GBP': 'gb'
+    };
+    return map[currencyCode] || currencyCode.toLowerCase().slice(0, 2);
+};
+
+const CurrencyDropdown = ({ isTransparent }) => {
+    const { currencies, selectedCurrency, changeCurrency } = useCurrency();
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <div 
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+            >
+                <img 
+                    src={`https://flagcdn.com/w20/${getFlagCode(selectedCurrency.code)}.png`} 
+                    alt={selectedCurrency.code} 
+                    className="w-4 h-auto rounded-sm" 
+                />
+                <span>{selectedCurrency.code}</span>
+                <ChevronDown size={12} className={clsx("transition-transform duration-200", isOpen && "rotate-180")} />
+            </div>
+
+            {isOpen && (
+                <div className="absolute top-full right-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="py-1">
+                        {currencies.map((curr) => (
+                            <div
+                                key={curr.code}
+                                onClick={() => {
+                                    changeCurrency(curr);
+                                    setIsOpen(false);
+                                }}
+                                className={clsx(
+                                    "px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 cursor-pointer transition-colors text-[12px] font-bold",
+                                    selectedCurrency.code === curr.code ? "text-primary bg-primary/5" : "text-gray-700"
+                                )}
+                            >
+                                <img 
+                                    src={`https://flagcdn.com/w20/${getFlagCode(curr.code)}.png`} 
+                                    alt={curr.code} 
+                                    className="w-4 h-auto rounded-sm" 
+                                />
+                                <span>{curr.code} - {curr.symbol}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
     return (
@@ -28,11 +102,7 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                 </div>
                 {/* Right: Currency, FAQ, etc. */}
                 <div className="flex items-center gap-3 sm:gap-5 text-[#0D0D0C]">
-                    <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
-                        <img src="https://flagcdn.com/w20/qa.png" alt="Qatar" className="w-4 h-auto rounded-sm" />
-                        <span>QAR</span>
-                        <ChevronDown size={12} />
-                    </div>
+                    <CurrencyDropdown isTransparent={isTransparent} />
                     <div className="w-px h-3 hidden sm:block bg-gray-200" />
                     <Link href="/faq" className="transition-colors hidden sm:block hover:text-[#0D0D0C]">FAQ</Link>
                     <div className="w-px h-3 hidden md:block bg-gray-200" />

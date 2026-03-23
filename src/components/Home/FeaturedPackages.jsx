@@ -3,10 +3,12 @@ import { Star, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
 import { useRouter } from 'next/navigation';
 import FavoriteButton from '../common/FavoriteButton';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const FeaturedPackages = () => {
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { formatPrice } = useCurrency();
     const router = useRouter();
 
     useEffect(() => {
@@ -71,7 +73,7 @@ const FeaturedPackages = () => {
                                     {pkg.category || "Premium"}
                                 </span>
                                 <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                    <span className="text-secondary font-bold text-sm">From {pkg.price}</span>
+                                    <span className="text-secondary font-bold text-sm">From {formatPrice(pkg.price)}</span>
                                 </div>
                             </div>
                             <div className="p-6">

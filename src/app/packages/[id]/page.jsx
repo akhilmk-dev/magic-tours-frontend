@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '../../../context/CustomerAuthContext';
+import { useCurrency } from '../../../context/CurrencyContext';
 import { api } from '../../../api/client';
 import {
     Calendar, Users, MapPin, Check, X, Clock,
@@ -107,7 +108,8 @@ const PackageDetailsPage = () => {
         childNoBed: 0,
         infant: 0
     });
-    const { user } = useCustomerAuth();
+    const { user, openAuthModal } = useCustomerAuth();
+    const { selectedCurrency, convertPrice, formatPrice } = useCurrency();
     const router = useRouter();
 
     useEffect(() => {
@@ -172,7 +174,8 @@ const PackageDetailsPage = () => {
             customer_id: user.id,
             package_id: pkg.id,
             travel_date: bookingDate,
-            total_amount: totalPrice,
+            total_amount: convertPrice(totalPrice),
+            currency: selectedCurrency.code,
             details: counts // Send detailed breakdown
         };
 
@@ -353,8 +356,7 @@ const PackageDetailsPage = () => {
                                 <div className="flex items-center justify-start md:justify-end py-4">
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-[#113A74] font-bold text-xs uppercase tracking-wider">Onwards :</span>
-                                        <span className="text-[#FFA500] font-bold text-sm ml-1">{pkg.currency || 'AED'}</span>
-                                        <span className="text-[#FFA500] font-bold text-2xl">{pkg.price || 89}</span>
+                                        <span className="text-[#FFA500] font-bold text-2xl ml-1">{formatPrice(pkg.price || 89)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -838,7 +840,7 @@ const PackageDetailsPage = () => {
 
                                             <div className="flex items-center justify-between mt-auto">
                                                 <div className="flex items-baseline gap-1.5">
-                                                    <span className="text-sm md:text-base font-black text-[#113A74]">{relPkg.currency || 'AED'} {relPkg.price}</span>
+                                                    <span className="text-sm md:text-base font-black text-[#113A74]">{formatPrice(relPkg.price)}</span>
                                                     <span className="text-[10px] text-gray-400">onwards</span>
                                                 </div>
                                                 <span className="bg-[#113A74] hover:bg-[#0d2a56] text-white rounded-full py-2 px-5 text-[10px] font-bold transition-all shadow-md">

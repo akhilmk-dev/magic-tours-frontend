@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { User, MessageSquare, ArrowRight, Plane, Send } from 'lucide-react';
+import Link from 'next/link';
 
 
 // Import assets
@@ -48,6 +49,7 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
             author: post.author || 'admin',
             comments: '0 Comments',
             title: post.heading,
+            link: post.link || '#',
         };
     }) : [];
 
@@ -66,9 +68,11 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
                             {sectionContent.subtitle}
                         </span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-brand-heading leading-tight">
-                        {sectionContent.line1}{" "}
-                        <span className="text-brand-magic">{sectionContent.highlight}</span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[50px] xl:text-[56px] font-bold text-brand-heading leading-tight">
+                        {sectionContent.line1}
+                        <span className="block text-[#FFA500] mt-3">
+                            {sectionContent.highlight}
+                        </span>
                     </h2>
                 </div>
 
@@ -99,17 +103,7 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
 
                             {/* Content */}
                             <div className="p-6 flex flex-col flex-1">
-                                {/* Meta */}
-                                <div className="flex items-center gap-4 mb-3">
-                                    <div className="flex items-center gap-2 text-gray-400 text-[11px]">
-                                        <User size={13} className="text-primary" />
-                                        <span>{post.author}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-gray-400 text-[11px]">
-                                        <MessageSquare size={13} className="text-primary" />
-                                        <span>{post.comments}</span>
-                                    </div>
-                                </div>
+                                {/* Meta removed per user request */}
 
                                 {/* Title */}
                                 <h3 className="text-lg font-bold text-secondary mb-4 flex-1 group-hover:text-primary transition-colors leading-snug font-sans">
@@ -117,10 +111,15 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
                                 </h3>
 
                                 {/* Read More */}
-                                <div className="pt-4 border-t border-gray-100 flex items-center justify-between group/link cursor-pointer">
+                                <Link 
+                                    href={post.link} 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="pt-4 border-t border-gray-100 flex items-center justify-between group/link cursor-pointer"
+                                >
                                     <span className="text-sm font-heading font-bold text-gray-500 group-hover/link:text-primary transition-colors">Read More</span>
                                     <ArrowRight size={14} className="text-gray-400 group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
-                                </div>
+                                </Link>
                             </div>
                         </motion.div>
                     ))}

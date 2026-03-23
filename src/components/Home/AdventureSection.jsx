@@ -60,10 +60,10 @@ export default function AdventureSection({ content, loading }) {
                         {subtitle_line1} <span className="text-white">{subtitle_highlight}</span>
                     </h3>
 
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
                         <button 
                             onClick={() => router.push(button1Link)}
-                            className="bg-[#FDB338] hover:bg-[#e5a232] text-[#113A74] px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-sm sm:text-base whitespace-nowrap"
+                            className="bg-[#FDB338] hover:bg-[#e5a232] text-[#113A74] px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-base whitespace-nowrap"
                         >
                             {button1Text}
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -71,7 +71,7 @@ export default function AdventureSection({ content, loading }) {
                         
                         <button 
                             onClick={() => router.push(button2Link)}
-                            className="bg-white hover:bg-gray-50 text-[#113A74] px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-sm sm:text-base border-2 border-transparent hover:border-[#FDB338] whitespace-nowrap"
+                            className="bg-transparent hover:bg-white text-white hover:text-[#113A74] border-2 border-white px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group text-base whitespace-nowrap shadow-sm"
                         >
                             {button2Text}
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

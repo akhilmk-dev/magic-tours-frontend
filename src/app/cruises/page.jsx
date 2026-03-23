@@ -160,7 +160,7 @@ const CruisesPage = () => {
                                         onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
                                         className="bg-[#113A74] text-white font-bold py-4 px-10 rounded-full text-[14px] inline-flex items-center gap-3 transition-all shadow-xl shadow-[#113A74]/20 hover:bg-[#113A74]/90 h-[54px]"
                                     >
-                                        Book Your Voyage
+                                        Request a Cruise
                                         <ArrowRight className="w-4 h-4" />
                                     </motion.button>
 

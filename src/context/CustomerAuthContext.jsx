@@ -259,6 +259,19 @@ export const CustomerAuthProvider = ({ children }) => {
         }
     }, []);
 
+    const resendOtp = useCallback(async (email) => {
+        try {
+            await api.post('/customers/resend-otp', { email });
+            return { success: true };
+        } catch (error) {
+            console.error('Resend OTP failed:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || error.message || 'Failed to resend OTP'
+            };
+        }
+    }, []);
+
     const resetPassword = useCallback(async (payload) => {
         try {
             await api.post('/customers/reset-password', payload);
@@ -294,7 +307,7 @@ export const CustomerAuthProvider = ({ children }) => {
             isAuthModalOpen, authModalView, openAuthModal, closeAuthModal,
             isProfileEditModalOpen, openProfileEditModal, closeProfileEditModal,
             updateUser, fetchProfile,
-            forgotPassword, verifyOtp, resetPassword
+            forgotPassword, verifyOtp, resendOtp, resetPassword
         }}>
             {children}
         </CustomerAuthContext.Provider>

@@ -34,9 +34,11 @@ const PASSENGER_COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
 }));
 
 // Reusable Custom Select Component
-const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, placeholder, error, touched, isCountry = false, isCode = false, isVisa = false, isDestination = false, isLoading = false }) => {
+const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, placeholder, error, touched, isCountry = false, isCode = false, isVisa = false, isDestination = false, isLoading = false, isSearchable = false }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const containerRef = useRef(null);
+    const searchInputRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -47,6 +49,16 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (isOpen && isSearchable && searchInputRef.current) {
+            setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 100);
+        } else if (!isOpen) {
+            setSearchQuery('');
+        }
+    }, [isOpen, isSearchable]);
 
     const findOption = () => {
         if (isCode) return options.find(opt => opt.code === value);
@@ -65,6 +77,13 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
         if (isVisa) return selectedOption?.visa_name;
         return selectedOption?.label || selectedOption?.name || selectedOption;
     };
+
+    const filteredOptions = isSearchable && searchQuery
+        ? options.filter(option => {
+            const optLabel = isCode ? `${option.code} ${option.name}` : (isVisa ? option.visa_name : (option.name || option.label || option));
+            return String(optLabel).toLowerCase().includes(searchQuery.toLowerCase());
+        })
+        : options;
 
     return (
         <div className={`space-y-2 relative ${isCode ? 'w-[120px] shrink-0' : 'w-full'} ${isOpen ? 'z-[101]' : 'z-auto'}`} ref={containerRef}>
@@ -94,37 +113,50 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-[100] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 max-h-[250px] overflow-y-auto custom-scrollbar"
+                        className="absolute z-[100] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 max-h-[300px] flex flex-col"
                     >
-                        {options.length === 0 ? (
-                            <div className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">No options available</div>
-                        ) : (
-                            options.map((option, idx) => {
-                                const optVal = isCode ? option.code : (isDestination || isCountry ? option.name : (isVisa ? option.visa_id : (option.value || option.name || option)));
-                                const optID = isDestination || isCountry ? option.id : null;
-                                const optLabel = isCode ? `${option.flag} ${option.code} (${option.name})` : (isVisa ? option.visa_name : (option.name || option.label || option));
-                                const isSelected = isDestination || isCountry ? optID === value : optVal === value;
-                                
-                                return (
-                                    <div
-                                        key={idx}
-                                        onClick={() => {
-                                            if (isDestination || isCountry) {
-                                                setFieldValue(name, option.id);
-                                                // If it's a field for name, we might want to store name too or handle separately
-                                                // But typically payload wants UUIDs now
-                                            } else {
-                                                setFieldValue(name, optVal);
-                                            }
-                                            setIsOpen(false);
-                                        }}
-                                        className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-3 ${isSelected ? 'bg-[#113A74] text-white' : 'hover:bg-gray-50 text-[#113A74]'}`}
-                                    >
-                                        <span className="truncate">{optLabel}</span>
-                                    </div>
-                                );
-                            })
+                        {isSearchable && (
+                            <div className="p-2 border-b border-gray-100 shrink-0">
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search..."
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm text-[#113A74] focus:outline-none focus:border-[#FFA500]/50 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            </div>
                         )}
+                        <div className="overflow-y-auto custom-scrollbar flex-1">
+                            {filteredOptions.length === 0 ? (
+                                <div className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center">No matches found</div>
+                            ) : (
+                                filteredOptions.map((option, idx) => {
+                                    const optVal = isCode ? option.code : (isDestination || isCountry ? option.name : (isVisa ? option.visa_id : (option.value || option.name || option)));
+                                    const optID = isDestination || isCountry ? option.id : null;
+                                    const optLabel = isCode ? `${option.flag} ${option.code} (${option.name})` : (isVisa ? option.visa_name : (option.name || option.label || option));
+                                    const isSelected = isDestination || isCountry ? optID === value : optVal === value;
+                                    
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => {
+                                                if (isDestination || isCountry) {
+                                                    setFieldValue(name, option.id);
+                                                } else {
+                                                    setFieldValue(name, optVal);
+                                                }
+                                                setIsOpen(false);
+                                            }}
+                                            className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-3 ${isSelected ? 'bg-[#113A74] text-white' : 'hover:bg-gray-50 text-[#113A74]'}`}
+                                        >
+                                            <span className="truncate">{optLabel}</span>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -150,6 +182,7 @@ const MobileInput = ({ nameCode, nameNumber, options, values, setFieldValue, tou
                     isCode={true}
                     touched={touched[nameCode]}
                     error={errors[nameCode]}
+                    isSearchable={true}
                 />
                 <div className="flex-1 space-y-2">
                     <Field
@@ -305,13 +338,12 @@ const VisaServicesPage = () => {
         }
         setIsLoadingVisas(true);
         try {
-            // Ideally backend supports filtering by country_id
-            const response = await api.get(`/visas?page=1&limit=50`);
-            const allVisas = response.data || [];
-            // Filter locally if backend doesn't support query param? 
-            // User provided payload shows country_id in visa object
-            const filtered = allVisas.filter(v => v.country_id === countryId);
-            setVisas(filtered);
+            // Fetch using the specific API requested by the user, dynamically filtered by country_id
+            const response = await api.get(`/visas?page=1&limit=10&country_id=${countryId}`);
+            const filteredVisas = response.data?.data || response.data || [];
+            
+            // Backend handles filtering via query param
+            setVisas(filteredVisas);
         } catch (err) {
             console.error('Failed to fetch visas:', err);
         } finally {
@@ -531,6 +563,7 @@ const VisaServicesPage = () => {
                                             isLoading={isLoadingCountries}
                                             touched={touched.nationality}
                                             error={errors.nationality}
+                                            isSearchable={true}
                                         />
 
                                         {/* Country of Residence */}
@@ -603,6 +636,7 @@ const VisaServicesPage = () => {
                                             isLoading={isLoadingCountries}
                                             touched={touched.destinationCountryId}
                                             error={errors.destinationCountryId}
+                                            isSearchable={true}
                                         />
 
                                         {/* Visa Type */}
@@ -714,6 +748,7 @@ const VisaServicesPage = () => {
                                                                 isLoading={isLoadingCountries}
                                                                 touched={touched.passengers?.[index]?.nationality}
                                                                 error={errors.passengers?.[index]?.nationality}
+                                                                isSearchable={true}
                                                             />
 
                                                             {/* DOB */}

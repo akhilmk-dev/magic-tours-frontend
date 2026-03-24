@@ -47,7 +47,7 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
     return (
         <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable}`}>
-            <body className="font-sans text-slate-900 antialiased min-h-screen flex flex-col">
+            <body suppressHydrationWarning className="font-sans text-slate-900 antialiased min-h-screen flex flex-col">
                 <ToastProvider>
                     <CurrencyProvider>
                         <CustomerAuthProvider>

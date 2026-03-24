@@ -330,6 +330,7 @@ const ToursContent = () => {
     const [filterData, setFilterData] = useState({ destinations: [], cities: [], categories: [] });
     const [sort, setSort] = useState('newest');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [headerData, setHeaderData] = useState({ title: "Our Packages", description: "" });
 
     useEffect(() => {
         const fetchFilters = async () => {
@@ -340,6 +341,34 @@ const ToursContent = () => {
         };
         fetchFilters();
     }, []);
+
+    useEffect(() => {
+        if (filters.destination && filterData.destinations.length > 0) {
+            const selectedDest = filterData.destinations.find(d => d.slug === filters.destination);
+            if (selectedDest) {
+                const newTitle = selectedDest.meta_title || selectedDest.name || "Our Packages";
+                const newDesc = selectedDest.meta_description || "";
+                
+                setHeaderData({ title: newTitle, description: newDesc });
+                
+                // Update SEO Meta Tags
+                document.title = `${newTitle} | Magic Tours`;
+                
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.content = newDesc || "Explore our luxury tour packages";
+            }
+        } else {
+            setHeaderData({ title: "Our Packages", description: "" });
+            document.title = "Our Packages | Magic Tours";
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.content = "Explore our luxury tour packages";
+        }
+    }, [filters.destination, filterData.destinations]);
 
     const fetchPackages = async (activeFilters = filters, activePage = page, activeSort = sort) => {
         setLoading(true);
@@ -384,7 +413,12 @@ const ToursContent = () => {
                     <img src={bannerImg.src} alt="Banner" className="w-full h-full object-cover" />
                 </div>
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-20 flex flex-col items-center">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-3 tracking-tight drop-shadow-sm font-heading">Our Packages</h1>
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-3 tracking-tight drop-shadow-sm font-heading">{headerData.title}</h1>
+                    {headerData.description && (
+                        <p className="text-[#113A74]/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-6 font-medium">
+                            {headerData.description}
+                        </p>
+                    )}
                     <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-wider">
                         <Link href="/" className="hover:text-[#FFA500]">Home</Link>
                         <span className="opacity-50">—</span>

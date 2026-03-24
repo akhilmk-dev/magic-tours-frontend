@@ -50,27 +50,13 @@ export default function Footer() {
         return links;
     };
 
-    const quickLinks = footerData ? getQuickLinks() : [
-        { label: 'About Us', url: '/about' },
-        { label: 'Our Services', url: '/services' },
-        { label: 'Tour Packages', url: '/tours' },
-        { label: 'FAQ', url: '/faq' },
-        { label: 'Get In Touch', url: '/contact-us' }
-    ];
-
-    const bottomLinks = footerData ? getBottomLinks() : [
-        { label: 'Home', url: '/' },
-        { label: 'About', url: '/about' },
-        { label: 'Services', url: '/services' },
-        { label: 'FAQ', url: '/faq' },
-        { label: 'Support', url: '/support' },
-        { label: 'Contact', url: '/contact-us' }
-    ];
+    const quickLinks = getQuickLinks();
+    const bottomLinks = getBottomLinks();
 
     const branding = {
-        logo: footerData?.site_logo || logoFallback.src,
-        iataLogo: footerData?.footer_iata_logo || iataLogoFallback.src,
-        copyright: footerData?.footer_copyright || 'Copyright - ©2026 Design & Developed with intertoons'
+        logo: footerData?.site_logo || null,
+        iataLogo: footerData?.footer_iata_logo || null,
+        copyright: footerData?.footer_copyright || null
     };
 
     return (
@@ -80,19 +66,35 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="flex flex-col gap-8">
                         <Link href="/" className="flex items-center">
-                            <img src={branding.logo} alt="Magic Tours Logo" className="h-16 w-auto object-contain" />
+                            {branding.logo && <img src={branding.logo} alt="Magic Tours Logo" className="h-16 w-auto object-contain" />}
                         </Link>
 
                         <div className="flex gap-3">
-                            <a href="#" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
-                                <Facebook size={18} />
-                            </a>
-                            <a href="#" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
-                                <Instagram size={18} />
-                            </a>
-                            <a href="#" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
-                                <FaPinterest />
-                            </a>
+                            {footerData?.footer_facebook && (
+                                <a href={footerData.footer_facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
+                                    <Facebook size={18} />
+                                </a>
+                            )}
+                            {footerData?.footer_instagram && (
+                                <a href={footerData.footer_instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
+                                    <Instagram size={18} />
+                                </a>
+                            )}
+                            {footerData?.footer_twitter && (
+                                <a href={footerData.footer_twitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
+                                    <Twitter size={18} />
+                                </a>
+                            )}
+                            {footerData?.footer_linkedin && (
+                                <a href={footerData.footer_linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
+                                    <Linkedin size={18} />
+                                </a>
+                            )}
+                            {footerData?.footer_pinterest && (
+                                <a href={footerData.footer_pinterest} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition-all">
+                                    <FaPinterest />
+                                </a>
+                            )}
                         </div>
                     </div>
 
@@ -102,16 +104,20 @@ export default function Footer() {
                             {footerData?.footer_say_hello_heading || 'Say Hello'}
                         </h4>
                         <ul className="space-y-4">
-                            <li>
-                                <a href={`mailto:${footerData?.footer_email || 'contact@pbmit.com'}`} className="text-gray-500 hover:text-primary transition-colors text-sm font-medium">
-                                    {footerData?.footer_email || 'contact@pbmit.com'}
-                                </a>
-                            </li>
-                            <li>
-                                <a href={`tel:${footerData?.footer_emergency_contact || '+974 445 77 300'}`} className="text-secondary hover:text-primary transition-colors text-lg font-bold">
-                                    {footerData?.footer_emergency_contact || '+974 445 77 300'}
-                                </a>
-                            </li>
+                            {footerData?.footer_email && (
+                                <li>
+                                    <a href={`mailto:${footerData.footer_email}`} className="text-gray-500 hover:text-primary transition-colors text-sm font-medium">
+                                        {footerData.footer_email}
+                                    </a>
+                                </li>
+                            )}
+                            {footerData?.footer_emergency_contact && (
+                                <li>
+                                    <a href={`tel:${footerData.footer_emergency_contact}`} className="text-secondary hover:text-primary transition-colors text-lg font-bold">
+                                        {footerData.footer_emergency_contact}
+                                    </a>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -137,34 +143,32 @@ export default function Footer() {
                             {footerData?.footer_trust_support_heading || 'Trust & Support'}
                         </h4>
                         <div className="space-y-6">
-                            <div>
-                                <h5 className="text-sm font-bold text-secondary mb-1">
-                                    {footerData?.footer_support_hours_label || 'Support Hours'}
-                                </h5>
-                                <p className="text-gray-400 text-xs">
-                                    {footerData?.footer_support_hours || '24/7 Premium Assistance'}
-                                </p>
-                            </div>
-                            <div>
-                                <h5 className="text-sm font-bold text-secondary mb-1">
-                                    {footerData?.footer_emergency_contact_label || 'Emergency Contact'}
-                                </h5>
-                                <p className="text-secondary font-bold text-sm">
-                                    {footerData?.footer_emergency_contact || '+974 445 77 300'}
-                                </p>
-                            </div>
-                            <div className="pt-2">
-                                <img src={branding.iataLogo} alt="IATA logo" className="h-10 w-auto object-contain opacity-80" />
-                            </div>
+                            {footerData?.footer_support_hours_label && (
+                                <div>
+                                    <h5 className="text-sm font-bold text-secondary mb-1">{footerData.footer_support_hours_label}</h5>
+                                    {footerData?.footer_support_hours && <p className="text-gray-400 text-xs">{footerData.footer_support_hours}</p>}
+                                </div>
+                            )}
+                            {footerData?.footer_emergency_contact_label && (
+                                <div>
+                                    <h5 className="text-sm font-bold text-secondary mb-1">{footerData.footer_emergency_contact_label}</h5>
+                                    {footerData?.footer_emergency_contact && <p className="text-secondary font-bold text-sm">{footerData.footer_emergency_contact}</p>}
+                                </div>
+                            )}
+                            {branding.iataLogo && (
+                                <div className="pt-2">
+                                    <img src={branding.iataLogo} alt="IATA logo" className="h-10 w-auto object-contain opacity-80" />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Bottom Bar */}
                 <div className="border-t border-gray-100 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-gray-500 text-xs text-center md:text-left">
-                        {branding.copyright}
-                    </p>
+                    {branding.copyright && (
+                        <p className="text-gray-500 text-xs text-center md:text-left">{branding.copyright}</p>
+                    )}
                     <div className="flex flex-wrap justify-center gap-6 text-[11px] font-bold text-secondary uppercase tracking-wider">
                         {bottomLinks.map((link, idx) => (
                             <Link key={idx} href={link.url} className="hover:text-primary transition-colors">

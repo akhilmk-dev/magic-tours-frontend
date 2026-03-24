@@ -6,8 +6,6 @@ import { Menu, X, User, LogOut, MapPin, Phone, ChevronDown } from 'lucide-react'
 import { clsx } from 'clsx';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
-import logo from '../../assets/logo.png';
-import logoWhite from '../../assets/logowhite.png';
 
 const getFlagCode = (currencyCode) => {
     const map = {
@@ -25,56 +23,85 @@ const getFlagCode = (currencyCode) => {
 const CurrencyDropdown = ({ isTransparent }) => {
     const { currencies, selectedCurrency, changeCurrency } = useCurrency();
     const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
     const dropdownRef = useRef(null);
+    const searchRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsOpen(false);
+                setSearch('');
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (isOpen && searchRef.current) {
+            searchRef.current.focus();
+        }
+    }, [isOpen]);
+
+    const filtered = currencies.filter(c =>
+        c.code.toLowerCase().includes(search.toLowerCase()) ||
+        (c.name || '').toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <div className="relative" ref={dropdownRef}>
-            <div 
-                onClick={() => setIsOpen(!isOpen)}
+            <div
+                onClick={() => { setIsOpen(!isOpen); setSearch(''); }}
                 className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
             >
-                <img 
-                    src={`https://flagcdn.com/w20/${getFlagCode(selectedCurrency.code)}.png`} 
-                    alt={selectedCurrency.code} 
-                    className="w-4 h-auto rounded-sm" 
+                <img
+                    src={`https://flagcdn.com/w20/${getFlagCode(selectedCurrency.code)}.png`}
+                    alt={selectedCurrency.code}
+                    className="w-4 h-auto rounded-sm"
                 />
                 <span>{selectedCurrency.code}</span>
                 <ChevronDown size={12} className={clsx("transition-transform duration-200", isOpen && "rotate-180")} />
             </div>
 
             {isOpen && (
-                <div className="absolute top-full right-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
-                    <div className="py-1">
-                        {currencies.map((curr) => (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+                    {/* Search */}
+                    <div className="px-3 pt-3 pb-2 border-b border-gray-100">
+                        <input
+                            ref={searchRef}
+                            type="text"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search currency..."
+                            className="w-full text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 outline-none focus:border-primary transition-colors placeholder:text-gray-400"
+                        />
+                    </div>
+                    {/* Scrollable list */}
+                    <div className="overflow-y-auto max-h-48 py-1">
+                        {filtered.length > 0 ? filtered.map((curr) => (
                             <div
                                 key={curr.code}
                                 onClick={() => {
                                     changeCurrency(curr);
                                     setIsOpen(false);
+                                    setSearch('');
                                 }}
                                 className={clsx(
                                     "px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 cursor-pointer transition-colors text-[12px] font-bold",
                                     selectedCurrency.code === curr.code ? "text-primary bg-primary/5" : "text-gray-700"
                                 )}
                             >
-                                <img 
-                                    src={`https://flagcdn.com/w20/${getFlagCode(curr.code)}.png`} 
-                                    alt={curr.code} 
-                                    className="w-4 h-auto rounded-sm" 
+                                <img
+                                    src={`https://flagcdn.com/w20/${getFlagCode(curr.code)}.png`}
+                                    alt={curr.code}
+                                    className="w-4 h-auto rounded-sm"
                                 />
                                 <span>{curr.code} - {curr.symbol}</span>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-center text-[11px] text-gray-400 py-4">No results</p>
+                        )}
                     </div>
                 </div>
             )}
@@ -133,6 +160,7 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [dynamicLogo, setDynamicLogo] = useState(null);
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout, openAuthModal } = useCustomerAuth();
@@ -147,6 +175,17 @@ export default function Navbar() {
         window.addEventListener('scroll', handleScroll);
         // Initial check
         handleScroll();
+        
+        // Fetch dynamic logo
+        fetch('https://magic-apis.staff-b0c.workers.dev/settings/public')
+            .then(res => res.json())
+            .then(data => {
+                if (data?.data?.site_logo) {
+                    setDynamicLogo(data.data.site_logo);
+                }
+            })
+            .catch(err => console.error("Failed to fetch site logo:", err));
+            
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -181,7 +220,7 @@ export default function Navbar() {
                 <div className="px-3 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}
                     <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-                        <img src={logo.src} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+                        {dynamicLogo && <img src={dynamicLogo} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />}
                     </Link>
 
                     {/* Desktop Menu */}

@@ -16,8 +16,12 @@ const AuthPageContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { 
-        login, register, forgotPassword, verifyOtp, resetPassword, user 
+        login, register, forgotPassword, verifyOtp, resendOtp, resetPassword, user 
     } = useCustomerAuth();
+
+    // Resend OTP Timer States
+    const [resendTimer, setResendTimer] = useState(0);
+    const [canResend, setCanResend] = useState(false);
 
     const initialView = searchParams.get('view') || 'login';
     const [view, setView] = useState(initialView);
@@ -27,7 +31,31 @@ const AuthPageContent = () => {
         if (user) {
             router.push('/profile');
         }
-    }, [user, router]);
+    }, [view]);
+
+    useEffect(() => {
+        let interval = null;
+        if (resendTimer > 0) {
+            setCanResend(false);
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        } else {
+            setCanResend(true);
+            if (interval) clearInterval(interval);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [resendTimer]);
+
+    // Reset/Initialize state on view change
+    useEffect(() => {
+        if (view !== 'verify-otp') {
+            setResendTimer(0);
+            setCanResend(false);
+        }
+    }, [view]);
 
     // Sync view with search params if they change
     useEffect(() => {
@@ -125,7 +153,29 @@ const AuthPageContent = () => {
         try {
             const result = await forgotPassword(forgotEmail);
             if (result.success) {
+                setResendTimer(30);
+                setCanResend(false);
                 setView('verify-otp');
+            } else {
+                setForgotError(result.error);
+            }
+        } catch (err) {
+            setForgotError(err.message);
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!canResend || forgotLoading) return;
+        
+        setForgotLoading(true);
+        setForgotError('');
+        try {
+            const result = await resendOtp(forgotEmail);
+            if (result.success) {
+                setResendTimer(30);
+                setCanResend(false);
             } else {
                 setForgotError(result.error);
             }
@@ -139,6 +189,12 @@ const AuthPageContent = () => {
     // Handle OTP Verification
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
+        
+        if (forgotOtp.length !== 6) {
+            setForgotError('Please enter a valid 6-digit OTP');
+            return;
+        }
+
         setForgotLoading(true);
         setForgotError('');
         try {
@@ -214,14 +270,6 @@ const AuthPageContent = () => {
             >
                 <div className="bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl border border-white/40 p-8 overflow-hidden relative">
                     
-                    {/* Back to Home Link */}
-                    <button 
-                        onClick={() => router.push('/')}
-                        className="absolute top-6 left-8 text-gray-400 hover:text-[#113A74] flex items-center gap-2 text-[10px] font-bold transition-all group"
-                    >
-                        <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                        Back to Home
-                    </button>
 
                     <AnimatePresence mode="wait">
                         {view === 'login' ? (
@@ -308,7 +356,18 @@ const AuthPageContent = () => {
                                         </button>
                                     </div>
 
-                                    <div className="text-center pt-6">
+                                    <div className="text-center pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => router.push('/')}
+                                            className="text-gray-400 hover:text-[#113A74] flex items-center justify-center gap-1.5 text-[11px] font-bold transition-all group mx-auto"
+                                        >
+                                            <ChevronLeft size={13} className="group-hover:-translate-x-1 transition-transform" />
+                                            Back to Home
+                                        </button>
+                                    </div>
+
+                                    <div className="text-center pt-4">
                                         <p className="text-sm font-medium text-gray-400">
                                             Don't have an account?
                                             <button type="button" onClick={() => setView('register')} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors font-heading font-bold hover:underline underline-offset-4">
@@ -537,7 +596,7 @@ const AuthPageContent = () => {
                                         <img src={logo.src || logo} alt="Magic Tours Logo" className="h-10 w-auto" />
                                     </div>
                                     <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Verify OTP</h2>
-                                    <p className="text-gray-400 text-[11px] font-medium uppercase tracking-wider">Enter code sent to email</p>
+                                    <p className="text-gray-400 text-[11px] font-medium uppercase tracking-wider">Enter the 6-digit code sent to email</p>
                                 </div>
 
                                 <form className="space-y-5" onSubmit={handleVerifyOtp}>
@@ -548,22 +607,25 @@ const AuthPageContent = () => {
                                     )}
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1">Enter OTP</label>
+                                        <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1 flex justify-between items-center">
+                                            <span>Enter OTP</span>
+                                        </label>
                                         <div className="relative group">
                                             <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
                                             <input
                                                 type="text"
                                                 required
-                                                maxLength={5}
+                                                minLength={6}
+                                                maxLength={6}
                                                 className="w-full bg-gray-50/50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-xl py-3.5 pl-12 pr-6 outline-none transition-all text-sm font-bold text-center tracking-[1em] text-[#113A74] placeholder:text-gray-300"
-                                                placeholder="00000"
+                                                placeholder="000000"
                                                 value={forgotOtp}
                                                 onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="pt-2">
+                                    <div className="pt-2 space-y-3">
                                         <button
                                             type="submit"
                                             disabled={forgotLoading}
@@ -576,15 +638,30 @@ const AuthPageContent = () => {
                                                 </>
                                             )}
                                         </button>
-                                    </div>
 
-                                    <div className="text-center pt-6">
-                                        <p className="text-sm font-medium text-gray-400">
-                                            Didn't receive code?
-                                            <button type="button" onClick={handleForgotPassword} className="ml-2 text-[#FFA500] hover:text-[#e69500] transition-colors font-heading font-bold hover:underline underline-offset-4">
-                                                Resend Code
-                                            </button>
-                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={handleResendOtp}
+                                            disabled={forgotLoading || resendTimer > 0}
+                                            className="w-full relative group bg-white border-2 border-[#FFA500]/30 hover:border-[#FFA500] text-[#FFA500] rounded-full py-3.5 px-8 font-heading font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-3"
+                                        >
+                                            {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                <>
+                                                    <span>Resend OTP</span>
+                                                    <UserPlus size={16} />
+                                                </>
+                                            )}
+                                        </button>
+
+                                        {resendTimer > 0 && (
+                                            <motion.p 
+                                                initial={{ opacity: 0 }} 
+                                                animate={{ opacity: 1 }} 
+                                                className="text-center text-[10px] font-bold text-[#FFA500] uppercase tracking-wider"
+                                            >
+                                                Resend in {resendTimer}s
+                                            </motion.p>
+                                        )}
                                     </div>
                                 </form>
                             </motion.div>

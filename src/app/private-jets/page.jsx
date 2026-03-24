@@ -19,6 +19,7 @@ import wingBg from '../../assets/Background (1).png';
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
+import LocationAutocomplete from '../../components/common/LocationAutocomplete';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
@@ -426,30 +427,26 @@ const PrivateJetsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                <input 
-                                                    type="text" 
-                                                    name="departing_from"
-                                                    placeholder="Airport or City" 
-                                                    {...formik.getFieldProps('departing_from')}
-                                                    className={`w-full border ${formik.touched.departing_from && formik.errors.departing_from ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
-                                                />
-                                            </div>
+                                            <LocationAutocomplete 
+                                                name="departing_from"
+                                                placeholder="Airport or City"
+                                                value={formik.values.departing_from}
+                                                onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                onBlur={formik.handleBlur}
+                                                hasError={formik.touched.departing_from && formik.errors.departing_from}
+                                            />
                                             {formik.touched.departing_from && formik.errors.departing_from && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departing_from}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                <input 
-                                                    type="text" 
-                                                    name="departing_to"
-                                                    placeholder="Airport or City" 
-                                                    {...formik.getFieldProps('departing_to')}
-                                                    className={`w-full border ${formik.touched.departing_to && formik.errors.departing_to ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
-                                                />
-                                            </div>
+                                            <LocationAutocomplete 
+                                                name="departing_to"
+                                                placeholder="Airport or City"
+                                                value={formik.values.departing_to}
+                                                onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                onBlur={formik.handleBlur}
+                                                hasError={formik.touched.departing_to && formik.errors.departing_to}
+                                            />
                                             {formik.touched.departing_to && formik.errors.departing_to && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departing_to}</p>}
                                         </div>
                                     </div>
@@ -502,22 +499,24 @@ const PrivateJetsPage = () => {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                                                     <div className="space-y-2">
                                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Origin</label>
-                                                        <input 
-                                                            type="text" 
+                                                        <LocationAutocomplete 
                                                             name="return_from"
-                                                            placeholder="Airport or City" 
-                                                            {...formik.getFieldProps('return_from')}
-                                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none" 
+                                                            placeholder="Airport or City"
+                                                            value={formik.values.return_from}
+                                                            onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                            onBlur={formik.handleBlur}
+                                                            hasError={formik.touched.return_from && formik.errors.return_from}
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Destination</label>
-                                                        <input 
-                                                            type="text" 
+                                                        <LocationAutocomplete 
                                                             name="return_to"
-                                                            placeholder="Airport or City" 
-                                                            {...formik.getFieldProps('return_to')}
-                                                            className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none" 
+                                                            placeholder="Airport or City"
+                                                            value={formik.values.return_to}
+                                                            onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                            onBlur={formik.handleBlur}
+                                                            hasError={formik.touched.return_to && formik.errors.return_to}
                                                         />
                                                     </div>
                                                 </div>
@@ -591,7 +590,7 @@ const PrivateJetsPage = () => {
             </section>
 
             {/* Adventure Section */}
-            <AdventureSection />
+            <AdventureSection content={cmsData} loading={isLoadingCMS} />
 
             {/* Gallery Loop Section */}
             <GalleryLoop images={cmsData?.hero_slider} loading={isLoadingCMS} />

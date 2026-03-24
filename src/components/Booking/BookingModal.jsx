@@ -377,11 +377,11 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                             if (!count) return null;
                                             const units = Math.ceil(count / t.roomSize);
                                             return (
-                                                <div key={t.id} className="flex justify-between items-center text-xs font-semibold">
-                                                    <span className="text-white/70">
+                                                <div key={t.id} className="flex justify-between items-center text-xs font-semibold gap-4">
+                                                    <span className="text-white/70 min-w-0">
                                                         {units} × {t.label} {t.roomSize > 1 ? 'Room' : ''} ({count} Guests)
                                                     </span>
-                                                    <span className="text-white">
+                                                    <span className="text-white whitespace-nowrap shrink-0">
                                                         {formatPrice(units * getPrice(t.id, values.departureDateId))}
                                                     </span>
                                                 </div>

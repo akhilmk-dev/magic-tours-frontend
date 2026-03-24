@@ -9,14 +9,42 @@ import sectionBg from '../../assets/Section.png';
 import gutter from '../../assets/gutter.png';
 
 export default function AdventureSection({ content, loading }) {
-    const title_line1 = content?.title_line1 || "Adventure";
-    const title_highlight = content?.title_highlight || "Awaits";
-    const subtitle_line1 = content?.subtitle_line1 || "Explore the";
-    const subtitle_highlight = content?.subtitle_highlight || "World";
-    const button1Text = content?.button1_text || "Explore Packages";
-    const button1Link = content?.button1_link || "/tours";
-    const button2Text = content?.button2_text || "Explore Destinations";
-    const button2Link = content?.button2_link || "/destinations";
+    // Determine title parts (Line 1)
+    let title_line1 = content?.title_line1 || "Adventure";
+    let title_highlight = content?.title_highlight || "Awaits";
+
+    if (content?.adventure_title) {
+        const titleParts = content.adventure_title.trim().split(' ');
+        if (titleParts.length > 1) {
+            title_highlight = titleParts.pop();
+            title_line1 = titleParts.join(' ');
+        } else {
+            title_line1 = content.adventure_title;
+            title_highlight = "";
+        }
+    }
+
+    // Determine subtitle parts (Line 2)
+    // Note: The UI uses white for both parts of the subtitle, so we don't strictly need to split it 
+    // but we'll handle it for consistency if we want to keep the highlight structure.
+    let subtitle_line1 = content?.subtitle_line1 || "Explore the";
+    let subtitle_highlight = content?.subtitle_highlight || "World";
+
+    if (content?.adventure_subtitle) {
+        const subtitleParts = content.adventure_subtitle.trim().split(' ');
+        if (subtitleParts.length > 1) {
+            subtitle_highlight = subtitleParts.pop();
+            subtitle_line1 = subtitleParts.join(' ');
+        } else {
+            subtitle_line1 = content.adventure_subtitle;
+            subtitle_highlight = "";
+        }
+    }
+
+    const button1Text = content?.adventure_button1_text || content?.button1_text || "Explore Packages";
+    const button1Link = content?.adventure_button1_link || content?.button1_link || "/tours";
+    const button2Text = content?.adventure_button2_text || content?.button2_text || "Explore Destinations";
+    const button2Link = content?.adventure_button2_link || content?.button2_link || "/destinations";
 
     const router = useRouter();
     if (loading) {
@@ -60,21 +88,21 @@ export default function AdventureSection({ content, loading }) {
                         {subtitle_line1} <span className="text-white">{subtitle_highlight}</span>
                     </h3>
 
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 w-full max-w-xl mx-auto px-4 sm:px-0">
                         <button 
                             onClick={() => router.push(button1Link)}
-                            className="bg-[#FDB338] hover:bg-[#e5a232] text-[#113A74] px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group shadow-lg text-base whitespace-nowrap"
+                            className="bg-[#FDB338] hover:bg-[#e5a232] text-[#113A74] px-4 py-3.5 rounded-full font-bold transition-all flex items-center justify-center gap-2 group shadow-lg text-sm sm:text-base whitespace-nowrap w-[230px]"
                         >
                             {button1Text}
-                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform shrink-0" />
                         </button>
                         
                         <button 
                             onClick={() => router.push(button2Link)}
-                            className="bg-transparent hover:bg-white text-white hover:text-[#113A74] border-2 border-white px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 group text-base whitespace-nowrap shadow-sm"
+                            className="bg-transparent hover:bg-white text-white hover:text-[#113A74] border-2 border-white px-4 py-3.5 rounded-full font-bold transition-all flex items-center justify-center gap-2 group text-sm sm:text-base whitespace-nowrap shadow-sm w-[230px]"
                         >
                             {button2Text}
-                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform shrink-0" />
                         </button>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 export const runtime = 'edge';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ import { useCurrency } from '../../../context/CurrencyContext';
 import { api } from '../../../api/client';
 import {
     Calendar, Users, MapPin, Check, X, Clock,
-    ChevronRight, Loader2, Star, Shield, Info,
+    ChevronRight, ChevronLeft, Loader2, Star, Shield, Info,
     Plane, Utensils, Hotel, Camera, ChevronDown, ChevronUp, Car,
     ArrowRight, Globe, Map, CalendarCheck, QrCode, Train, BedDouble, LogIn, LogOut
 } from 'lucide-react';
@@ -44,6 +44,14 @@ const PackageDetailsPage = () => {
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
     const [promos, setPromos] = useState([]);
+    const relatedScrollRef = useRef(null);
+    
+    const scrollRelated = (direction) => {
+        if (relatedScrollRef.current) {
+            const scrollAmount = direction === 'left' ? -350 : 350;
+            relatedScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/package_details')
@@ -536,8 +544,8 @@ const PackageDetailsPage = () => {
                         {/* Include & Exclude Box */}
                         <div className="bg-[#f7f5f2] rounded-3xl p-8 md:p-12 w-full mt-8">
                             <h3 className="text-2xl md:text-3xl font-bold font-heading mb-8">
-                                <span className="text-[#113A74]">Include & </span>
-                                <span className="text-[#FFA500]">Exclude :</span>
+                                <span className="text-[#113A74]">Inclusions & </span>
+                                <span className="text-[#FFA500]">Exclusions :</span>
                             </h3>
                             <div className="flex flex-col sm:flex-row gap-8 sm:gap-16">
                                 {/* Includes */}
@@ -769,7 +777,7 @@ const PackageDetailsPage = () => {
             <div className="bg-[#E9F7FF] py-20 mt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
-                    <div className="flex flex-col items-center justify-center mb-16">
+                    <div className="relative flex flex-col items-center justify-center mb-16">
                         <div className="bg-white rounded-full py-2 px-6 flex items-center gap-2 mb-6 shadow-sm">
                             <Plane className="w-4 h-4 text-[#113A74]" />
                             <span className="text-xs font-bold text-[#113A74] tracking-widest uppercase">RELATED</span>
@@ -778,30 +786,44 @@ const PackageDetailsPage = () => {
                             <span className="text-[#113A74]">Related Trips You </span>
                             <span className="text-[#FFA500]">Might Also Like</span>
                         </h2>
+                        {mounted && relatedPackages.length > 3 && (
+                            <div className="hidden lg:flex absolute right-0 bottom-0 gap-3">
+                                <button 
+                                    onClick={() => scrollRelated('left')} 
+                                    className="w-12 h-12 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all active:scale-95"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button 
+                                    onClick={() => scrollRelated('right')} 
+                                    className="w-12 h-12 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-[#113A74] hover:bg-[#113A74] hover:text-white transition-all active:scale-95"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Cards Carousel */}
-                    <div className="relative overflow-hidden -mx-4 md:-mx-10 lg:-mx-16 px-4 md:px-10 lg:px-16 pb-12 min-h-[400px]">
+                    {/* Cards */}
+                    <div className="w-full relative">
                         {relatedLoading ? (
-                            <div className="flex gap-8">
-                                {Array(4).fill(0).map((_, i) => (
-                                    <div key={i} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] h-[480px] bg-white rounded-[1.8rem] animate-pulse" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {Array(3).fill(0).map((_, i) => (
+                                    <div key={i} className="w-full h-[480px] bg-white rounded-[1.8rem] animate-pulse" />
                                 ))}
                             </div>
                         ) : mounted && relatedPackages.length > 0 ? (
-                            <motion.div
-                                className="flex gap-12"
-                                animate={{
-                                    x: [0, -1400]
-                                }}
-                                transition={{
-                                    duration: 35,
-                                    repeat: Infinity,
-                                    ease: "linear"
-                                }}
+                            <div 
+                                ref={relatedScrollRef}
+                                className={`flex gap-6 lg:gap-8 pb-12 w-full ${relatedPackages.length <= 3 ? 'justify-center flex-wrap' : 'overflow-x-auto hide-scrollbar snap-x snap-mandatory'}`}
+                                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                             >
-                                {[...relatedPackages, ...relatedPackages].map((relPkg, loopIdx) => (
-                                    <Link href={`/packages/${relPkg.slug || relPkg.id}`} key={`${loopIdx}-${relPkg.id}`} className="flex-shrink-0 w-[300px] md:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300">
+                                {relatedPackages.map((relPkg, loopIdx) => (
+                                    <Link 
+                                        href={`/packages/${relPkg.slug || relPkg.id}`} 
+                                        key={`${loopIdx}-${relPkg.id}`} 
+                                        className={`flex-shrink-0 w-full sm:w-[320px] lg:w-[350px] bg-white rounded-[1.8rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-300 snap-center`}
+                                    >
                                         {/* Image Box */}
                                         <div className="relative h-60 overflow-hidden rounded-t-[1.8rem]">
                                             <div className="absolute top-4 right-4 bg-[#FFA500] text-white text-[9px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm">
@@ -850,15 +872,8 @@ const PackageDetailsPage = () => {
                                         </div>
                                     </Link>
                                 ))}
-                            </motion.div>
+                            </div>
                         ) : null}
-                    </div>
-
-                    {/* Pagination Dots */}
-                    <div className="flex justify-center gap-2 mt-12">
-                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
-                        <div className="w-2 h-2 rounded-full border border-gray-300"></div>
-                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
                     </div>
                 </div>
             </div>

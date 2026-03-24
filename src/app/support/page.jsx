@@ -138,17 +138,22 @@ export default function SupportPage() {
                     ))}
                 </div>
 
-                {/* FAQ Link */}
-                <div className="mt-16 text-center bg-gradient-to-r from-[#113A74] to-[#1c4d91] rounded-[2rem] p-10 text-white shadow-xl">
-                    <h3 className="text-2xl font-heading font-bold mb-3">Looking for quick answers?</h3>
-                    <p className="text-white/70 text-sm mb-6">Browse our FAQ for instant answers to the most common travel questions.</p>
-                    <Link href="/faq" className="inline-block bg-[#FFA500] hover:bg-[#e09000] text-white font-bold px-8 py-4 rounded-full transition-all shadow-lg hover:shadow-[#FFA500]/30 text-sm">
-                        Visit FAQ
-                    </Link>
-                </div>
             </section>
 
-            <AdventureSection />
+            {/* Support FAQ Link Blending Section */}
+            <section className="w-full bg-[#E9F7FF] pt-20 pb-0">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-20">
+                    <div className="text-center bg-gradient-to-r from-[#113A74] to-[#1c4d91] rounded-[2rem] p-10 text-white shadow-xl">
+                        <h3 className="text-2xl font-heading font-bold mb-3">Looking for quick answers?</h3>
+                        <p className="text-white/70 text-sm mb-6">Browse our FAQ for instant answers to the most common travel questions.</p>
+                        <Link href="/faq" className="inline-block bg-[#FFA500] hover:bg-[#e09000] text-white font-bold px-8 py-4 rounded-full transition-all shadow-lg hover:shadow-[#FFA500]/30 text-sm">
+                            Visit FAQ
+                        </Link>
+                    </div>
+                </div>
+
+                <AdventureSection />
+            </section>
             <GalleryLoop />
         </main>
     );

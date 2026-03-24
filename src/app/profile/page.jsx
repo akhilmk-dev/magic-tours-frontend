@@ -19,6 +19,13 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'idl', 'visa', or 'favorites'
     const router = useRouter();
 
+    // Redirect to login if not authenticated — must be before any early returns (Rules of Hooks)
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push('/login');
+        }
+    }, [user, authLoading, router]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,7 +39,6 @@ const ProfilePage = () => {
                     if (Array.isArray(res)) return res;
                     if (res && Array.isArray(res.data)) return res.data;
                     if (res && typeof res === 'object') {
-                        // Look for any array property if data isn't one (e.g. favorites: [])
                         const possibleArray = Object.values(res).find(val => Array.isArray(val));
                         if (possibleArray) return possibleArray;
                     }
@@ -57,22 +63,8 @@ const ProfilePage = () => {
         }
     }, [user, authLoading]);
 
-    if (authLoading) {
+    if (authLoading || !user) {
         return <ProfileSkeletons />;
-    }
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center flex-col gap-4">
-                <p className="text-gray-500">Please log in to view your profile.</p>
-                <button
-                    onClick={() => openAuthModal('login')}
-                    className="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
-                >
-                    Sign In
-                </button>
-            </div>
-        );
     }
 
     return (

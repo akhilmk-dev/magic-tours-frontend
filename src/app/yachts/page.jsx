@@ -12,9 +12,9 @@ import * as Yup from 'yup';
 import wingBg from '../../assets/Background (1).png';
 import formBg from '../../assets/form-background.png';
 
-// Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
+import LocationAutocomplete from '../../components/common/LocationAutocomplete';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
@@ -411,16 +411,14 @@ const YachtsPage = () => {
                                     {/* Row 2 */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Location / Route <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input 
-                                                type="text" 
-                                                name="location"
-                                                placeholder="Port, City or Specific Route" 
-                                                {...formik.getFieldProps('location')}
-                                                className={`w-full border ${formik.touched.location && formik.errors.location ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
-                                            />
-                                        </div>
+                                        <LocationAutocomplete 
+                                            name="location"
+                                            placeholder="Port, City or Specific Route"
+                                            value={formik.values.location}
+                                            onChange={(name, val) => formik.setFieldValue(name, val)}
+                                            onBlur={formik.handleBlur}
+                                            hasError={formik.touched.location && formik.errors.location}
+                                        />
                                         {formik.touched.location && formik.errors.location && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.location}</p>}
                                     </div>
 
@@ -504,7 +502,7 @@ const YachtsPage = () => {
             </section>
 
             {/* Adventure Section */}
-            <AdventureSection />
+            <AdventureSection content={cmsData} loading={isLoadingCMS} />
 
             {/* Gallery Loop Section */}
             <GalleryLoop images={galleryImages} loading={isLoadingCMS} />

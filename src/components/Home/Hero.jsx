@@ -141,9 +141,9 @@ export default function Hero({ slides: apiSlides, loading }) {
             </AnimatePresence>
 
             {/* Right Side Fixed Content: Social & Slider Controls (lg+ only) */}
-            <div className="absolute right-4 lg:right-6 xl:right-8 top-28 lg:top-32 bottom-40 lg:bottom-56 z-30 hidden lg:flex flex-col items-end justify-between pointer-events-none">
+            <div className="absolute right-4 lg:right-6 xl:right-8 top-28 lg:top-32 bottom-36 lg:bottom-44 z-30 hidden lg:flex flex-col items-end justify-between pointer-events-none">
                 {/* Social Media Icons */}
-                <div className="flex flex-col gap-4 lg:gap-5 xl:gap-6 pointer-events-auto">
+                <div className="flex flex-col gap-4 lg:gap-5 xl:gap-6 pointer-events-auto mb-8 lg:mb-12">
                     {[Facebook, Twitter, Instagram].map((Icon, i) => (
                         <button key={i} className="w-8 h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white backdrop-blur-sm transition-all hover:scale-110">
                             <Icon size={16} />

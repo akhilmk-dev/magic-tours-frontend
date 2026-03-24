@@ -38,12 +38,15 @@ const ContactSchema = Yup.object().shape({
 const ContactUsPage = () => {
     const { success, error } = useToast();
     const [submitting, setSubmitting] = useState(false);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
 
     const handleSubmit = async (values, { resetForm }) => {
         setSubmitting(true);
+        setSubmitSuccess(false);
         try {
             await api.post('/contacts/frontend/submit', values);
-            success('Message sent successfully! We will get back to you soon.');
+            setSubmitSuccess(true);
+            setTimeout(() => setSubmitSuccess(false), 4000);
             resetForm();
         } catch (err) {
             console.error('Submission error:', err);
@@ -62,11 +65,16 @@ const ContactUsPage = () => {
             bg: "bg-orange-50"
         },
         {
-            icon: <MessageSquare className="text-[#113A74]" size={20} />,
+            icon: (
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#25D366]">
+                    <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+                    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+                </svg>
+            ),
             title: "WhatsApp Number",
             details: "+971 987 654 321",
             details2: "Available 24/7",
-            bg: "bg-blue-50"
+            bg: "bg-[#25D366]/10"
         },
         {
             icon: <MapPin className="text-[#FFA500]" size={20} />,
@@ -221,7 +229,7 @@ const ContactUsPage = () => {
                                     <Form className="space-y-6 relative z-10">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Your Name</label>
+                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Your Name<span className="text-red-500 ml-0.5">*</span></label>
                                                 <div className="relative">
                                                     <Field 
                                                         name="name" 
@@ -236,7 +244,7 @@ const ContactUsPage = () => {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Email Address</label>
+                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Email Address<span className="text-red-500 ml-0.5">*</span></label>
                                                 <div className="relative">
                                                     <Field 
                                                         name="email" 
@@ -253,7 +261,7 @@ const ContactUsPage = () => {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Phone Number</label>
+                                                <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Phone Number<span className="text-red-500 ml-0.5">*</span></label>
                                                 <InternationalPhoneInput
                                                     value={values.phone}
                                                     onChange={(val) => setFieldValue('phone', val)}
@@ -272,7 +280,7 @@ const ContactUsPage = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Subject</label>
+                                            <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Subject<span className="text-red-500 ml-0.5">*</span></label>
                                             <div className="relative">
                                                 <Field 
                                                     name="subject" 
@@ -287,7 +295,7 @@ const ContactUsPage = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Your Message</label>
+                                            <label className="text-[10px] font-black text-[#113A74] uppercase tracking-widest ml-1">Your Message<span className="text-red-500 ml-0.5">*</span></label>
                                             <Field 
                                                 as="textarea"
                                                 name="message" 
@@ -301,13 +309,18 @@ const ContactUsPage = () => {
                                         <div className="pt-4">
                                             <button
                                                 type="submit"
-                                                disabled={submitting || !isValid}
-                                                className={`w-full bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-2xl py-5 px-10 font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl hover:shadow-[#113A74]/25 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 group`}
+                                                disabled={submitting || !isValid || submitSuccess}
+                                                className={`w-full ${submitSuccess ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' : 'bg-[#113A74] hover:bg-[#1c4d91] hover:shadow-[#113A74]/25'} text-white rounded-2xl py-5 px-10 font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 group`}
                                             >
                                                 {submitting ? (
                                                     <>
                                                         <Loader2 className="animate-spin text-white" size={20} />
                                                         Sending...
+                                                    </>
+                                                ) : submitSuccess ? (
+                                                    <>
+                                                        <CheckCircle2 size={20} />
+                                                        Message Sent!
                                                     </>
                                                 ) : (
                                                     <>

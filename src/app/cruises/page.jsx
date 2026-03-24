@@ -15,6 +15,7 @@ import wingBg from '../../assets/Background (1).png';
 // Components
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
+import LocationAutocomplete from '../../components/common/LocationAutocomplete';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { api } from '../../api/client';
 
@@ -451,16 +452,14 @@ const CruisesPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                <input 
-                                                    type="text" 
-                                                    name="destination"
-                                                    placeholder="e.g. Bahamas, Santorini" 
-                                                    {...formik.getFieldProps('destination')}
-                                                    className={`w-full border ${formik.touched.destination && formik.errors.destination ? 'border-red-400' : 'border-gray-200'} rounded-lg pl-10 pr-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
-                                                />
-                                            </div>
+                                            <LocationAutocomplete 
+                                                name="destination"
+                                                placeholder="e.g. Bahamas, Santorini"
+                                                value={formik.values.destination}
+                                                onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                onBlur={formik.handleBlur}
+                                                hasError={formik.touched.destination && formik.errors.destination}
+                                            />
                                             {formik.touched.destination && formik.errors.destination && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.destination}</p>}
                                         </div>
                                         <div className="space-y-2">
@@ -570,7 +569,7 @@ const CruisesPage = () => {
             </section>
 
             {/* Adventure Section */}
-            <AdventureSection />
+            <AdventureSection content={cmsData} loading={isLoadingCMS} />
 
             {/* Gallery Loop Section */}
             <GalleryLoop images={cruiseGalleryImages} loading={isLoadingCMS} />

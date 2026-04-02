@@ -272,7 +272,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 bg-white rounded-t-[2.5rem] -mt-8 relative z-10 p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-
+                                            
                                             {/* Details info box */}
                                             <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
                                                 <div className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 bg-[#113A74] p-6 flex flex-col">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-
+                                            
                                             {/* Tour Type row */}
                                             <div className="flex items-center gap-2 mb-auto">
                                                 <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
@@ -325,7 +325,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 <div>
                                                     <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                     <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
                                                         className="text-[12px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
                                                     >

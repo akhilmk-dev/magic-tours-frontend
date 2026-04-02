@@ -111,8 +111,8 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
                                 </h3>
 
                                 {/* Read More */}
-                                <Link 
-                                    href={post.link} 
+                                <Link
+                                    href={post.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="pt-4 border-t border-gray-100 flex items-center justify-between group/link cursor-pointer"
@@ -142,7 +142,7 @@ export default function BlogNews({ blogs: apiBlogs, content, loading }) {
                     </div>
 
                     {/* Subscription Form */}
-                    <div className="relative max-w-2xl mx-auto bg-white flex items-center h-[50px] sm:h-[65px] shadow-sm">
+                    <div className="relative max-w-lg mx-auto bg-white flex items-center h-[30px] sm:h-[65px] shadow-sm">
                         <input
                             type="email"
                             placeholder="Enter email"

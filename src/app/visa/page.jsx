@@ -14,18 +14,19 @@ import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRouter } from 'next/navigation';
+import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 // Country codes remain static as they usually include flags and logic that doesn't change much
 import ServicePageSkeleton from '../../components/skeletons/ServiceSkeletons';
 
 const COUNTRY_CODES = [
-    { code: "+971", name: "UAE", flag: "🇦🇪" },
-    { code: "+966", name: "KSA", flag: "🇸🇦" },
-    { code: "+974", name: "Qatar", flag: "🇶🇦" },
-    { code: "+91", name: "India", flag: "🇮🇳" },
-    { code: "+1", name: "USA/Canada", flag: "🇺🇸" },
-    { code: "+44", name: "UK", flag: "🇬🇧" },
-    { code: "+65", name: "Singapore", flag: "🇸🇬" }
+    { code: "+971", name: "UAE", flag: "🇦🇪", placeholder: "50 123 4567" },
+    { code: "+966", name: "KSA", flag: "🇸🇦", placeholder: "51 234 5678" },
+    { code: "+974", name: "Qatar", flag: "🇶🇦", placeholder: "3312 3456" },
+    { code: "+91", name: "India", flag: "🇮🇳", placeholder: "98765 43210" },
+    { code: "+1", name: "USA/Canada", flag: "🇺🇸", placeholder: "212 555 1234" },
+    { code: "+44", name: "UK", flag: "🇬🇧", placeholder: "7123 456789" },
+    { code: "+65", name: "Singapore", flag: "🇸🇬", placeholder: "8123 4567" }
 ];
 
 const PASSENGER_COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
@@ -93,7 +94,7 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
                     {label} <span className="text-red-500 font-bold">*</span>
                 </label>
             )}
-            <div 
+            <div
                 onClick={() => !isLoading && setIsOpen(!isOpen)}
                 className={`w-full bg-gray-50 border-2 ${touched && error ? 'border-red-100' : 'border-transparent'} hover:border-[#FFA500]/20 focus-within:border-[#FFA500]/30 rounded-2xl ${isCode ? 'py-4 px-4' : 'py-4 px-6'} flex items-center justify-between cursor-pointer transition-all min-h-[56px] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -137,7 +138,7 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
                                     const optID = isDestination || isCountry ? option.id : null;
                                     const optLabel = isCode ? `${option.flag} ${option.code} (${option.name})` : (isVisa ? option.visa_name : (option.name || option.label || option));
                                     const isSelected = isDestination || isCountry ? optID === value : optVal === value;
-                                    
+
                                     return (
                                         <div
                                             key={idx}
@@ -167,6 +168,10 @@ const CustomSelect = ({ label, name, options, value, setFieldValue, icon: Icon, 
 
 // Error handle for Mobile field
 const MobileInput = ({ nameCode, nameNumber, options, values, setFieldValue, touched, errors }) => {
+    // Find the current country to get its placeholder
+    const currentCountry = options.find(opt => opt.code === values[nameCode]);
+    const dynamicPlaceholder = currentCountry?.placeholder || "000 0000";
+
     return (
         <div className="space-y-2">
             <label className="text-xs font-bold text-[#113A74]/70 uppercase tracking-widest flex items-center gap-2 px-1">
@@ -187,7 +192,7 @@ const MobileInput = ({ nameCode, nameNumber, options, values, setFieldValue, tou
                 <div className="flex-1 space-y-2">
                     <Field
                         name={nameNumber}
-                        placeholder="000 0000"
+                        placeholder={dynamicPlaceholder}
                         className={`w-full bg-gray-50 border-2 ${touched[nameNumber] && errors[nameNumber] ? 'border-red-100' : 'border-transparent'} focus:border-[#FFA500]/30 focus:bg-white rounded-2xl py-4 px-6 outline-none transition-all text-sm font-semibold text-[#113A74] min-h-[56px]`}
                     />
                     <ErrorMessage name={nameNumber} component="div" className="text-red-500 text-[10px] font-bold uppercase px-1" />
@@ -208,9 +213,47 @@ const uploadFile = async (file) => {
 
 const validationSchema = Yup.object().shape({
     applicantName: Yup.string().required('Required'),
-    email: Yup.string().email('Invalid email').required('Required'),
+    email: Yup.string()
+        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email address (e.g. name@example.com)')
+        .required('Email is required'),
     mobileCode: Yup.string().required('Required'),
-    mobileNumber: Yup.string().required('Required'),
+    mobileNumber: Yup.string()
+        .required('Required')
+        .test('is-valid-phone', 'Invalid phone number for selected country', function (value) {
+            const { mobileCode } = this.parent;
+            if (!value || !mobileCode) return true;
+
+            const digitsOnly = value.replace(/\s/g, '');
+
+            // --- Special Case for India (+91) ---
+            if (mobileCode === '+91') {
+                // Strictly 10 digits and starts with 6, 7, 8, or 9
+                const is10Digits = /^[6789]\d{9}$/.test(digitsOnly);
+                if (!is10Digits) {
+                    return this.createError({ message: 'Indian mobiles must be 10 digits starting with 6-9' });
+                }
+                return true;
+            }
+
+            // --- General Case for Other Countries ---
+            try {
+                const fullNumber = `${mobileCode}${digitsOnly}`;
+                const phoneNumber = parsePhoneNumber(fullNumber);
+
+                // Must be a valid number for that country
+                if (!phoneNumber.isValid()) return false;
+
+                // Only reject if it's explicitly identified as a landline/fixed-line
+                const type = phoneNumber.getType();
+                if (type === 'FIXED_LINE') {
+                    return this.createError({ message: 'Mobile number required, landlines are not accepted' });
+                }
+
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }),
     nationality: Yup.string().required('Required'),
     residenceCountry: Yup.string().required('Required'),
     destinationCountryId: Yup.string().required('Required'),
@@ -310,7 +353,7 @@ const VisaServicesPage = () => {
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState('');
     const [isMounted, setIsMounted] = useState(false);
-    
+
     const [countries, setCountries] = useState([]);
     const [visas, setVisas] = useState([]);
     const [isLoadingCountries, setIsLoadingCountries] = useState(true);
@@ -341,7 +384,7 @@ const VisaServicesPage = () => {
             // Fetch using the specific API requested by the user, dynamically filtered by country_id
             const response = await api.get(`/visas?page=1&limit=10&country_id=${countryId}`);
             const filteredVisas = response.data?.data || response.data || [];
-            
+
             // Backend handles filtering via query param
             setVisas(filteredVisas);
         } catch (err) {
@@ -392,6 +435,7 @@ const VisaServicesPage = () => {
 
     const handleSubmit = async (values) => {
         setLoading(true);
+        console.log("values", values);
         try {
             setUploadProgress('Uploading photos...');
             const passengersPayload = await Promise.all(
@@ -400,7 +444,7 @@ const VisaServicesPage = () => {
                         uploadFile(passenger.profilePhoto),
                         uploadFile(passenger.passportPhoto),
                     ]);
-                    
+
                     // Fetch nationality name from ID for payload? 
                     // Swagger example shows "Indian" string, not UUID
                     const nationalityName = countries.find(c => c.id === passenger.nationality)?.name || passenger.nationality;
@@ -417,7 +461,7 @@ const VisaServicesPage = () => {
             );
 
             setUploadProgress('Submitting visa application...');
-            
+
             const nationalityName = countries.find(c => c.id === values.nationality)?.name || values.nationality;
             const residenceName = countries.find(c => c.id === values.residenceCountry)?.name || values.residenceCountry;
 

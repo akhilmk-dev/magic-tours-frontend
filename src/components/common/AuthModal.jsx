@@ -8,9 +8,9 @@ import * as Yup from 'yup';
 import InternationalPhoneInput from './InternationalPhoneInput';
 
 const AuthModal = () => {
-    const { 
-        isAuthModalOpen, authModalView, openAuthModal, closeAuthModal, 
-        login, register, forgotPassword, verifyOtp, resendOtp, resetPassword 
+    const {
+        isAuthModalOpen, authModalView, openAuthModal, closeAuthModal,
+        login, register, forgotPassword, verifyOtp, resendOtp, resetPassword
     } = useCustomerAuth();
 
     // Resend OTP Timer States
@@ -43,7 +43,7 @@ const AuthModal = () => {
     useEffect(() => {
         if (isAuthModalOpen) {
             document.body.style.overflow = 'hidden';
-            
+
             // Fetch dynamic logo whenever modal opens (or rely on cache)
             if (!dynamicLogo) {
                 fetch('https://magic-apis.staff-b0c.workers.dev/settings/public')
@@ -82,6 +82,14 @@ const AuthModal = () => {
     // Handle Login Submit
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        // Strict email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(loginEmail)) {
+            setLoginError('Please enter a valid email address');
+            return;
+        }
+
         setLoginLoading(true);
         setLoginError('');
         try {
@@ -105,7 +113,9 @@ const AuthModal = () => {
     // Handle Register Submit
     const registerValidationSchema = Yup.object().shape({
         name: Yup.string().min(2, 'Name must be at least 2 characters').required('Full Name is required'),
-        email: Yup.string().email('Invalid email address').required('Email is required'),
+        email: Yup.string()
+            .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email address')
+            .required('Email is required'),
         phone: Yup.string().matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format').required('Phone Number is required'),
         password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
         confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm Password is required')
@@ -140,6 +150,14 @@ const AuthModal = () => {
     // Handle Forgot Password Request
     const handleForgotPassword = async (e) => {
         e.preventDefault();
+
+        // Strict email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(forgotEmail)) {
+            setForgotError('Please enter a valid email address');
+            return;
+        }
+
         setForgotLoading(true);
         setForgotError('');
         try {
@@ -160,7 +178,7 @@ const AuthModal = () => {
 
     const handleResendOtp = async () => {
         if (!canResend || forgotLoading) return;
-        
+
         setForgotLoading(true);
         setForgotError('');
         try {
@@ -181,7 +199,7 @@ const AuthModal = () => {
     // Handle OTP Verification
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        
+
         if (forgotOtp.length !== 6) {
             setForgotError('Please enter a valid 6-digit OTP');
             return;
@@ -239,7 +257,7 @@ const AuthModal = () => {
             }
         }
     });
-    
+
     // Reset/Initialize state on modal open/view change
     useEffect(() => {
         if (!isAuthModalOpen) {
@@ -346,8 +364,8 @@ const AuthModal = () => {
                                         </div>
 
                                         <div className="flex justify-end pt-1">
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 onClick={() => openAuthModal('forgot-password')}
                                                 className="text-[11px] font-heading font-bold text-[#FFA500] hover:text-[#e69500] transition-colors"
                                             >
@@ -442,74 +460,74 @@ const AuthModal = () => {
                                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 flex items-center justify-center">
                                             {dynamicLogo && <img src={dynamicLogo} alt="Magic Tours Logo" className="h-10 w-auto" />}
                                         </motion.div>
-                                            <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Verify OTP</h2>
-                                            <p className="text-gray-400 text-[11px] font-medium uppercase tracking-wider">Enter the 6-digit code sent to <span className="text-[#113A74] lowercase font-bold italic">{forgotEmail}</span></p>
+                                        <h2 className="text-2xl font-black text-[#113A74] tracking-tight mb-1">Verify OTP</h2>
+                                        <p className="text-gray-400 text-[11px] font-medium uppercase tracking-wider">Enter the 6-digit code sent to <span className="text-[#113A74] lowercase font-bold italic">{forgotEmail}</span></p>
+                                    </div>
+                                    <form className="space-y-4" onSubmit={handleVerifyOtp}>
+                                        {forgotError && (
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center tracking-wider">
+                                                {forgotError}
+                                            </motion.div>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1 flex justify-between items-center">
+                                                <span>Enter OTP</span>
+                                            </label>
+                                            <div className="relative group">
+                                                <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    minLength={6}
+                                                    maxLength={6}
+                                                    className="w-full bg-gray-50/50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-xl py-3.5 pl-12 pr-6 outline-none transition-all text-sm font-bold text-center tracking-[1em] text-[#113A74] placeholder:text-gray-300"
+                                                    placeholder="000000"
+                                                    value={forgotOtp}
+                                                    onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                                                />
+                                            </div>
                                         </div>
-                                        <form className="space-y-4" onSubmit={handleVerifyOtp}>
-                                            {forgotError && (
-                                                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase text-center tracking-wider">
-                                                    {forgotError}
-                                                </motion.div>
-                                            )}
 
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-[#113A74]/60 uppercase tracking-[0.2em] px-1 flex justify-between items-center">
-                                                    <span>Enter OTP</span>
-                                                </label>
-                                                <div className="relative group">
-                                                    <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FFA500] transition-colors" size={18} />
-                                                    <input
-                                                        type="text"
-                                                        required
-                                                        minLength={6}
-                                                        maxLength={6}
-                                                        className="w-full bg-gray-50/50 border-2 border-transparent focus:border-[#FFA500]/30 focus:bg-white rounded-xl py-3.5 pl-12 pr-6 outline-none transition-all text-sm font-bold text-center tracking-[1em] text-[#113A74] placeholder:text-gray-300"
-                                                        placeholder="000000"
-                                                        value={forgotOtp}
-                                                        onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="pt-2 space-y-3">
-                                                <button
-                                                    type="submit"
-                                                    disabled={forgotLoading}
-                                                    className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
-                                                >
-                                                    {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
-                                                        <>
-                                                            <span>Verify Code</span>
-                                                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                                        </>
-                                                    )}
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={handleResendOtp}
-                                                    disabled={forgotLoading || resendTimer > 0}
-                                                    className="w-full relative group bg-white border-2 border-[#FFA500]/30 hover:border-[#FFA500] text-[#FFA500] rounded-full py-4 px-8 font-heading font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-3"
-                                                >
-                                                    {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
-                                                        <>
-                                                            <span>Resend OTP</span>
-                                                            <UserPlus size={16} />
-                                                        </>
-                                                    )}
-                                                </button>
-
-                                                {resendTimer > 0 && (
-                                                    <motion.p 
-                                                        initial={{ opacity: 0 }} 
-                                                        animate={{ opacity: 1 }} 
-                                                        className="text-center text-[10px] font-bold text-[#FFA500] uppercase tracking-wider"
-                                                    >
-                                                        Resend in {resendTimer}s
-                                                    </motion.p>
+                                        <div className="pt-2 space-y-3">
+                                            <button
+                                                type="submit"
+                                                disabled={forgotLoading}
+                                                className="w-full relative group bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-5 px-8 font-heading font-bold text-base transition-all shadow-xl shadow-[#113A74]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+                                            >
+                                                {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                    <>
+                                                        <span>Verify Code</span>
+                                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                    </>
                                                 )}
-                                            </div>
-                                        </form>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleResendOtp}
+                                                disabled={forgotLoading || resendTimer > 0}
+                                                className="w-full relative group bg-white border-2 border-[#FFA500]/30 hover:border-[#FFA500] text-[#FFA500] rounded-full py-4 px-8 font-heading font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-3"
+                                            >
+                                                {forgotLoading ? <Loader2 className="animate-spin" size={18} /> : (
+                                                    <>
+                                                        <span>Resend OTP</span>
+                                                        <UserPlus size={16} />
+                                                    </>
+                                                )}
+                                            </button>
+
+                                            {resendTimer > 0 && (
+                                                <motion.p
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="text-center text-[10px] font-bold text-[#FFA500] uppercase tracking-wider"
+                                                >
+                                                    Resend in {resendTimer}s
+                                                </motion.p>
+                                            )}
+                                        </div>
+                                    </form>
                                 </>
                             ) : authModalView === 'reset-password' ? (
                                 /* --- RESET PASSWORD VIEW --- */

@@ -252,14 +252,14 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
     const router = useRouter();
     const { formatPrice } = useCurrency();
     return (
-        <div 
+        <div
             onClick={() => router.push(`/packages/${slug || id}`)}
             className="cursor-pointer bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
         >
             <div className="relative aspect-[4/3] overflow-hidden">
                 <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                <FavoriteButton 
-                    packageId={id} 
+                <FavoriteButton
+                    packageId={id}
                     className="absolute top-3 right-3 z-20"
                 />
                 <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
@@ -274,7 +274,7 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                 {slots !== undefined && <div className="text-xs font-bold text-[#FFA500] bg-orange-50 px-3 py-1.5 rounded-md mb-2 w-fit">{slots} Slots Available</div>}
                 <p title={description} className="text-slate-400 text-[13px] leading-relaxed mb-6 font-medium line-clamp-2">{description || "Experience the best of travel with curated packages."}</p>
                 <div className="flex flex-col gap-4 mt-auto">
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.stopPropagation();
                             router.push(`/packages/${slug || id}?book=true`);
@@ -348,12 +348,12 @@ const ToursContent = () => {
             if (selectedDest) {
                 const newTitle = selectedDest.meta_title || selectedDest.name || "Our Packages";
                 const newDesc = selectedDest.meta_description || "";
-                
+
                 setHeaderData({ title: newTitle, description: newDesc });
-                
+
                 // Update SEO Meta Tags
                 document.title = `${newTitle} | Magic Tours`;
-                
+
                 let metaDesc = document.querySelector('meta[name="description"]');
                 if (!metaDesc) {
                     metaDesc = document.createElement('meta');
@@ -522,7 +522,7 @@ const ToursPageSkeleton = () => (
                     {/* Cards Grid Skeleton */}
                     <div className="flex-1 min-w-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {[...Array(6)].map((_, i) => <TourCardSkeleton key={'page-skel-'+i} />)}
+                            {[...Array(6)].map((_, i) => <TourCardSkeleton key={'page-skel-' + i} />)}
                         </div>
                     </div>
                 </div>

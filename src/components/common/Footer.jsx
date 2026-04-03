@@ -113,7 +113,7 @@ export default function Footer() {
                             )}
                             {footerData?.footer_emergency_contact && (
                                 <li>
-                                    <a href={`tel:${footerData.footer_emergency_contact}`} className="text-secondary hover:text-primary transition-colors text-lg font-bold">
+                                    <a href={`tel:${footerData.footer_emergency_contact}`} className="font-philosopher text-secondary hover:text-primary transition-colors text-lg font-bold">
                                         {footerData.footer_emergency_contact}
                                     </a>
                                 </li>
@@ -152,7 +152,7 @@ export default function Footer() {
                             {footerData?.footer_emergency_contact_label && (
                                 <div>
                                     <h5 className="text-sm font-bold text-secondary mb-1">{footerData.footer_emergency_contact_label}</h5>
-                                    {footerData?.footer_emergency_contact && <p className="text-secondary font-bold text-sm">{footerData.footer_emergency_contact}</p>}
+                                    {footerData?.footer_emergency_contact && <p className="font-philosopher text-secondary font-bold text-sm">{footerData.footer_emergency_contact}</p>}
                                 </div>
                             )}
                             {branding.iataLogo && (

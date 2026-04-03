@@ -25,11 +25,12 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Standard modern font
-        heading: ['Philosopher', 'sans-serif'], // Elegant font for headings
-        display: ['El Messiri', 'sans-serif'], // New font for mini slider
-        jakarta: ['Plus Jakarta Sans', 'sans-serif'], // Modern sans for section badges
-        figtree: ['Figtree', 'sans-serif'], // Bold modern font for decorative text
+        sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        philosopher: ['var(--font-philosopher)', 'Philosopher', 'serif'],
+        heading: ['var(--font-philosopher)', 'Philosopher', 'serif'],
+        display: ['var(--font-el-messiri)', 'El Messiri', 'sans-serif'],
+        jakarta: ['var(--font-plus-jakarta-sans)', 'Plus Jakarta Sans', 'sans-serif'],
+        figtree: ['var(--font-figtree)', 'Figtree', 'sans-serif'],
       }
     },
   },

@@ -104,7 +104,7 @@ const ProfilePage = () => {
                     {/* Sidebar / Quick Links */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/40 p-6 sm:p-8">
-                            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">Quick Links</h3>
+                            <h3 className="text-sm font-black text-gray-700 uppercase tracking-widest mb-6">Quick Links</h3>
                             <div className="flex flex-col gap-3">
                                 <Link
                                     href="/visa"
@@ -282,9 +282,9 @@ const ProfilePage = () => {
                                                 <div className="flex-1">
                                                     <div className="flex flex-wrap items-center gap-2 mb-3">
                                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${visa.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                                visa.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                                    visa.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                                                        'bg-gray-100 text-gray-600'
+                                                            visa.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
+                                                                visa.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
+                                                                    'bg-gray-100 text-gray-600'
                                                             }`}>
                                                             {visa.status || 'Pending'}
                                                         </span>
@@ -372,8 +372,8 @@ const ProfilePage = () => {
                                                 <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl">
                                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Applied On</p>
                                                     <p className="text-xl font-black text-[#113A74]">
-                                            {idl.created_at ? new Date(idl.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                                        </p>
+                                                        {idl.created_at ? new Date(idl.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                    </p>
                                                 </div>
                                             </div>
 

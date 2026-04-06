@@ -3,29 +3,34 @@ import Link from 'next/link';
 import Skeleton from '../common/Skeleton';
 import { ArrowRight, Tent, ThumbsUp, Headset, Luggage, Plane } from 'lucide-react';
 
+
 import travelBoy from '../../assets/travelboy.png';
 import travelBag from '../../assets/travelbag.png';
 import offerBadge from '../../assets/offer.png';
 import planeRoute from '../../assets/planeroute.png';
+import luggageIcon from '../../assets/luggageIcon.png'
+import tentIcon from '../../assets/tentIcon.png'
+import thumbsUpIcon from '../../assets/thumbsUpIcon.png'
+import headIcon from '../../assets/headIcon.png'
 
 const stats = [
     {
-        icon: Luggage,
+        icon: luggageIcon,
         value: '30.3k',
         label: 'Happy Traveller',
     },
     {
-        icon: Tent,
+        icon: tentIcon,
         value: '40.5k',
         label: 'Tent Sites',
     },
     {
-        icon: ThumbsUp,
+        icon: thumbsUpIcon,
         value: '88.9%',
         label: 'Satisfaction Rate',
     },
     {
-        icon: Headset,
+        icon: headIcon,
         value: '6.30+',
         label: 'Year Of Service',
     },
@@ -155,8 +160,16 @@ const SpecialOffer = ({ content, loading }) => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0 divide-y md:divide-y-0 md:divide-x divide-gray-100">
                         {stats.map((stat, index) => (
                             <div key={index} className="flex flex-col items-center justify-center text-center px-4">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20 rounded-full border border-gray-100 bg-white flex items-center justify-center mb-5 shadow-sm group hover:border-[#FDB338] transition-all">
-                                    <stat.icon className="text-[#FDB338] transition-transform group-hover:scale-110" size={24} />
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20 rounded-full border border-gray-100 bg-white flex items-center justify-center mb-5 shadow-sm group hover:border-[#FDB338] transition-all overflow-hidden">
+                                    {(typeof stat.icon === 'string' || (stat.icon && typeof stat.icon === 'object' && stat.icon.src)) ? (
+                                        <img
+                                            src={stat.icon.src || stat.icon}
+                                            alt={stat.label}
+                                            className="w-6 h-6 sm:w-7 sm:h-7 lg:w-10 lg:h-10 object-contain transition-transform group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <stat.icon className="text-[#FDB338] transition-transform group-hover:scale-110" size={24} />
+                                    )}
                                 </div>
                                 <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-brand-magic mb-2 tracking-tight">
                                     {stat.value}

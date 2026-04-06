@@ -15,8 +15,8 @@ import wingBg from '../../assets/Background (1).png';
 const AuthPageContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { 
-        login, register, forgotPassword, verifyOtp, resendOtp, resetPassword, user 
+    const {
+        login, register, forgotPassword, verifyOtp, resendOtp, resetPassword, user
     } = useCustomerAuth();
 
     // Resend OTP Timer States
@@ -89,6 +89,14 @@ const AuthPageContent = () => {
     // Handle Login Submit
     const handleLogin = async (e) => {
         e.preventDefault();
+        
+        // Strict email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(loginEmail)) {
+            setLoginError('Please enter a valid email address (e.g. name@example.com)');
+            return;
+        }
+
         setLoginLoading(true);
         setLoginError('');
         try {
@@ -113,7 +121,9 @@ const AuthPageContent = () => {
     // Handle Register Submit
     const registerValidationSchema = Yup.object().shape({
         name: Yup.string().min(2, 'Name must be at least 2 characters').required('Full Name is required'),
-        email: Yup.string().email('Invalid email address').required('Email is required'),
+        email: Yup.string()
+            .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email address (e.g. name@example.com)')
+            .required('Email is required'),
         phone: Yup.string().matches(/^\+?[\d\s-]{7,20}$/, 'Invalid phone number format').required('Phone Number is required'),
         password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
         confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm Password is required')
@@ -148,6 +158,14 @@ const AuthPageContent = () => {
     // Handle Forgot Password Request
     const handleForgotPassword = async (e) => {
         e.preventDefault();
+
+        // Strict email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(forgotEmail)) {
+            setForgotError('Please enter a valid email address');
+            return;
+        }
+
         setForgotLoading(true);
         setForgotError('');
         try {
@@ -168,7 +186,7 @@ const AuthPageContent = () => {
 
     const handleResendOtp = async () => {
         if (!canResend || forgotLoading) return;
-        
+
         setForgotLoading(true);
         setForgotError('');
         try {
@@ -189,7 +207,7 @@ const AuthPageContent = () => {
     // Handle OTP Verification
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        
+
         if (forgotOtp.length !== 6) {
             setForgotError('Please enter a valid 6-digit OTP');
             return;
@@ -252,10 +270,10 @@ const AuthPageContent = () => {
         <div className="min-h-screen relative flex items-center justify-center pt-32 pb-20 px-4 bg-[#f0f4f8]">
             {/* Premium Layered Background */}
             <div className="absolute inset-0 z-0 overflow-hidden">
-                <img 
-                    src={wingBg.src || wingBg} 
-                    alt="Background" 
-                    className="w-full h-full object-cover opacity-15 scale-110 blur-sm" 
+                <img
+                    src={wingBg.src || wingBg}
+                    alt="Background"
+                    className="w-full h-full object-cover opacity-15 scale-110 blur-sm"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-[#f0f4f8]/80 to-slate-200/95"></div>
                 {/* Subtle Luxury Accents */}
@@ -269,7 +287,7 @@ const AuthPageContent = () => {
                 className="relative z-10 w-full max-w-[440px]"
             >
                 <div className="bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl border border-white/40 p-8 overflow-hidden relative">
-                    
+
 
                     <AnimatePresence mode="wait">
                         {view === 'login' ? (
@@ -332,8 +350,8 @@ const AuthPageContent = () => {
                                     </div>
 
                                     <div className="flex justify-end pr-1">
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             onClick={() => setView('forgot-password')}
                                             className="text-[11px] font-heading font-bold text-[#FFA500] hover:text-[#e69500] transition-colors tracking-wide"
                                         >
@@ -654,9 +672,9 @@ const AuthPageContent = () => {
                                         </button>
 
                                         {resendTimer > 0 && (
-                                            <motion.p 
-                                                initial={{ opacity: 0 }} 
-                                                animate={{ opacity: 1 }} 
+                                            <motion.p
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
                                                 className="text-center text-[10px] font-bold text-[#FFA500] uppercase tracking-wider"
                                             >
                                                 Resend in {resendTimer}s

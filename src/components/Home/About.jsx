@@ -1,12 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { Plane, Trophy, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
+import { Plane, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
 
 import image01 from '../../assets/link_image_01.png';
 import image02 from '../../assets/link_image_02.png';
 import image03 from '../../assets/link_image_03.png';
 import discountImg from '../../assets/discount.png.png';
 import towerImg from '../../assets/Image.png';
+import Trophy from '../../assets/Trophy.png';
 
 import Skeleton from '../common/Skeleton';
 
@@ -167,7 +168,14 @@ export default function About({ content, loading }) {
                             {/* Bottom Row */}
                             <div className="flex flex-col md:flex-row gap-10 items-center lg:items-start w-full lg:w-auto">
                                 <div className="bg-[#FAF7F3] p-8 rounded-[3rem] flex flex-col items-center justify-center border border-orange-100/50 group transition-all duration-500 hover:shadow-2xl hover:bg-white w-full max-w-[200px] md:w-48 text-center aspect-square md:aspect-auto h-auto">
-                                    <Trophy size={56} className="text-brand-magic mb-4 group-hover:scale-110 transition-transform" />
+                                    {/* <Trophy size={56} className="text-brand-magic mb-4 group-hover:scale-110 transition-transform" /> */}
+                                    <img
+                                        src={Trophy.src || Trophy}
+                                        alt="Award Trophy"
+                                        width={56}
+                                        height={56}
+                                        className="mb-4 group-hover:scale-110 transition-transform object-contain"
+                                    />
                                     <h5 className="text-brand-heading font-black uppercase text-xs tracking-tight leading-tight">
                                         Award Winning Agency
                                     </h5>

@@ -15,6 +15,8 @@ import { useCurrency } from '../../context/CurrencyContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 const uploadFile = async (file) => {
     if (!file) return null;
     const formData = new FormData();
@@ -24,7 +26,9 @@ const uploadFile = async (file) => {
         return data.url;
     } catch (err) {
         console.error('File upload failed:', err);
-        throw new Error('Failed to upload file');
+        // Extract the specific error message from the API response if available
+        const msg = err.response?.data?.message || err.message || 'Failed to upload file';
+        throw new Error(msg);
     }
 };
 
@@ -37,8 +41,12 @@ const validationSchema = Yup.object().shape({
                 dob: Yup.date().required('Date of Birth is required').max(new Date(), 'DOB cannot be in the future'),
                 passportNo: Yup.string().required('Passport number is required'),
                 passportExpiry: Yup.date().required('Passport expiry is required').min(new Date(), 'Passport has expired'),
-                photo: Yup.mixed().required('Profile photo is required'),
-                passportCopy: Yup.mixed().required('Passport copy is required'),
+                photo: Yup.mixed()
+                    .required('Profile photo is required')
+                    .test('fileSize', 'Photo must be less than 5MB', (value) => !value || (value && value.size <= MAX_FILE_SIZE)),
+                passportCopy: Yup.mixed()
+                    .required('Passport copy is required')
+                    .test('fileSize', 'Passport copy must be less than 5MB', (value) => !value || (value && value.size <= MAX_FILE_SIZE)),
             })
         )
         .min(1, 'At least one traveler is required')
@@ -97,7 +105,7 @@ const FileUpload = ({ label, name, setFieldValue, value, icon: Icon }) => {
                                 <Icon size={17} />
                             </div>
                             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Click to upload</span>
-                            <span className="text-[10px] text-slate-300">Image or PDF</span>
+                            <span className="text-[10px] text-slate-300">Image or PDF (Max 5MB)</span>
                         </>
                     )}
                 </div>
@@ -252,7 +260,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
             const isWaitlist = values.guests.length > avail;
 
             setProgress('Finalising submission…');
-
             let res;
             if (isWaitlist) {
                 // Explicitly use the request endpoint for waitlist/manual cases
@@ -289,7 +296,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                     passengers,
                 });
             }
-
             if (isWaitlist || res.type === 'waitlist') {
                 success(res.message || 'Booking request submitted. Our team will contact you soon.');
             } else {
@@ -298,7 +304,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
             onClose();
         } catch (err) {
             toastError(err.message || 'Failed to place booking. Please try again.');
-            console.error(err);
+            console.error(err.message);
         } finally {
             setSubmitting(false);
             setProgress('');
@@ -477,7 +483,7 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         {date.toLocaleDateString(undefined, { weekday: 'short' })}
                                                                     </span>
                                                                 </span>
-                                                                
+
                                                                 {/* Availability Indicator */}
                                                                 {(() => {
                                                                     const avail = Math.max(0, (d.slots || 0) - (d.booked_slots || 0));
@@ -530,8 +536,8 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                         <div className="flex flex-col gap-0.5">
                                                                             <span className="text-sm font-bold text-[#113A74]">{t.label}</span>
                                                                             <span className="text-xs text-slate-400 font-medium">
-                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}{formatPrice(getPrice(t.id, values.departureDateId))} / {t.roomSize > 1 ? 'Room' : 'Pax'}
-                                            </span>
+                                                                                {t.roomSize > 1 ? `${t.roomSize} pax/room · ` : ''}{formatPrice(getPrice(t.id, values.departureDateId))} / {t.roomSize > 1 ? 'Room' : 'Pax'}
+                                                                            </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
                                                                             <button

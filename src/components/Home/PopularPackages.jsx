@@ -185,8 +185,6 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         }, 30);
     };
 
-    if (!mounted) return <PopularPackagesSkeleton />;
-
     return (
         <section className="py-16 bg-white relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0">
@@ -221,14 +219,14 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                         className="flex gap-6 absolute left-1/2 items-center"
                         animate={controls}
                         style={{ marginLeft: -160 }}
-                        initial={{ x: -(packageData.length * 2) * cardWidth }}
+                        initial={{ x: 0 }}
                     >
                         {extendedData.map((pkg, idx) => {
                             // Only the exact current index card is "focused" (white/active)
                             // OR any card the user is currently hovering over
                             const isFocused = idx === currentIndex;
                             const isActive = isFocused;
-                            
+
                             const distance = Math.abs(idx - currentIndex);
                             const opacityLevel = distance > 1.5 ? 0 : 1;
 
@@ -272,7 +270,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 bg-white rounded-t-[2.5rem] -mt-8 relative z-10 p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-                                            
+
                                             {/* Details info box */}
                                             <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
                                                 <div className="flex items-center gap-3">
@@ -313,7 +311,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 bg-[#113A74] p-6 flex flex-col">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-                                            
+
                                             {/* Tour Type row */}
                                             <div className="flex items-center gap-2 mb-auto">
                                                 <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />

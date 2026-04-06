@@ -8,6 +8,7 @@ import {
     Upload, CheckCircle, ChevronRight,
     Loader2, Info, Camera, ChevronDown, Globe, MapPin, Mail, CreditCard
 } from 'lucide-react';
+import Link from 'next/link';
 import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { api } from '../../api/client';
@@ -502,6 +503,7 @@ const VisaServicesPage = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
+
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -510,6 +512,13 @@ const VisaServicesPage = () => {
                         <CreditCard className="text-[#113A74]" size={16} />
                         <span className="text-xs font-black text-[#113A74] tracking-[0.2em] uppercase">Service Center</span>
                     </motion.div>
+
+                    <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-widest mb-5">
+                        <Link href="/" className="hover:text-[#FFA500] transition-colors">Home</Link>
+                        <span className="opacity-50">—</span>
+                        <span>Visa Services</span>
+                    </nav>
+                    
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -518,6 +527,7 @@ const VisaServicesPage = () => {
                     >
                         Visa <span className="text-[#FFA500]">Services</span>
                     </motion.h1>
+
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -861,7 +871,7 @@ const VisaServicesPage = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="group relative bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-6 px-16 font-black text-xs uppercase tracking-[0.3em] transition-all shadow-2xl hover:shadow-[#113A74]/30 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+                                    className="group relative bg-[#113A74] hover:bg-[#1c4d91] text-white rounded-full py-4 px-10 md:py-6 md:px-16 font-black text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all shadow-2xl hover:shadow-[#113A74]/30 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
                                 >
                                     {loading ? (
                                         <span className="flex items-center gap-3">

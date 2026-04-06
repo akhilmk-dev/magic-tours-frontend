@@ -3,9 +3,9 @@
 export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { ArrowUpRight, Ship, MapPin, ArrowRight, Anchor, Globe, Compass, Wind, Loader2, CheckCircle2, Plane } from 'lucide-react';
 import { useFormik } from 'formik';
+import Link from 'next/link';
 import * as Yup from 'yup';
 
 // Assets (kept as fallback only)
@@ -148,6 +148,12 @@ const CruisesPage = () => {
                             </div>
                         ) : (
                             <>
+                                <nav className="flex items-center justify-end gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-widest mb-2">
+                                    <Link href="/" className="hover:text-[#FFA500] transition-colors">Home</Link>
+                                    <span className="opacity-50">—</span>
+                                    <span>cruises</span>
+                                </nav>
+                                
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
                                     <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
                                     {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData?.hero_title_2}</span>}
@@ -314,7 +320,7 @@ const CruisesPage = () => {
                                     initial={{ opacity: 0, x: 30 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.5, delay: 0.1 }}
-                                className="w-full rounded-[2rem] overflow-hidden relative group shadow-md h-[280px] lg:h-[380px]"
+                                    className="w-full rounded-[2rem] overflow-hidden relative group shadow-md h-[280px] lg:h-[380px]"
                                 >
                                     <img
                                         src={nextCategory?.img?.src || nextCategory?.img}
@@ -414,7 +420,7 @@ const CruisesPage = () => {
                                     </div>
                                     <h3 className="text-2xl font-bold text-[#113A74] mb-2">Voyage Enquired</h3>
                                     <p className="text-gray-500 max-w-md">Your cruise enquiry has been submitted successfully. Our travel consultants will reach out with the best options for your voyage.</p>
-                                    <button 
+                                    <button
                                         onClick={() => setSubmitStatus(null)}
                                         className="mt-8 text-[#FFA500] font-bold text-sm uppercase tracking-widest hover:underline"
                                     >
@@ -427,23 +433,23 @@ const CruisesPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Cruise Line <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 name="cruise_line"
-                                                placeholder="e.g. Royal Caribbean" 
+                                                placeholder="e.g. Royal Caribbean"
                                                 {...formik.getFieldProps('cruise_line')}
-                                                className={`w-full border ${formik.touched.cruise_line && formik.errors.cruise_line ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                                className={`w-full border ${formik.touched.cruise_line && formik.errors.cruise_line ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
                                             />
                                             {formik.touched.cruise_line && formik.errors.cruise_line && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.cruise_line}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Ship Name (Optional)</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 name="ship_name"
-                                                placeholder="e.g. Icon of the Seas" 
+                                                placeholder="e.g. Icon of the Seas"
                                                 {...formik.getFieldProps('ship_name')}
-                                                className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors" 
+                                                className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors"
                                             />
                                         </div>
                                     </div>
@@ -452,7 +458,7 @@ const CruisesPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination <span className="text-red-500">*</span></label>
-                                            <LocationAutocomplete 
+                                            <LocationAutocomplete
                                                 name="destination"
                                                 placeholder="e.g. Bahamas, Santorini"
                                                 value={formik.values.destination}
@@ -464,12 +470,12 @@ const CruisesPage = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 name="passenger_count"
-                                                placeholder="e.g. 2" 
+                                                placeholder="e.g. 2"
                                                 {...formik.getFieldProps('passenger_count')}
-                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
                                             />
                                             {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
@@ -479,22 +485,22 @@ const CruisesPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Month/Date <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 name="departure_date"
                                                 {...formik.getFieldProps('departure_date')}
-                                                className={`w-full border ${formik.touched.departure_date && formik.errors.departure_date ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                className={`w-full border ${formik.touched.departure_date && formik.errors.departure_date ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`}
                                             />
                                             {formik.touched.departure_date && formik.errors.departure_date && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departure_date}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Duration (Nights) <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 name="duration_nights"
-                                                placeholder="e.g. 7" 
+                                                placeholder="e.g. 7"
                                                 {...formik.getFieldProps('duration_nights')}
-                                                className={`w-full border ${formik.touched.duration_nights && formik.errors.duration_nights ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                className={`w-full border ${formik.touched.duration_nights && formik.errors.duration_nights ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`}
                                             />
                                             {formik.touched.duration_nights && formik.errors.duration_nights && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.duration_nights}</p>}
                                         </div>
@@ -503,7 +509,7 @@ const CruisesPage = () => {
                                     {/* Row 4 - Cabin Type */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type <span className="text-red-500">*</span></label>
-                                        <select 
+                                        <select
                                             name="cabin_type"
                                             {...formik.getFieldProps('cabin_type')}
                                             className={`w-full border ${formik.touched.cabin_type && formik.errors.cabin_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
@@ -516,10 +522,10 @@ const CruisesPage = () => {
                                     {/* Additional Notes */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Preferences</label>
-                                        <textarea 
-                                            rows={4} 
+                                        <textarea
+                                            rows={4}
                                             name="additional_notes"
-                                            placeholder="Cabin preferences, shore excursions, dining options..." 
+                                            placeholder="Cabin preferences, shore excursions, dining options..."
                                             {...formik.getFieldProps('additional_notes')}
                                             className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-700"
                                         ></textarea>
@@ -527,8 +533,8 @@ const CruisesPage = () => {
 
                                     {/* Submit Button */}
                                     <div className="pt-2">
-                                        <button 
-                                            type="submit" 
+                                        <button
+                                            type="submit"
                                             disabled={isSubmitting}
                                             className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
                                         >

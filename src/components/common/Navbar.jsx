@@ -115,7 +115,7 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
             "border-b transition-all duration-300",
             isTransparent ? "bg-transparent border-white/10 text-gray-500" : "bg-[#fcfcfc] border-gray-100 text-gray-500"
         )}>
-            <div className="px-3 sm:px-4 md:px-6 flex justify-between items-center text-[11px] sm:text-[12px] font-medium w-full py-1.5">
+            <div className="px-6 sm:px-4 md:px-6 flex justify-between items-center text-[11px] sm:text-[12px] font-medium w-full py-1.5">
                 {/* Left: Location & Phone */}
                 <div className="flex items-center gap-3 sm:gap-6 text-[#0D0D0C]">
                     <div className="hidden sm:flex items-center gap-1.5">
@@ -175,7 +175,7 @@ export default function Navbar() {
         window.addEventListener('scroll', handleScroll);
         // Initial check
         handleScroll();
-        
+
         // Fetch dynamic logo
         fetch('https://magic-apis.staff-b0c.workers.dev/settings/public')
             .then(res => res.json())
@@ -185,7 +185,7 @@ export default function Navbar() {
                 }
             })
             .catch(err => console.error("Failed to fetch site logo:", err));
-            
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -217,7 +217,7 @@ export default function Navbar() {
         )}>
             <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} onOpenAuthModal={openAuthModal} />
             <nav className="py-3 sm:py-4 md:py-5">
-                <div className="px-3 sm:px-4 md:px-6 flex items-center justify-between w-full">
+                <div className="px-6 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}
                     <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
                         {dynamicLogo && <img src={dynamicLogo} alt="Magic Tours Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />}
@@ -247,7 +247,7 @@ export default function Navbar() {
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className={clsx(
-                            "lg:hidden p-2 transition-colors",
+                            "lg:hidden p-2 transition-colors mr-3",
                             isTransparent ? "text-[#0D0D0C]" : "text-[#0D0D0C]"
                         )}
                     >
@@ -258,7 +258,7 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
                     <div className="absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-xl lg:hidden flex flex-col animate-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
-                        <div className="p-3 sm:p-4 flex flex-col gap-0.5">
+                        <div className="p-4 sm:p-6 flex flex-col gap-0.5">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}

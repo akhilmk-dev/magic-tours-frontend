@@ -96,12 +96,16 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
     const router = useRouter();
     const { formatPrice } = useCurrency();
     const [mounted, setMounted] = useState(false);
-    const controls = useAnimation();
+    const [isMobile, setIsMobile] = useState(false);
     const isTransitioning = useRef(false);
     const cardWidth = 344; // 320px card + 24px gap
 
     useEffect(() => {
         setMounted(true);
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     const parseCategories = (cat) => {
@@ -132,60 +136,22 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         }))
         : staticPackageData;
 
-    const [currentIndex, setCurrentIndex] = useState(packageData.length * 2);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const isSmallSet = isMobile ? (packageData.length <= 1) : (packageData.length < 3);
 
-    useEffect(() => {
-        if (!loading && mounted) {
-            const startIdx = packageData.length * 2;
-            setCurrentIndex(startIdx);
-            controls.set({ x: -startIdx * cardWidth });
-        }
-    }, [loading, mounted, packageData.length]);
-
-    if (loading) return <PopularPackagesSkeleton />;
-
-    const extendedData = [...packageData, ...packageData, ...packageData, ...packageData, ...packageData];
-
-    const slide = async (direction) => {
-        if (isTransitioning.current || !mounted) return;
+    const slide = (direction) => {
+        if (isSmallSet || isTransitioning.current || !mounted) return;
         isTransitioning.current = true;
 
-        const nextIndex = currentIndex + direction;
-        setCurrentIndex(nextIndex);
-
-        await controls.start({
-            x: -nextIndex * cardWidth,
-            transition: {
-                type: "spring",
-                stiffness: 450,
-                damping: 40,
-                mass: 1,
-                restDelta: 0.1
-            }
-        });
-
         const len = packageData.length;
-        let finalIndex = nextIndex;
-        const middleStart = len * 2;
-        const middleEnd = len * 3 - 1;
-
-        if (nextIndex > middleEnd) {
-            finalIndex = middleStart + (nextIndex % len);
-        } else if (nextIndex < middleStart) {
-            finalIndex = middleEnd - (Math.abs(nextIndex - middleEnd) % len);
-        }
-
-        if (finalIndex !== nextIndex) {
-            controls.set({ x: -finalIndex * cardWidth });
-            setCurrentIndex(finalIndex);
-        }
+        setActiveIndex((prev) => (prev + direction + len) % len);
 
         setTimeout(() => {
             isTransitioning.current = false;
-        }, 30);
+        }, 400); // Wait for animation to finish
     };
 
-    if (!mounted) return <PopularPackagesSkeleton />;
+    if (loading || !mounted) return <PopularPackagesSkeleton />;
 
     return (
         <section className="py-16 bg-white relative overflow-hidden">
@@ -217,33 +183,47 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                 </div>
 
                 <div className="relative max-w-[1050px] mx-auto px-4 md:px-12 flex items-center justify-center min-h-[750px] overflow-visible">
-                    <motion.div
-                        className="flex gap-6 absolute left-1/2 items-center"
-                        animate={controls}
-                        style={{ marginLeft: -160 }}
-                        initial={{ x: -(packageData.length * 2) * cardWidth }}
-                    >
-                        {extendedData.map((pkg, idx) => {
-                            // Only the exact current index card is "focused" (white/active)
-                            // OR any card the user is currently hovering over
-                            const isFocused = idx === currentIndex;
-                            const isActive = isFocused;
+                    <div className="flex gap-6 relative items-center justify-center w-full">
+                        {packageData.map((pkg, idx) => {
+                            const len = packageData.length;
                             
-                            const distance = Math.abs(idx - currentIndex);
-                            const opacityLevel = distance > 1.5 ? 0 : 1;
+                            // Calculate relative position based on activeIndex
+                            let diff = (idx - activeIndex);
+                            if (diff > len / 2) diff -= len;
+                            if (diff < -len / 2) diff += len;
+
+                            // Edge cases: 1 or 2 items should be centered and always active on desktop
+                            const isActive = isSmallSet ? true : diff === 0;
+                            // On mobile, only show the current active card if we are sliding
+                            const isVisible = isSmallSet ? true : (isMobile ? Math.abs(diff) < 0.5 : Math.abs(diff) <= 1.5);
+                            const isJumping = !isSmallSet && Math.abs(diff) > 1.1;
+                            
+                            const xPos = isSmallSet 
+                                ? (idx - (len - 1) / 2) * cardWidth 
+                                : diff * cardWidth;
 
                             return (
                                 <motion.div
-                                    key={`${pkg.id}-${idx}`}
+                                    key={pkg.id}
+                                    initial={false}
                                     animate={{
+                                        x: xPos,
                                         scale: isActive ? 1.04 : 0.97,
                                         zIndex: isActive ? 20 : 10,
-                                        opacity: opacityLevel,
+                                        opacity: isVisible ? 1 : 0,
                                         height: isActive ? 640 : 560,
+                                        pointerEvents: (isVisible && mounted) ? "auto" : "none"
                                     }}
-                                    transition={{ duration: 0.35, ease: "easeOut" }}
+                                    transition={{ 
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 30,
+                                        mass: 1,
+                                        opacity: { duration: 0.2 },
+                                        x: isJumping ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }
+                                    }}
                                     onClick={() => router.push(`/packages/${pkg.slug || pkg.id}`)}
-                                    className="relative w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col shadow-xl hover:shadow-2xl"
+                                    className="absolute w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col shadow-xl hover:shadow-2xl"
                                     style={{
                                         backgroundColor: isActive ? "#FFFFFF" : "#113A74"
                                     }}
@@ -268,12 +248,10 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                     {/* Content Section */}
                                     {isActive ? (
-                                        /* ======= HOVER / ACTIVE STATE: White with rounded top overlap ======= */
                                         <div className="flex-1 bg-white rounded-t-[2.5rem] -mt-8 relative z-10 p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                            {/* Details info box */}
                                             <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
                                                 <div className="flex items-center gap-3">
                                                     <Calendar size={16} className="text-[#1A73E8] flex-shrink-0" />
@@ -294,7 +272,6 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 </div>
                                             </div>
 
-                                            {/* Price and Book Now */}
                                             <div className="mt-auto flex items-end justify-between">
                                                 <div>
                                                     <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
@@ -309,18 +286,15 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                             </div>
                                         </div>
                                     ) : (
-                                        /* ======= DEFAULT STATE: Navy background ======= */
                                         <div className="flex-1 bg-[#113A74] p-6 flex flex-col">
                                             <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
                                             <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                            {/* Tour Type row */}
                                             <div className="flex items-center gap-2 mb-auto">
                                                 <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
                                                 <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type :{pkg.type}</span>
                                             </div>
 
-                                            {/* Price and Book Now */}
                                             <div className="mt-5 flex items-end justify-between">
                                                 <div>
                                                     <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
@@ -344,18 +318,20 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                 </motion.div>
                             );
                         })}
-                    </motion.div>
+                    </div>
 
                     {/* Carousel arrows */}
                     <button
                         onClick={() => slide(-1)}
-                        className="absolute left-[-20px] md:left-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] hover:scale-110 active:scale-95 transition-all outline-none"
+                        disabled={isSmallSet}
+                        className={`absolute left-[-20px] md:left-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] transition-all outline-none ${isSmallSet ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:scale-110 active:scale-95"}`}
                     >
                         <ArrowLeft size={24} strokeWidth={2.5} />
                     </button>
                     <button
                         onClick={() => slide(1)}
-                        className="absolute right-[-20px] md:right-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] hover:scale-110 active:scale-95 transition-all outline-none"
+                        disabled={isSmallSet}
+                        className={`absolute right-[-20px] md:right-[-30px] top-1/2 -translate-y-1/2 w-12 h-12 bg-[#FFA500] rounded-full flex items-center justify-center text-white shadow-xl z-[60] transition-all outline-none ${isSmallSet ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:scale-110 active:scale-95"}`}
                     >
                         <ArrowRight size={24} strokeWidth={2.5} />
                     </button>

@@ -71,6 +71,7 @@ const CruisesPage = () => {
         initialValues: {
             cruise_line: '',
             ship_name: '',
+            departing_from: '',
             destination: '',
             departure_date: '',
             duration_nights: '',
@@ -80,6 +81,7 @@ const CruisesPage = () => {
         },
         validationSchema: Yup.object({
             cruise_line: Yup.string().required('Required'),
+            departing_from: Yup.string().required('Departure location is required'),
             destination: Yup.string().required('Required'),
             departure_date: Yup.string().required('Required'),
             duration_nights: Yup.number().positive('Must be positive').required('Required'),
@@ -153,7 +155,7 @@ const CruisesPage = () => {
                                     <span className="opacity-50">—</span>
                                     <span>cruises</span>
                                 </nav>
-                                
+
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
                                     <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
                                     {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData?.hero_title_2}</span>}
@@ -454,8 +456,20 @@ const CruisesPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Row 2 */}
+                                    {/* Row 2 - Locations */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From <span className="text-red-500">*</span></label>
+                                            <LocationAutocomplete
+                                                name="departing_from"
+                                                placeholder="e.g. Bahamas, Santorini"
+                                                value={formik.values.departing_from}
+                                                onChange={(name, val) => formik.setFieldValue(name, val)}
+                                                onBlur={formik.handleBlur}
+                                                hasError={formik.touched.departing_from && formik.errors.departing_from}
+                                            />
+                                            {formik.touched.departing_from && formik.errors.departing_from && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departing_from}</p>}
+                                        </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination <span className="text-red-500">*</span></label>
                                             <LocationAutocomplete
@@ -467,17 +481,6 @@ const CruisesPage = () => {
                                                 hasError={formik.touched.destination && formik.errors.destination}
                                             />
                                             {formik.touched.destination && formik.errors.destination && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.destination}</p>}
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests <span className="text-red-500">*</span></label>
-                                            <input
-                                                type="number"
-                                                name="passenger_count"
-                                                placeholder="e.g. 2"
-                                                {...formik.getFieldProps('passenger_count')}
-                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
-                                            />
-                                            {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
                                     </div>
 
@@ -506,17 +509,30 @@ const CruisesPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Row 4 - Cabin Type */}
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type <span className="text-red-500">*</span></label>
-                                        <select
-                                            name="cabin_type"
-                                            {...formik.getFieldProps('cabin_type')}
-                                            className={`w-full border ${formik.touched.cabin_type && formik.errors.cabin_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
-                                        >
-                                            {CABIN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                                        </select>
-                                        {formik.touched.cabin_type && formik.errors.cabin_type && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.cabin_type}</p>}
+                                    {/* Row 4 - Guests & Cabin Type */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="number"
+                                                name="passenger_count"
+                                                placeholder="e.g. 2"
+                                                {...formik.getFieldProps('passenger_count')}
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
+                                            />
+                                            {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Cabin Type <span className="text-red-500">*</span></label>
+                                            <select
+                                                name="cabin_type"
+                                                {...formik.getFieldProps('cabin_type')}
+                                                className={`w-full border ${formik.touched.cabin_type && formik.errors.cabin_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
+                                            >
+                                                {CABIN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                                            </select>
+                                            {formik.touched.cabin_type && formik.errors.cabin_type && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.cabin_type}</p>}
+                                        </div>
                                     </div>
 
                                     {/* Additional Notes */}

@@ -185,6 +185,8 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         }, 30);
     };
 
+    if (!mounted) return <PopularPackagesSkeleton />;
+
     return (
         <section className="py-16 bg-white relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0">
@@ -219,14 +221,14 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                         className="flex gap-6 absolute left-1/2 items-center"
                         animate={controls}
                         style={{ marginLeft: -160 }}
-                        initial={{ x: 0 }}
+                        initial={{ x: -(packageData.length * 2) * cardWidth }}
                     >
                         {extendedData.map((pkg, idx) => {
                             // Only the exact current index card is "focused" (white/active)
                             // OR any card the user is currently hovering over
                             const isFocused = idx === currentIndex;
                             const isActive = isFocused;
-
+                            
                             const distance = Math.abs(idx - currentIndex);
                             const opacityLevel = distance > 1.5 ? 0 : 1;
 
@@ -323,7 +325,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 <div>
                                                     <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                     <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
-                                                    <button
+                                                    <button 
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
                                                         className="text-[12px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
                                                     >

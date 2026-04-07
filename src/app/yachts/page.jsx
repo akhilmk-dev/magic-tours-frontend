@@ -136,6 +136,12 @@ const YachtsPage = () => {
                             </div>
                         ) : (
                             <>
+                                <nav className="flex items-center justify-end gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-widest mb-2">
+                                    <Link href="/" className="hover:text-[#FFA500] transition-colors">Home</Link>
+                                    <span className="opacity-50">—</span>
+                                    <span>cruises</span>
+                                </nav>
+                                
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
                                     <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
                                     {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData.hero_title_2}</span>}
@@ -373,7 +379,7 @@ const YachtsPage = () => {
                                     </div>
                                     <h3 className="text-2xl font-bold text-[#113A74] mb-2">Enquiry Sent</h3>
                                     <p className="text-gray-500 max-w-md">Your yacht charter enquiry has been submitted successfully. We will check availability and contact you shortly.</p>
-                                    <button 
+                                    <button
                                         onClick={() => setSubmitStatus(null)}
                                         className="mt-8 text-[#FFA500] font-bold text-sm uppercase tracking-widest hover:underline"
                                     >
@@ -386,7 +392,7 @@ const YachtsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Yacht Type <span className="text-red-500">*</span></label>
-                                            <select 
+                                            <select
                                                 name="yacht_type"
                                                 {...formik.getFieldProps('yacht_type')}
                                                 className={`w-full border ${formik.touched.yacht_type && formik.errors.yacht_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
@@ -397,12 +403,12 @@ const YachtsPage = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Guests <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 name="passenger_count"
-                                                placeholder="e.g. 12" 
+                                                placeholder="e.g. 12"
                                                 {...formik.getFieldProps('passenger_count')}
-                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
                                             />
                                             {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
@@ -411,7 +417,7 @@ const YachtsPage = () => {
                                     {/* Row 2 */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Preferred Location / Route <span className="text-red-500">*</span></label>
-                                        <LocationAutocomplete 
+                                        <LocationAutocomplete
                                             name="location"
                                             placeholder="Port, City or Specific Route"
                                             value={formik.values.location}
@@ -426,21 +432,21 @@ const YachtsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Charter Start <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="datetime-local" 
+                                            <input
+                                                type="datetime-local"
                                                 name="start_datetime"
                                                 {...formik.getFieldProps('start_datetime')}
-                                                className={`w-full border ${formik.touched.start_datetime && formik.errors.start_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                className={`w-full border ${formik.touched.start_datetime && formik.errors.start_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`}
                                             />
                                             {formik.touched.start_datetime && formik.errors.start_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.start_datetime}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Charter End <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="datetime-local" 
+                                            <input
+                                                type="datetime-local"
                                                 name="end_datetime"
                                                 {...formik.getFieldProps('end_datetime')}
-                                                className={`w-full border ${formik.touched.end_datetime && formik.errors.end_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                className={`w-full border ${formik.touched.end_datetime && formik.errors.end_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`}
                                             />
                                             {formik.touched.end_datetime && formik.errors.end_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.end_datetime}</p>}
                                         </div>
@@ -449,10 +455,10 @@ const YachtsPage = () => {
                                     {/* Row 4 */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Notes</label>
-                                        <textarea 
-                                            rows={4} 
+                                        <textarea
+                                            rows={4}
                                             name="additional_notes"
-                                            placeholder="Catering, water sports equipment, specific route..." 
+                                            placeholder="Catering, water sports equipment, specific route..."
                                             {...formik.getFieldProps('additional_notes')}
                                             className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-700"
                                         ></textarea>
@@ -460,8 +466,8 @@ const YachtsPage = () => {
 
                                     {/* Submit Button */}
                                     <div className="pt-2">
-                                        <button 
-                                            type="submit" 
+                                        <button
+                                            type="submit"
                                             disabled={isSubmitting}
                                             className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
                                         >

@@ -151,6 +151,11 @@ const PrivateJetsPage = () => {
                             </div>
                         ) : (
                             <>
+                                <nav className="flex items-center justify-end gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-widest mb-2">
+                                    <Link href="/" className="hover:text-[#FFA500] transition-colors">Home</Link>
+                                    <span className="opacity-50">—</span>
+                                    <span>Private Jet</span>
+                                </nav>
                                 <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold font-heading mb-6 drop-shadow-sm">
                                     <span className="text-[#113A74]">{cmsData?.hero_title_1} </span>
                                     {cmsData?.hero_title_2 && <span className="text-[#FFA500]">{cmsData.hero_title_2}</span>}
@@ -388,7 +393,7 @@ const PrivateJetsPage = () => {
                                     </div>
                                     <h3 className="text-2xl font-bold text-[#113A74] mb-2">Request Received</h3>
                                     <p className="text-gray-500 max-w-md">Your jet charter enquiry has been submitted successfully. Our specialists will contact you shortly.</p>
-                                    <button 
+                                    <button
                                         onClick={() => setSubmitStatus(null)}
                                         className="mt-8 text-[#FFA500] font-bold text-sm uppercase tracking-widest hover:underline"
                                     >
@@ -401,7 +406,7 @@ const PrivateJetsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Aircraft Type <span className="text-red-500">*</span></label>
-                                            <select 
+                                            <select
                                                 name="jet_type"
                                                 {...formik.getFieldProps('jet_type')}
                                                 className={`w-full border ${formik.touched.jet_type && formik.errors.jet_type ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
@@ -412,12 +417,12 @@ const PrivateJetsPage = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Number of Passengers <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 name="passenger_count"
-                                                placeholder="e.g. 4" 
+                                                placeholder="e.g. 4"
                                                 {...formik.getFieldProps('passenger_count')}
-                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`} 
+                                                className={`w-full border ${formik.touched.passenger_count && formik.errors.passenger_count ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors`}
                                             />
                                             {formik.touched.passenger_count && formik.errors.passenger_count && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.passenger_count}</p>}
                                         </div>
@@ -427,7 +432,7 @@ const PrivateJetsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departing From <span className="text-red-500">*</span></label>
-                                            <LocationAutocomplete 
+                                            <LocationAutocomplete
                                                 name="departing_from"
                                                 placeholder="Airport or City"
                                                 value={formik.values.departing_from}
@@ -439,7 +444,7 @@ const PrivateJetsPage = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Destination To <span className="text-red-500">*</span></label>
-                                            <LocationAutocomplete 
+                                            <LocationAutocomplete
                                                 name="departing_to"
                                                 placeholder="Airport or City"
                                                 value={formik.values.departing_to}
@@ -455,17 +460,17 @@ const PrivateJetsPage = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Departure Date & Time <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="datetime-local" 
+                                            <input
+                                                type="datetime-local"
                                                 name="departure_datetime"
                                                 {...formik.getFieldProps('departure_datetime')}
-                                                className={`w-full border ${formik.touched.departure_datetime && formik.errors.departure_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`} 
+                                                className={`w-full border ${formik.touched.departure_datetime && formik.errors.departure_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors text-gray-700`}
                                             />
                                             {formik.touched.departure_datetime && formik.errors.departure_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.departure_datetime}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Service Class <span className="text-red-500">*</span></label>
-                                            <select 
+                                            <select
                                                 name="flight_class"
                                                 {...formik.getFieldProps('flight_class')}
                                                 className={`w-full border ${formik.touched.flight_class && formik.errors.flight_class ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors bg-transparent appearance-none`}
@@ -478,7 +483,7 @@ const PrivateJetsPage = () => {
 
                                     {/* Toggle for Return Trip */}
                                     <div className="flex items-center gap-3 py-2 border-b border-gray-100">
-                                        <div 
+                                        <div
                                             className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${formik.values.has_return ? 'bg-[#FFA500]' : 'bg-gray-200'}`}
                                             onClick={() => formik.setFieldValue('has_return', !formik.values.has_return)}
                                         >
@@ -490,7 +495,7 @@ const PrivateJetsPage = () => {
                                     {/* Return Trip Section */}
                                     <AnimatePresence>
                                         {formik.values.has_return && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
@@ -499,7 +504,7 @@ const PrivateJetsPage = () => {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                                                     <div className="space-y-2">
                                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Origin</label>
-                                                        <LocationAutocomplete 
+                                                        <LocationAutocomplete
                                                             name="return_from"
                                                             placeholder="Airport or City"
                                                             value={formik.values.return_from}
@@ -510,7 +515,7 @@ const PrivateJetsPage = () => {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Destination</label>
-                                                        <LocationAutocomplete 
+                                                        <LocationAutocomplete
                                                             name="return_to"
                                                             placeholder="Airport or City"
                                                             value={formik.values.return_to}
@@ -522,11 +527,11 @@ const PrivateJetsPage = () => {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Return Date & Time <span className="text-red-500">*</span></label>
-                                                    <input 
-                                                        type="datetime-local" 
+                                                    <input
+                                                        type="datetime-local"
                                                         name="return_datetime"
                                                         {...formik.getFieldProps('return_datetime')}
-                                                        className={`w-full border ${formik.touched.return_datetime && formik.errors.return_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none`} 
+                                                        className={`w-full border ${formik.touched.return_datetime && formik.errors.return_datetime ? 'border-red-400' : 'border-gray-200'} rounded-lg px-4 py-3.5 text-[13px] text-gray-700 focus:outline-none`}
                                                     />
                                                     {formik.touched.return_datetime && formik.errors.return_datetime && <p className="text-red-500 text-[11px] font-semibold mt-1">{formik.errors.return_datetime}</p>}
                                                 </div>
@@ -537,10 +542,10 @@ const PrivateJetsPage = () => {
                                     {/* Additional Notes */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-extrabold text-[#113A74] uppercase tracking-wider block">Additional Notes</label>
-                                        <textarea 
-                                            rows={4} 
+                                        <textarea
+                                            rows={4}
                                             name="additional_notes"
-                                            placeholder="Special requirements, pets, dietary preferences..." 
+                                            placeholder="Special requirements, pets, dietary preferences..."
                                             {...formik.getFieldProps('additional_notes')}
                                             className="w-full border border-gray-200 rounded-lg px-4 py-3.5 text-[13px] focus:outline-none focus:border-[#FFA500] focus:ring-1 focus:ring-[#FFA500] transition-colors resize-none text-gray-700"
                                         ></textarea>
@@ -548,8 +553,8 @@ const PrivateJetsPage = () => {
 
                                     {/* Submit Button */}
                                     <div className="pt-2">
-                                        <button 
-                                            type="submit" 
+                                        <button
+                                            type="submit"
                                             disabled={isSubmitting}
                                             className="bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold py-3.5 px-10 rounded-full text-[13px] inline-flex items-center gap-2 transition-all shadow-lg shadow-[#FFA500]/20 disabled:opacity-70"
                                         >

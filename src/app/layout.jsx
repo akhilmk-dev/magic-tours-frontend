@@ -3,10 +3,10 @@ import '../index.css';
 import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
 import { CurrencyProvider } from '../context/CurrencyContext';
-import AuthModal from '../components/common/AuthModal';
 import ProfileEditModal from '../components/common/ProfileEditModal';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
+import FloatingButtons from '../components/common/FloatingButtons';
 import { generatePageMetadata } from '../utils/seo';
 import { getPublicSettings } from '../utils/settings';
 import Script from 'next/script';
@@ -84,13 +84,13 @@ export default async function RootLayout({ children }) {
                 <ToastProvider>
                     <CurrencyProvider>
                         <CustomerAuthProvider>
-                            <AuthModal />
                             <ProfileEditModal />
                             <Navbar />
                             <main className="flex-grow">
                                 {children}
                             </main>
                             <Footer />
+                            <FloatingButtons />
                         {jotformSnippet && (() => {
                                 const srcMatch = jotformSnippet.match(/src=['"]([^'"]+)['"]/);
                                 return srcMatch ? (

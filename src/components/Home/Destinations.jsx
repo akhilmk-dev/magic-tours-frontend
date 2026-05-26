@@ -40,14 +40,14 @@ export default function Destinations({ content, loading }) {
     const subtitle = content?.subtitle || "Trips List";
     const line1 = content?.line1 || "Explore the Trips";
     const highlight = content?.highlight || "Places";
-    const line2 = content?.line2 || "Around World";
+    const line2 = content?.line2;
     const description = content?.description || "Discover curated travel experiences and breathtaking destinations across the globe. From luxury cruises to private jet charters, we make your dream journey a reality.";
     const buttonText = content?.button_text || "Discover More Destinations";
     const buttonLink = content?.button_link || "/destinations";
 
     if (loading) {
         return (
-            <section className="pt-12 sm:pt-16 lg:pt-24 pb-4 sm:pb-6 lg:pb-8 bg-white relative overflow-hidden font-sans">
+            <section className="pt-6 sm:pt-8 lg:pt-12 pb-4 sm:pb-6 lg:pb-8 bg-white relative overflow-hidden font-sans">
                 <div className="px-6 sm:px-8 md:px-12 lg:px-16 relative z-10 w-full">
                     <div className="flex flex-col xl:flex-row gap-12 xl:gap-16 items-center">
                         {/* Left Skeleton */}
@@ -78,7 +78,7 @@ export default function Destinations({ content, loading }) {
     }
 
     return (
-        <section className="pt-12 sm:pt-16 lg:pt-24 pb-4 sm:pb-6 lg:pb-8 bg-white relative overflow-hidden font-sans">
+        <section className="pt-6 sm:pt-8 lg:pt-12 pb-4 sm:pb-6 lg:pb-8 bg-white relative overflow-hidden font-sans">
 
             <div className="px-6 sm:px-8 md:px-12 lg:px-16 relative z-10 w-full">
                 <div className="flex flex-col xl:flex-row gap-12 xl:gap-16 items-center">
@@ -94,17 +94,18 @@ export default function Destinations({ content, loading }) {
                             </span>
                         </div>
 
-                        <h2 className="text-[44px] md:text-[60px] font-extrabold text-brand-heading leading-[1.05] mb-8">
+                        <h2 className="text-[44px] md:text-[60px] font-extrabold text-brand-heading leading-[1.05] mb-4">
                             {line1} <br />
                             <span className="text-[#FFA500]">{highlight}</span>
+                            {line2 && <><br />{line2}</>}
                         </h2>
 
-                        <p className="text-gray-500 text-lg leading-relaxed mb-10 max-w-sm">
+                        <p className="text-gray-500 text-lg leading-relaxed mb-5 max-w-sm">
                             {description}
                         </p>
 
                         <Link href={buttonLink}>
-                            <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-[2rem] font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20 max-w-[220px] leading-tight text-left moving-light-border">
+                            <button className="flex items-center gap-4 bg-brand-magic text-white px-8 py-4 rounded-[2rem] font-heading font-bold text-base hover:opacity-90 transition-all group shadow-2xl shadow-brand-magic/20 max-w-[220px] leading-tight text-left">
                                 <span className="flex-1">{buttonText}</span>
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform shrink-0" />
                             </button>
@@ -116,7 +117,7 @@ export default function Destinations({ content, loading }) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                             {tripCategories.map((trip) => (
                                 <Link href={trip.link} key={trip.id} className="group cursor-pointer">
-                                    <div className="flex flex-col h-full bg-white transition-all duration-500 hover:shadow-[0_20px_60px_rgba(15,30,50,0.18)] hover:-translate-y-2 rounded-t-[2.2rem] rounded-bl-[2.2rem] overflow-hidden">
+                                    <div className="flex flex-col h-full bg-white transition-all duration-500 rounded-t-[2.2rem] rounded-bl-[2.2rem] overflow-hidden">
                                         {/* Image */}
                                         <div className="aspect-square overflow-hidden relative">
                                             <img

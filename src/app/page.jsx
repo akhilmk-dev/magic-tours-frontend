@@ -38,14 +38,14 @@ export default function Home() {
     return (
         <main className="overflow-x-hidden">
             <Hero slides={homeData?.hero_slides} loading={loading} />
-            <Destinations content={homeData?.sections_content?.destinations} loading={loading} />
             <About content={homeData?.sections_content?.about} loading={loading} />
+            <Destinations content={homeData?.sections_content?.destinations} loading={loading} />
             <PopularPackages packages={homeData?.packages} content={homeData?.sections_content?.popular_packages} loading={loading} />
             <CruiseCategories cruises={homeData?.custom_cruises} content={homeData?.sections_content?.cruises} loading={loading} />
+            <VisaServices content={homeData?.sections_content?.visa} loading={loading} />
+            <PrivateJet jets={homeData?.custom_private_jets} content={homeData?.sections_content?.private_jets} loading={loading} />
             <HotelPackages hotels={homeData?.hotels} content={homeData?.sections_content?.hotels} loading={loading} />
             <WondersOfQatar spotlights={homeData?.destination_spotlight} content={homeData?.sections_content?.destination_spotlight} loading={loading} />
-            <PrivateJet jets={homeData?.custom_private_jets} content={homeData?.sections_content?.private_jets} loading={loading} />
-            <VisaServices content={homeData?.sections_content?.visa} loading={loading} />
             <FeaturedDestinations initialDestinations={homeData?.destinations} allPackages={homeData?.packages} content={homeData?.sections_content?.featured_destinations} loading={loading} />
             <Gallery images={homeData?.gallery_images} loading={loading} />
             <Testimonials testimonials={homeData?.testimonials} content={homeData?.sections_content?.testimonials} loading={loading} />

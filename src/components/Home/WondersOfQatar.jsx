@@ -149,7 +149,7 @@ export default function WondersOfQatar({ spotlights: apiSpotlights, content, loa
                             {sectionContent.description}
                         </p>
 
-                        <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all hover:-translate-y-1 shadow-xl shadow-[#FDB338]/20 group">
+                        <Link href="/destinations" className="inline-flex items-center gap-3 sm:gap-4 bg-[#FDB338] hover:bg-[#e9a42f] text-brand-magic font-heading font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-[15px] transition-all shadow-xl shadow-[#FDB338]/20 group">
                             {sectionContent.link_text}
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>

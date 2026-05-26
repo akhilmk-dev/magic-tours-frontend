@@ -7,52 +7,6 @@ import { ArrowLeft, ArrowRight, Star, Calendar, MapPin } from 'lucide-react';
 import FavoriteButton from '../common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
 
-const staticPackageData = [
-    {
-        id: 1,
-        title: "Japan Tour Package",
-        location: "Japantown, San Francisco, CA",
-        duration: "5 Days, 3 Nights",
-        type: "Budget, Honeymoon",
-        price: 1000,
-        currency: "USD",
-        description: "Good place to visit",
-        image: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 2,
-        title: "South Korea Tour",
-        location: "Seoul, South Korea",
-        duration: "6 Days, 4 Nights",
-        type: "Adventure, Family",
-        price: 1200,
-        currency: "USD",
-        description: "Experience beautiful Korean culture and landscapes.",
-        image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 3,
-        title: "Switzerland Alps",
-        location: "Zurich, Switzerland",
-        duration: "7 Days, 5 Nights",
-        type: "Luxury, Honeymoon",
-        price: 2500,
-        currency: "USD",
-        description: "Breathtaking mountain landscapes and luxury experiences.",
-        image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 4,
-        title: "Dubai Desert Safari",
-        location: "Dubai, UAE",
-        duration: "4 Days, 3 Nights",
-        type: "Adventure, Budget",
-        price: 900,
-        currency: "AED",
-        description: "Golden sands and world-class city experiences await you.",
-        image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=800&auto=format&fit=crop"
-    }
-];
 
 const PopularPackagesSkeleton = () => (
     <section className="py-16 bg-white animate-pulse">
@@ -121,20 +75,18 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         return String(cat);
     };
 
-    const packageData = (apiPackages && apiPackages.length > 0)
-        ? apiPackages.map(p => ({
-            id: p.id,
-            title: p.title || "Untitled Package",
-            location: p.location || "Location TBD",
-            duration: (p.days > 0 || p.nights > 0) ? `${p.days} Days, ${p.nights} Nights` : (p.duration || "Contact for duration"),
-            type: parseCategories(p.category),
-            price: p.price || 0,
-            currency: p.currency || 'AED',
-            description: p.description || "",
-            image: p.image || "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800&auto=format&fit=crop",
-            slug: p.slug
-        }))
-        : staticPackageData;
+    const packageData = (apiPackages || []).map(p => ({
+        id: p.id,
+        title: p.title || "Untitled Package",
+        location: p.location || "Location TBD",
+        duration: (p.days > 0 || p.nights > 0) ? `${p.days} Days, ${p.nights} Nights` : (p.duration || "Contact for duration"),
+        type: parseCategories(p.category),
+        price: p.price || 0,
+        currency: p.currency || 'AED',
+        description: p.description || "",
+        image: p.image || "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800&auto=format&fit=crop",
+        slug: p.slug
+    }));
 
     const [activeIndex, setActiveIndex] = useState(0);
     const isSmallSet = isMobile ? (packageData.length <= 1) : (packageData.length < 3);
@@ -164,7 +116,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
             <div className="container mx-auto px-4 relative z-10">
                 {/* Header Section */}
-                <div className="text-center mb-8 sm:mb-12">
+                <div className="text-center mb-4 sm:mb-6 lg:mb-4">
                     <div className="inline-flex items-center gap-3 bg-[#EEF8FF] px-6 py-3 rounded-full mb-6">
                         <svg className="text-brand-magic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />

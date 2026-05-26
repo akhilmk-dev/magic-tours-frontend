@@ -19,9 +19,8 @@ export const CustomerAuthProvider = ({ children }) => {
     const router = useRouter();
 
     const openAuthModal = useCallback((view = 'login') => {
-        setAuthModalView(view);
-        setIsAuthModalOpen(true);
-    }, []);
+        router.push(`/login?view=${view}`);
+    }, [router]);
 
     const closeAuthModal = useCallback(() => {
         setIsAuthModalOpen(false);
@@ -323,17 +322,17 @@ export const useCustomerAuth = () => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-    const { user, loading, isAuthModalOpen, openAuthModal } = useCustomerAuth();
+    const { user, loading } = useCustomerAuth();
     const router = useRouter();
     useEffect(() => {
         if (!loading && !user) {
-            openAuthModal('login');
+            const path = typeof window !== 'undefined' ? window.location.pathname : '';
+            router.replace(`/login?callback=${encodeURIComponent(path)}`);
         }
-    }, [user, loading, openAuthModal]);
+    }, [user, loading, router]);
 
-    // Show a blank loading screen while evaluating or bouncing back to home
     if (loading || !user) {
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#113A74]"></div></div>;
     }
 
     return children;

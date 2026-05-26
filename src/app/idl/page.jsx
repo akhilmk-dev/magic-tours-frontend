@@ -305,28 +305,21 @@ const emptyDriver = {
 const IDLPage = () => {
     const { success, error: toastError } = useToast();
     const router = useRouter();
-    const { user, loading: authLoading, isAuthModalOpen, openAuthModal } = useCustomerAuth();
+    const { user, loading: authLoading } = useCustomerAuth();
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState('');
     const [isMounted, setIsMounted] = useState(false);
-    const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
-    // Auth guard — open modal if not authenticated
+    // Auth guard — redirect to /login with callback if not authenticated
     useEffect(() => {
         if (isMounted && !authLoading && !user) {
-            if (!isAuthModalOpen && !hasAttemptedAuth) {
-                openAuthModal('login');
-                setHasAttemptedAuth(true); // Mark that we've prompted them
-            } else if (!isAuthModalOpen && hasAttemptedAuth) {
-                // If they closed the modal without logging in, send them to home
-                router.push('/');
-            }
+            router.replace('/login?callback=/idl');
         }
-    }, [isMounted, authLoading, user, isAuthModalOpen, hasAttemptedAuth, openAuthModal, router]);
+    }, [isMounted, authLoading, user, router]);
 
     if (!isMounted || (isMounted && authLoading)) {
         return <ServicePageSkeleton />;
@@ -341,7 +334,7 @@ const IDLPage = () => {
                 <h2 className="text-2xl font-bold text-[#113A74]">Authentication Required</h2>
                 <p className="text-gray-500 max-w-md text-center">You need to be logged in to apply for an International Driving License. Please sign in to continue.</p>
                 <div className="flex gap-3 mt-4">
-                    <button onClick={() => openAuthModal('login')} className="px-6 py-2.5 bg-[#113A74] hover:bg-[#1c4d91] transition-colors text-white rounded-xl font-bold text-sm">
+                    <button onClick={() => router.push('/login?callback=/idl')} className="px-6 py-2.5 bg-[#113A74] hover:bg-[#1c4d91] transition-colors text-white rounded-xl font-bold text-sm">
                         Sign In
                     </button>
                     <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 transition-colors text-gray-700 rounded-xl font-bold text-sm">

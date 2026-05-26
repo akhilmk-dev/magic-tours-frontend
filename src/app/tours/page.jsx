@@ -4,7 +4,7 @@ export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Calendar, LayoutGrid, List, ChevronDown, Minus, Plus, ChevronLeft, ChevronRight, Check, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { Calendar, LayoutGrid, List, ChevronDown, Minus, Plus, ChevronLeft, ChevronRight, Check, MapPin, SlidersHorizontal, X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../api/client';
 import AdventureSection from '../../components/Home/AdventureSection';
@@ -320,6 +320,7 @@ const Pagination = ({ page, totalPages, setPage }) => {
 const ToursContent = () => {
     const searchParams = useSearchParams();
     const urlDestination = searchParams.get('destination') || '';
+    const urlSearch = searchParams.get('search') || '';
 
     const [packages, setPackages] = useState([]);
     const [images, setImages] = useState([]);
@@ -331,6 +332,7 @@ const ToursContent = () => {
     const [sort, setSort] = useState('newest');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [headerData, setHeaderData] = useState({ title: "Our Packages", description: "" });
+    const [search, setSearch] = useState(urlSearch);
 
     useEffect(() => {
         const fetchFilters = async () => {
@@ -393,6 +395,27 @@ const ToursContent = () => {
         finally { setLoading(false); }
     };
 
+    const filteredPackages = packages.filter(pkg => {
+        if (!search.trim()) return true;
+        const q = search.toLowerCase();
+        return (
+            pkg.title?.toLowerCase().includes(q) ||
+            pkg.package_name?.toLowerCase().includes(q) ||
+            pkg.description?.toLowerCase().includes(q)
+        );
+    });
+
+    // Sync search and destination when URL params change (browser back/forward, direct links)
+    useEffect(() => {
+        const urlDest = searchParams.get('destination') || '';
+        const urlSrch = searchParams.get('search') || '';
+        if (urlDest !== filters.destination) {
+            setFilters(prev => ({ ...prev, destination: urlDest }));
+            setPage(1);
+        }
+        if (urlSrch !== search) setSearch(urlSrch);
+    }, [searchParams]);
+
     useEffect(() => {
         fetchPackages(filters, page, sort);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -412,13 +435,33 @@ const ToursContent = () => {
                 <div className="absolute inset-0 z-0">
                     <img src={bannerImg.src} alt="Banner" className="w-full h-full object-cover" />
                 </div>
-                <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-20 flex flex-col items-center">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-3 tracking-tight drop-shadow-sm font-heading">{headerData.title}</h1>
+                <div className="relative z-10 w-full max-w-3xl mx-auto px-4 text-center mt-20 flex flex-col items-center gap-5">
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-0 tracking-tight drop-shadow-sm font-heading">{headerData.title}</h1>
                     {headerData.description && (
-                        <p className="text-[#113A74]/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-6 font-medium">
+                        <p className="text-[#113A74]/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-medium">
                             {headerData.description}
                         </p>
                     )}
+
+                    {/* Search Bar */}
+                    <div className="w-full max-w-xl">
+                        <div className="flex items-center gap-3 bg-white/90 backdrop-blur-md rounded-full px-5 py-3 shadow-xl border border-white/60">
+                            <Search size={16} className="text-[#113A74] shrink-0" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Search tour packages..."
+                                className="flex-1 bg-transparent outline-none text-[13px] font-semibold text-[#113A74] placeholder:text-slate-400"
+                            />
+                            {search && (
+                                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-[#113A74] transition-colors" type="button">
+                                    <X size={14} strokeWidth={2.5} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                     <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-wider">
                         <Link href="/" className="hover:text-[#FFA500]">Home</Link>
                         <span className="opacity-50">—</span>
@@ -474,7 +517,7 @@ const ToursContent = () => {
                         <div className="flex-1 min-w-0">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {loading ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} />) :
-                                    packages.length > 0 ? packages.map(pkg => <TourCard key={pkg.id} {...pkg} />) :
+                                    filteredPackages.length > 0 ? filteredPackages.map(pkg => <TourCard key={pkg.id} {...pkg} />) :
                                         <div className="col-span-full py-20 text-center font-bold text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">No packages found.</div>}
                             </div>
                             {!loading && totalPages > 1 && <Pagination page={page} totalPages={totalPages} setPage={setPage} />}

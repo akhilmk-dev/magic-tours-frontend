@@ -109,7 +109,7 @@ const CurrencyDropdown = ({ isTransparent }) => {
     );
 };
 
-const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
+const TopBar = ({ isTransparent, user, onLogout }) => {
     return (
         <div className={clsx(
             "border-b transition-all duration-300",
@@ -145,10 +145,10 @@ const TopBar = ({ isTransparent, user, onLogout, onOpenAuthModal }) => {
                             </Link>
                         </div>
                     ) : (
-                        <button onClick={() => onOpenAuthModal('login')} className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C] font-heading font-bold">
+                        <Link href="/login" className="items-center gap-1.5 transition-colors hidden lg:flex hover:text-[#0D0D0C] font-heading font-bold">
                             Sign In / Register
                             <User size={14} />
-                        </button>
+                        </Link>
                     )}
                 </div>
             </div>
@@ -163,7 +163,7 @@ export default function Navbar() {
     const [dynamicLogo, setDynamicLogo] = useState(null);
     const router = useRouter();
     const pathname = usePathname();
-    const { user, logout, openAuthModal } = useCustomerAuth();
+    const { user, logout } = useCustomerAuth();
 
     // Check if we are on pages that should have a transparent navbar initially
     const isTransparentPage = pathname === '/' || pathname === '/tours' || pathname === '/destinations' || pathname === '/idl' || pathname === '/private-jets' || pathname === '/hotels' || pathname === '/contact-us' || pathname === '/yachts' || pathname === '/cruises' || pathname === '/visa' || pathname === '/about' || pathname === '/services' || pathname === '/faq' || pathname === '/support' || pathname === '/login';
@@ -215,7 +215,7 @@ export default function Navbar() {
             "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
             isTransparent ? "bg-transparent" : "bg-white shadow-sm"
         )}>
-            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} onOpenAuthModal={openAuthModal} />
+            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} />
             <nav className="py-3 sm:py-4 md:py-5">
                 <div className="px-6 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}
@@ -291,16 +291,14 @@ export default function Navbar() {
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    onClick={() => {
-                                        setIsMobileMenuOpen(false);
-                                        openAuthModal('login');
-                                    }}
+                                <Link
+                                    href="/login"
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                     className="text-gray-500 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 text-[13px] flex items-center gap-2 w-full text-left"
                                 >
                                     <User size={14} />
                                     Sign In / Register
-                                </button>
+                                </Link>
                             )}
                         </div>
                     </div>

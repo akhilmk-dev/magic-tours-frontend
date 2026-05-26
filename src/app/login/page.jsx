@@ -3,7 +3,8 @@
 export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, User, Eye, EyeOff, CheckCircle, ArrowLeft, Building2, UserCircle, Calendar, MapPin, Globe, Check, CreditCard, Plane, Star, Link as LinkIcon, Phone } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, User, Eye, EyeOff, CheckCircle, ArrowLeft, Building2, UserCircle, Calendar, MapPin, Globe, Check, CreditCard, Plane, Star, Phone, Upload, X } from 'lucide-react';
+import { api } from '../../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useFormik } from 'formik';
@@ -97,6 +98,83 @@ const MultiSelectTags = ({ label, options, formik, name }) => {
     );
 };
 
+// ── Image Upload Component ──────────────────────────────────────────────────
+const ImageUpload = ({ label, formik, name, required, circle = false }) => {
+    const [uploading, setUploading] = React.useState(false);
+    const value = formik.values[name];
+    const error = formik.touched[name] && formik.errors[name];
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('Please upload an image file (JPG, PNG)'); return; }
+        if (file.size > 5 * 1024 * 1024) { alert('File size must be less than 5MB'); return; }
+        setUploading(true);
+        const data = new FormData();
+        data.append('file', file);
+        try {
+            const response = await api.post('/upload/image', data);
+            if (response?.url) formik.setFieldValue(name, response.url);
+            else throw new Error('Upload failed - No URL returned');
+        } catch (err) {
+            console.error('Upload Error:', err);
+            alert(err.message || 'Failed to upload image');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const previewEl = circle ? (
+        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#113A74]/20 shadow">
+            <img src={value} alt="Preview" className="w-full h-full object-cover" />
+        </div>
+    ) : (
+        <div className="w-full h-24 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src={value} alt="Preview" className="w-full h-full object-cover" />
+        </div>
+    );
+
+    return (
+        <div className="space-y-1.5 col-span-full">
+            <label className={labelClass}>{label} {required && <span className="text-[#FFA500]">*</span>}</label>
+            <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer group ${
+                error ? 'border-red-300 bg-red-50' : uploading ? 'border-[#FFA500]/40 bg-[#FFA500]/5' : value ? 'border-[#113A74]/20 bg-[#113A74]/5' : 'border-gray-200 hover:border-[#FFA500]/40 hover:bg-gray-50'
+            }`}>
+                <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed" />
+
+                {uploading ? (
+                    <div className="flex flex-col items-center gap-3">
+                        <Loader2 size={28} className="text-[#FFA500] animate-spin" />
+                        <p className="text-sm font-bold text-gray-500">Uploading...</p>
+                    </div>
+                ) : value ? (
+                    <div className="flex flex-col items-center gap-3">
+                        {previewEl}
+                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); formik.setFieldValue(name, ''); }}
+                            className="relative z-20 text-xs text-red-500 font-bold hover:underline flex items-center gap-1 bg-white/80 px-3 py-1 rounded-full shadow-sm border border-red-100">
+                            <X size={12} /> Remove
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                            error ? 'bg-red-100 text-red-500' : 'bg-gray-50 text-gray-400 group-hover:bg-[#FFA500]/10 group-hover:text-[#FFA500]'
+                        }`}>
+                            <Upload size={22} />
+                        </div>
+                        <div>
+                            <p className={`text-sm font-bold ${error ? 'text-red-600' : 'text-gray-700'}`}>Click to upload or drag & drop</p>
+                            <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <FieldError msg={error} />
+        </div>
+    );
+};
+
 // ── Validation Schemas ───────────────────────────────────────────────────────
 const individualSchema = Yup.object({
     name: Yup.string().required('Required'),
@@ -143,6 +221,7 @@ const AuthPageContent = () => {
     const [resendTimer, setResendTimer] = useState(0);
     const [view, setView] = useState(searchParams.get('view') || 'login');
     const [countryList, setCountryList] = useState([]);
+    const [cityList, setCityList] = useState([]);
 
     const [customerType, setCustomerType] = useState('individual');
     const [showLoginPw, setShowLoginPw] = useState(false);
@@ -162,6 +241,18 @@ const AuthPageContent = () => {
                     setCountryList(d.data.map(c => c.name).sort());
                 } 
             }).catch(err => console.error("Failed to load countries:", err));
+    }, []);
+
+    // Fetch cities for dropdowns
+    useEffect(() => {
+        api.get('/cities')
+            .then(d => {
+                if (Array.isArray(d)) {
+                    setCityList(d.map(c => c.name).sort());
+                } else if (d?.data && Array.isArray(d.data)) {
+                    setCityList(d.data.map(c => c.name).sort());
+                }
+            }).catch(err => console.error("Failed to load cities:", err));
     }, []);
 
     useEffect(() => {
@@ -210,9 +301,10 @@ const AuthPageContent = () => {
             name: '', email: '', password: '', confirmPassword: '', phone: '', address: '', city: '', country: '',
             gender: '', date_of_birth: '', nationality: '', country_of_residence: '',
             whatsapp: '', preferred_contact: 'email',
-            passport_number: '', passport_issue_country: '', passport_issue_date: '', passport_expiry_date: '', passport_url: '',
+            passport_number: '', passport_issue_country: '', passport_issue_date: '', passport_expiry_date: '', passport_url: '', profile_image: '',
             preferred_departure_airport: '', preferred_travel_class: '', preferred_hotel_category: '',
             preferred_destinations: [], travel_interests: [], meal_preference: '', special_assistance: '', frequent_flyer_number: '',
+            frequent_flyers: [{ airline: '', membership_number: '' }],
             marketing_consent: true,
             company_name: '', trade_name: '', trade_license_number: '', tax_vat_number: '', industry: '', website: '',
             country_of_registration: '', company_address: '',
@@ -220,6 +312,7 @@ const AuthPageContent = () => {
             accounts_contact_name: '', accounts_email: '', accounts_mobile: '', billing_address: '',
             payment_terms_required: '', purchase_order_required: false, services_required: [], main_destinations: [],
             estimated_monthly_volume: '', estimated_annual_spend: '', num_travellers: '',
+            logo_url: '', trade_license_url: '', tax_certificate_url: '', company_id_url: '', signatory_id_url: '', po_format_url: '', travel_policy_url: '',
         },
         validationSchema: customerType === 'individual' ? individualSchema : corporateSchema,
         validateOnMount: false,
@@ -231,6 +324,7 @@ const AuthPageContent = () => {
                 };
 
                 if (customerType === 'individual') {
+                    payload.status = 'Active';
                     payload.individual_profile = {
                         full_name: values.name, gender: values.gender, date_of_birth: values.date_of_birth,
                         nationality: values.nationality, country_of_residence: values.country_of_residence,
@@ -241,21 +335,23 @@ const AuthPageContent = () => {
                         passport_issue_date: values.passport_issue_date,
                         passport_expiry_date: values.passport_expiry_date,
                         passport_url: values.passport_url,
+                        profile_image: values.profile_image,
                         preferred_departure_airport: values.preferred_departure_airport,
                         preferred_travel_class: values.preferred_travel_class,
                         preferred_hotel_category: values.preferred_hotel_category,
                         preferred_destinations: values.preferred_destinations,
                         travel_interests: values.travel_interests, meal_preference: values.meal_preference,
-                        special_assistance: values.special_assistance, frequent_flyer_number: values.frequent_flyer_number, 
+                        special_assistance: values.special_assistance,
                         marketing_consent: values.marketing_consent,
                     };
+                    payload.frequent_flyer = values.frequent_flyers.filter(ff => ff.airline.trim() && ff.membership_number.trim());
                 } else {
                     payload.corporate_profile = {
                         registered_company_name: values.company_name, trade_name: values.trade_name,
                         trade_license_number: values.trade_license_number, tax_vat_number: values.tax_vat_number,
                         industry: values.industry, website: values.website,
                         country_of_registration: values.country_of_registration,
-                        company_address: values.address, city: values.city, country: values.country,
+                        company_address: values.company_address || values.address, city: values.city, country: values.country,
                         contact_full_name: values.contact_full_name || values.name,
                         contact_designation: values.contact_designation,
                         contact_mobile: values.contact_mobile || values.phone,
@@ -267,6 +363,13 @@ const AuthPageContent = () => {
                         services_required: values.services_required, main_destinations: values.main_destinations,
                         estimated_monthly_volume: values.estimated_monthly_volume, estimated_annual_spend: values.estimated_annual_spend,
                         num_travellers: values.num_travellers, marketing_consent: values.marketing_consent,
+                        logo_url: values.logo_url,
+                        trade_license_url: values.trade_license_url,
+                        tax_certificate_url: values.tax_certificate_url,
+                        company_id_url: values.company_id_url,
+                        signatory_id_url: values.signatory_id_url,
+                        po_format_url: values.po_format_url,
+                        travel_policy_url: values.travel_policy_url,
                     };
                 }
 
@@ -484,7 +587,7 @@ const AuthPageContent = () => {
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                                    <FormInput label="City" icon={MapPin} required formik={registerFormik} name="city" />
+                                                    <FormSelect label="City" icon={MapPin} required formik={registerFormik} name="city" options={cityList} />
                                                     <FormSelect label="Country" icon={Globe} required formik={registerFormik} name="country" options={countryList} />
                                                 </div>
                                                 <FormInput label="Main Address" icon={MapPin} required formik={registerFormik} name="address" />
@@ -516,7 +619,10 @@ const AuthPageContent = () => {
                                                             <FormSelect label="Passport Issue Country" icon={Globe} required formik={registerFormik} name="passport_issue_country" options={countryList} />
                                                             <FormInput label="Passport Issue Date" icon={Calendar} type="date" required formik={registerFormik} name="passport_issue_date" />
                                                             <FormInput label="Passport Expiry Date" icon={Calendar} type="date" required formik={registerFormik} name="passport_expiry_date" />
-                                                            <FormInput label="Passport Copy (Document URL)" icon={LinkIcon} formik={registerFormik} name="passport_url" placeholder="https://..." />
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
+                                                            <ImageUpload label="Passport Copy" formik={registerFormik} name="passport_url" />
+                                                            <ImageUpload label="Profile Photo" formik={registerFormik} name="profile_image" circle />
                                                         </div>
                                                     </div>
 
@@ -530,10 +636,53 @@ const AuthPageContent = () => {
                                                             <FormInput label="Preferred Departure Airport" icon={Plane} formik={registerFormik} name="preferred_departure_airport" placeholder="e.g. DXB, LHR" />
                                                             <FormSelect label="Hotel Category" formik={registerFormik} name="preferred_hotel_category" options={['3 Star','4 Star','5 Star','Luxury/Boutique']} />
                                                             <FormInput label="Special Meal Request" icon={Check} formik={registerFormik} name="meal_preference" placeholder="e.g. Vegetarian, Halal" />
-                                                            <FormInput label="Frequent Flyer Number" icon={Plane} formik={registerFormik} name="frequent_flyer_number" placeholder="e.g. EK123456" />
                                                             <FormInput label="Special Assistance Needed" icon={Check} formik={registerFormik} name="special_assistance" placeholder="e.g. Wheelchair, None" />
                                                         </div>
-                                                        <MultiSelectTags label="Travel Interests (Select multiple)" formik={registerFormik} name="travel_interests" options={['Adventure','Culture & History','Relaxation','Nature','Wildlife Safari','City Breaks','Food & Wine']} />
+                                                        
+                                                        <div className="mt-4 p-5 bg-gray-50/50 rounded-xl border border-gray-100">
+                                                            <div className="flex items-center justify-between mb-4">
+                                                                <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Frequent Flyer Memberships (Optional)</h4>
+                                                                <button type="button" onClick={() => registerFormik.setFieldValue('frequent_flyers', [...registerFormik.values.frequent_flyers, { airline: '', membership_number: '' }])}
+                                                                    className="text-xs text-[#FFA500] font-bold hover:underline flex items-center gap-1">
+                                                                    + Add Airline
+                                                                </button>
+                                                            </div>
+                                                            <div className="space-y-4">
+                                                                {registerFormik.values.frequent_flyers.map((item, index) => (
+                                                                    <div key={index} className="flex gap-3 items-end">
+                                                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                            <div className="space-y-1">
+                                                                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Airline</label>
+                                                                                <input type="text" placeholder="e.g. Emirates" className={`${inputBase} py-2.5 px-4`}
+                                                                                    value={item.airline} onChange={e => {
+                                                                                        const updated = [...registerFormik.values.frequent_flyers];
+                                                                                        updated[index].airline = e.target.value;
+                                                                                        registerFormik.setFieldValue('frequent_flyers', updated);
+                                                                                    }} />
+                                                                            </div>
+                                                                            <div className="space-y-1">
+                                                                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Membership Number</label>
+                                                                                <input type="text" placeholder="e.g. EK123456" className={`${inputBase} py-2.5 px-4`}
+                                                                                    value={item.membership_number} onChange={e => {
+                                                                                        const updated = [...registerFormik.values.frequent_flyers];
+                                                                                        updated[index].membership_number = e.target.value;
+                                                                                        registerFormik.setFieldValue('frequent_flyers', updated);
+                                                                                    }} />
+                                                                            </div>
+                                                                        </div>
+                                                                        {registerFormik.values.frequent_flyers.length > 1 && (
+                                                                            <button type="button" onClick={() => registerFormik.setFieldValue('frequent_flyers', registerFormik.values.frequent_flyers.filter((_, i) => i !== index))}
+                                                                                className="text-red-500 hover:text-red-700 font-bold text-xs pb-3">
+                                                                                Remove
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <MultiSelectTags label="Preferred Destinations (Select multiple)" formik={registerFormik} name="preferred_destinations" options={['London','New York','Paris','Dubai','Singapore','Tokyo','Sydney','Bangkok']} />
+                                                        <MultiSelectTags label="Travel Interests (Select multiple)" formik={registerFormik} name="travel_interests" options={['Adventure','Beach','Culture & History','Relaxation','Nature','Wildlife Safari','City Breaks','Food & Wine']} />
                                                     </div>
                                                 </>
                                             )}
@@ -554,6 +703,7 @@ const AuthPageContent = () => {
                                                             <FormInput label="Industry Sector" formik={registerFormik} name="industry" />
                                                             <FormSelect label="Registration Country" icon={Globe} required formik={registerFormik} name="country_of_registration" options={countryList} />
                                                             <FormInput label="Company Website" icon={Globe} formik={registerFormik} name="website" />
+                                                            <FormInput label="Company Address" icon={MapPin} formik={registerFormik} name="company_address" placeholder="Office address" />
                                                         </div>
                                                     </div>
 
@@ -567,6 +717,11 @@ const AuthPageContent = () => {
                                                             <FormInput label="Designation / Role" formik={registerFormik} name="contact_designation" />
                                                             <FormInput label="Direct Email" type="email" required formik={registerFormik} name="contact_email" />
                                                             <FormInput label="Direct Mobile" required formik={registerFormik} name="contact_mobile" />
+                                                            <div className="space-y-1.5 w-full">
+                                                                <label className={labelClass}>Contact WhatsApp</label>
+                                                                <InternationalPhoneInput value={registerFormik.values.contact_whatsapp} onChange={v => registerFormik.setFieldValue('contact_whatsapp', v)} error={registerFormik.touched.contact_whatsapp && registerFormik.errors.contact_whatsapp} />
+                                                            </div>
+                                                            <FormSelect label="Preferred Contact Method" icon={Phone} formik={registerFormik} name="contact_preferred_method" options={[{label:'Email',value:'email'},{label:'WhatsApp',value:'whatsapp'},{label:'Phone',value:'phone'}]} />
                                                         </div>
                                                         
                                                         <div className="mt-4 p-5 bg-gray-50/50 rounded-xl border border-gray-100">
@@ -575,7 +730,24 @@ const AuthPageContent = () => {
                                                                 <FormInput label="Contact Name" formik={registerFormik} name="accounts_contact_name" />
                                                                 <FormInput label="Email Address" type="email" formik={registerFormik} name="accounts_email" />
                                                                 <FormInput label="Mobile Number" formik={registerFormik} name="accounts_mobile" />
+                                                                <FormInput label="Billing Address" icon={MapPin} formik={registerFormik} name="billing_address" placeholder="Billing address" />
                                                             </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-6">
+                                                        <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
+                                                            <ShieldCheck size={16} className="text-[#113A74]" />
+                                                            <h3 className="text-xs font-black text-[#113A74] uppercase tracking-widest">Company Documents & Uploads</h3>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                            <ImageUpload label="Company Logo" formik={registerFormik} name="logo_url" circle />
+                                                            <ImageUpload label="Trade License Document" formik={registerFormik} name="trade_license_url" />
+                                                            <ImageUpload label="Tax Certificate" formik={registerFormik} name="tax_certificate_url" />
+                                                            <ImageUpload label="Company ID Document" formik={registerFormik} name="company_id_url" />
+                                                            <ImageUpload label="Signatory ID Card" formik={registerFormik} name="signatory_id_url" />
+                                                            <ImageUpload label="Purchase Order Format Copy" formik={registerFormik} name="po_format_url" />
+                                                            <ImageUpload label="Company Travel Policy" formik={registerFormik} name="travel_policy_url" />
                                                         </div>
                                                     </div>
 
@@ -584,8 +756,10 @@ const AuthPageContent = () => {
                                                             <CreditCard size={16} className="text-[#113A74]" />
                                                             <h3 className="text-xs font-black text-[#113A74] uppercase tracking-widest">Volume & Requirements</h3>
                                                         </div>
-                                                        <MultiSelectTags label="Required Corporate Services" formik={registerFormik} name="services_required" options={['Flight Bookings','Hotel Accommodation','Visa Assistance','Transfers','Corporate Events','MICE']} />
+                                                        <MultiSelectTags label="Required Corporate Services" formik={registerFormik} name="services_required" options={['Flight','Hotel','Visa','Transfers','Corporate Events','MICE']} />
+                                                        <MultiSelectTags label="Main Destinations" formik={registerFormik} name="main_destinations" options={['London','New York','Paris','Dubai','Singapore','Tokyo','Sydney','Bangkok']} />
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                                                            <FormInput label="Est. Monthly Volume" formik={registerFormik} name="estimated_monthly_volume" placeholder="e.g. 10-20 bookings" />
                                                             <FormSelect label="Est. Annual Spend" formik={registerFormik} name="estimated_annual_spend" options={['Under $50k','$50k - $100k','$100k - $500k','$500k+']} />
                                                             <FormInput label="Active Travellers" type="number" formik={registerFormik} name="num_travellers" />
                                                             <FormSelect label="Requested Payment Terms" formik={registerFormik} name="payment_terms_required" options={['Prepaid','15 Days','30 Days','45 Days']} />
@@ -593,6 +767,10 @@ const AuthPageContent = () => {
                                                         <label className="flex items-center gap-3 cursor-pointer mt-4">
                                                             <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#113A74] focus:ring-[#113A74]" {...registerFormik.getFieldProps('purchase_order_required')} checked={registerFormik.values.purchase_order_required} />
                                                             <span className="text-sm font-bold text-gray-700">Strict Purchase Order (PO) required for all bookings</span>
+                                                        </label>
+                                                        <label className="flex items-center gap-3 cursor-pointer mt-2">
+                                                            <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#113A74] focus:ring-[#113A74]" checked={registerFormik.values.marketing_consent} onChange={e => registerFormik.setFieldValue('marketing_consent', e.target.checked)} />
+                                                            <span className="text-sm font-bold text-gray-700">I consent to receive marketing communications</span>
                                                         </label>
                                                     </div>
                                                 </>

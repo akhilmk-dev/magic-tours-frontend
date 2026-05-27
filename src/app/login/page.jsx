@@ -340,7 +340,7 @@ const AuthPageContent = () => {
                         preferred_travel_class: values.preferred_travel_class,
                         preferred_hotel_category: values.preferred_hotel_category,
                         preferred_destinations: values.preferred_destinations,
-                        travel_interests: values.travel_interests, meal_preference: values.meal_preference,
+                        travel_interests: values.travel_interests.map(i => i.toLowerCase()), meal_preference: values.meal_preference,
                         special_assistance: values.special_assistance,
                         marketing_consent: values.marketing_consent,
                     };
@@ -360,7 +360,7 @@ const AuthPageContent = () => {
                         accounts_contact_name: values.accounts_contact_name, accounts_email: values.accounts_email,
                         accounts_mobile: values.accounts_mobile, billing_address: values.billing_address,
                         payment_terms_required: values.payment_terms_required, purchase_order_required: values.purchase_order_required,
-                        services_required: values.services_required, main_destinations: values.main_destinations,
+                        services_required: values.services_required.map(s => s.toLowerCase()), main_destinations: values.main_destinations,
                         estimated_monthly_volume: values.estimated_monthly_volume, estimated_annual_spend: values.estimated_annual_spend,
                         num_travellers: values.num_travellers, marketing_consent: values.marketing_consent,
                         logo_url: values.logo_url,
@@ -700,7 +700,7 @@ const AuthPageContent = () => {
                                                             <FormInput label="Trade Name" icon={Building2} formik={registerFormik} name="trade_name" />
                                                             <FormInput label="Trade License Number" required formik={registerFormik} name="trade_license_number" />
                                                             <FormInput label="Tax/VAT Number" formik={registerFormik} name="tax_vat_number" />
-                                                            <FormInput label="Industry Sector" formik={registerFormik} name="industry" />
+                                                            <FormSelect label="Industry Sector" formik={registerFormik} name="industry" options={['Hospitality','Oil & Gas','Banking & Finance','Healthcare','Technology','Real Estate','Education','Government','Retail','Manufacturing','Media & Entertainment','Other']} />
                                                             <FormSelect label="Registration Country" icon={Globe} required formik={registerFormik} name="country_of_registration" options={countryList} />
                                                             <FormInput label="Company Website" icon={Globe} formik={registerFormik} name="website" />
                                                             <FormInput label="Company Address" icon={MapPin} formik={registerFormik} name="company_address" placeholder="Office address" />
@@ -756,7 +756,7 @@ const AuthPageContent = () => {
                                                             <CreditCard size={16} className="text-[#113A74]" />
                                                             <h3 className="text-xs font-black text-[#113A74] uppercase tracking-widest">Volume & Requirements</h3>
                                                         </div>
-                                                        <MultiSelectTags label="Required Corporate Services" formik={registerFormik} name="services_required" options={['Flight','Hotel','Visa','Transfers','Corporate Events','MICE']} />
+                                                        <MultiSelectTags label="Required Corporate Services" formik={registerFormik} name="services_required" options={['Flights','Hotels','Visas','Transfers','Corporate Events','MICE']} />
                                                         <MultiSelectTags label="Main Destinations" formik={registerFormik} name="main_destinations" options={['London','New York','Paris','Dubai','Singapore','Tokyo','Sydney','Bangkok']} />
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                                                             <FormInput label="Est. Monthly Volume" formik={registerFormik} name="estimated_monthly_volume" placeholder="e.g. 10-20 bookings" />

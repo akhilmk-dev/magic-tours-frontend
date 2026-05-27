@@ -41,7 +41,7 @@ export default function Home() {
             <About content={homeData?.sections_content?.about} loading={loading} />
             <Destinations content={homeData?.sections_content?.destinations} loading={loading} />
             <PopularPackages packages={homeData?.packages} content={homeData?.sections_content?.popular_packages} loading={loading} />
-            <CruiseCategories cruises={homeData?.custom_cruises} content={homeData?.sections_content?.cruises} loading={loading} />
+            <CruiseCategories cruises={homeData?.cruises} content={homeData?.sections_content?.cruises} loading={loading} />
             <VisaServices content={homeData?.sections_content?.visa} loading={loading} />
             <PrivateJet jets={homeData?.custom_private_jets} content={homeData?.sections_content?.private_jets} loading={loading} />
             <HotelPackages hotels={homeData?.hotels} content={homeData?.sections_content?.hotels} loading={loading} />

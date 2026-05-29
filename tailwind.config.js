@@ -31,6 +31,7 @@ export default {
         display: ['var(--font-el-messiri)', 'El Messiri', 'sans-serif'],
         jakarta: ['var(--font-plus-jakarta-sans)', 'Plus Jakarta Sans', 'sans-serif'],
         figtree: ['var(--font-figtree)', 'Figtree', 'sans-serif'],
+        montserrat: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
       }
     },
   },

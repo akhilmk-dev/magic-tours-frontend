@@ -243,16 +243,40 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* Mobile Toggle */}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className={clsx(
-                            "lg:hidden p-2 transition-colors mr-3",
-                            isTransparent ? "text-[#0D0D0C]" : "text-[#0D0D0C]"
+                    {/* Mobile: Sign In button + Toggle */}
+                    <div className="flex items-center gap-2 lg:hidden">
+                        {user ? (
+                            <Link
+                                href="/profile"
+                                className="flex items-center gap-1.5 bg-[#113A74] text-white text-[12px] font-bold px-3 py-1.5 rounded-full"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold">
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <span className="hidden xs:inline">{user.name?.split(' ')[0] || 'Profile'}</span>
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className={clsx(
+                                    "text-[12px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1.5",
+                                    isTransparent
+                                        ? "border-[#0D0D0C]/30 text-[#0D0D0C] bg-white/80"
+                                        : "border-brand-magic text-brand-magic bg-brand-magic/5 hover:bg-brand-magic hover:text-white"
+                                )}
+                            >
+                                <User size={12} />
+                                <span>Sign In</span>
+                            </Link>
                         )}
-                    >
-                        {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="p-2 transition-colors text-[#0D0D0C]"
+                        >
+                            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Menu */}

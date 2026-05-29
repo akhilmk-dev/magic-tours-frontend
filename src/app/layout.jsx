@@ -1,4 +1,4 @@
-import { Inter, Philosopher, El_Messiri, Plus_Jakarta_Sans, Figtree } from 'next/font/google';
+import { Inter, Philosopher, El_Messiri, Plus_Jakarta_Sans, Figtree, Montserrat } from 'next/font/google';
 import '../index.css';
 import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
@@ -42,6 +42,12 @@ const figtree = Figtree({
     display: 'swap',
 });
 
+const montserrat = Montserrat({
+    subsets: ['latin'],
+    variable: '--font-montserrat',
+    display: 'swap',
+});
+
 export async function generateMetadata() {
     return await generatePageMetadata('home');
 }
@@ -52,7 +58,7 @@ export default async function RootLayout({ children }) {
     const jotformSnippet = settings.jotform_chatbot_snippet;
 
     return (
-        <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable}`}>
+        <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable} ${montserrat.variable}`}>
             <head>
                 {gtmId && (
                     <Script

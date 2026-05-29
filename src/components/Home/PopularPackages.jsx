@@ -79,7 +79,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         id: p.id,
         title: p.title || "Untitled Package",
         location: p.location || "Location TBD",
-        duration: (p.days > 0 || p.nights > 0) ? `${p.days} Days, ${p.nights} Nights` : (p.duration || "Contact for duration"),
+        duration: (p.days > 0 || p.nights > 0) ? `${p.nights} Nights, ${p.days} Days` : (p.duration || "Contact for duration"),
         type: parseCategories(p.category),
         price: p.price || 0,
         currency: p.currency || 'AED',

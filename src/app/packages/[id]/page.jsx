@@ -590,7 +590,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         />
                         {/* Collab frame with airline logo — only shown when airline data exists */}
                         {(pkg.airline_name || pkg.airline_logo) && (
-                            <div className="absolute -top-10 md:-top-14 left-[calc(100%+2rem)] md:left-[calc(100%+3rem)] w-36 md:w-44 lg:w-52 pointer-events-none">
+                            <div className="absolute -top-6 -right-4 md:-top-14 md:left-[calc(100%+3rem)] md:right-auto w-20 md:w-44 lg:w-52 pointer-events-none">
                                 <img
                                     src={collabFrame.src || collabFrame}
                                     alt="In Collaboration"
@@ -886,7 +886,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             </div>
                                             {/* Details */}
                                             <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-                                                <h3 className="text-[#FFA500] font-bold text-sm leading-tight line-clamp-1">
+                                                <h3 className="text-[#113A74] font-bold text-[20px] leading-tight line-clamp-1">
                                                     {hotel.name}
                                                 </h3>
                                                 {displayAddress && (
@@ -952,7 +952,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             ? `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`
                                             : '—';
                                         return (
-                                            <div key={flight.id || idx} className={`grid grid-cols-6 px-5 py-4 items-center text-sm ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                                            <div key={flight.id || idx} className={`grid grid-cols-5 px-5 py-4 items-center text-sm ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
                                                 <span className="text-gray-600 font-medium">{formattedDate}</span>
                                                 <div className="flex items-center gap-1.5">
                                                     <Plane size={11} className="text-[#113A74] shrink-0" />
@@ -965,13 +965,6 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                 </span>
                                                 <span className="text-gray-600">{flight.departure_time || '—'}</span>
                                                 <span className="text-gray-600">{flight.arrival_time || '—'}</span>
-                                                <span className={`text-[11px] font-bold px-3 py-1 rounded-full w-fit ${
-                                                    isCancelled ? 'bg-gray-200 text-gray-500' :
-                                                    isDelayed   ? 'bg-red-100 text-red-600'   :
-                                                                  'bg-[#FFA500] text-white'
-                                                }`}>
-                                                    {flight.status || 'On Time'}
-                                                </span>
                                             </div>
                                         );
                                     })}
@@ -1209,39 +1202,37 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {pkg.faqs?.length > 0 && (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Frequently Asked Questions</h3>
+                                    <h3 className="text-[24px] font-bold text-black font-heading">Frequently Asked Questions</h3>
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleAllFaqs(pkg.faqs)}>
                                         <span className="text-sm text-gray-500">Expand all</span>
                                         <div className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${faqExpandAll ? 'bg-[#FFA500]' : 'bg-gray-300'}`}>
                                             <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${faqExpandAll ? 'left-[22px]' : 'left-[2px]'}`} />
                                         </div>
                                     </div>
-                                )}
+                                </div>
+                                <div className="space-y-3">
+                                    {pkg.faqs.map((faq, idx) => {
+                                        const isOpen = expandedFaqs.includes(idx);
+                                        return (
+                                            <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                                                <button
+                                                    className="w-full flex items-center justify-between px-5 py-4 text-left"
+                                                    onClick={() => toggleFaq(idx)}
+                                                >
+                                                    <span className="text-sm font-medium text-[#1d2a44]">{idx + 1}) {faq.question}</span>
+                                                    <ChevronDown size={16} className={`text-[#113A74] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                {isOpen && (
+                                                    <div className="px-5 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
+                                                        {faq.answer}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                            <div className="space-y-3">
-                                {pkg.faqs?.length > 0 ? pkg.faqs.map((faq, idx) => {
-                                    const isOpen = expandedFaqs.includes(idx);
-                                    return (
-                                        <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                                            <button
-                                                className="w-full flex items-center justify-between px-5 py-4 text-left"
-                                                onClick={() => toggleFaq(idx)}
-                                            >
-                                                <span className="text-sm font-medium text-[#1d2a44]">{idx + 1}) {faq.question}</span>
-                                                <ChevronDown size={16} className={`text-[#113A74] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-                                            </button>
-                                            {isOpen && (
-                                                <div className="px-5 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
-                                                    {faq.answer}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                }) : (
-                                    <p className="text-gray-400 text-sm italic">No FAQs available for this package.</p>
-                                )}
-                            </div>
-                        </div>
+                        )}
 
                         {/* Links */}
                         {pkg.links?.length > 0 && (

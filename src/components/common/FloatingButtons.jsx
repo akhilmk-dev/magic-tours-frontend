@@ -10,50 +10,55 @@ const WhatsAppIcon = () => (
 );
 
 export default function FloatingButtons() {
-    const [phone, setPhone] = useState('');
+    const [whatsapp, setWhatsapp] = useState('');
+    const [mobile,   setMobile]   = useState('');
 
     useEffect(() => {
         api.get('/settings/public')
             .then(res => {
-                const number = res.data?.footer_emergency_contact || res.data?.footer_phone || '';
-                if (number) setPhone(number);
+                const d = res?.data || res;
+                setWhatsapp(d?.whatsapp_number  || '');
+                setMobile(d?.company_mobile_no  || '');
             })
             .catch(() => {});
     }, []);
 
-    if (!phone) return null;
+    if (!whatsapp && !mobile) return null;
 
-    const whatsappNumber = phone.replace(/[^0-9]/g, '');
+    const whatsappNumber = whatsapp.replace(/[^0-9]/g, '');
     const whatsappUrl = `https://wa.me/${whatsappNumber}`;
-    const callUrl = `tel:${phone}`;
+    const callUrl = `tel:${mobile}`;
 
     return (
         <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-3">
             {/* WhatsApp */}
-            <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Chat on WhatsApp"
-                className="relative w-13 h-13 flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110"
-                style={{ backgroundColor: '#25D366', width: '52px', height: '52px' }}
-            >
-                {/* Pulse ring */}
-                <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#25D366' }} />
-                <span className="relative text-white">
-                    <WhatsAppIcon />
-                </span>
-            </a>
+            {whatsapp && (
+                <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Chat on WhatsApp"
+                    className="relative flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110"
+                    style={{ backgroundColor: '#25D366', width: '52px', height: '52px' }}
+                >
+                    <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#25D366' }} />
+                    <span className="relative text-white">
+                        <WhatsAppIcon />
+                    </span>
+                </a>
+            )}
 
             {/* Call */}
-            <a
-                href={callUrl}
-                aria-label="Call us"
-                className="flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110 text-white"
-                style={{ backgroundColor: '#113A74', width: '52px', height: '52px' }}
-            >
-                <Phone size={20} strokeWidth={2.5} />
-            </a>
+            {mobile && (
+                <a
+                    href={callUrl}
+                    aria-label="Call us"
+                    className="flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110 text-white"
+                    style={{ backgroundColor: '#113A74', width: '52px', height: '52px' }}
+                >
+                    <Phone size={20} strokeWidth={2.5} />
+                </a>
+            )}
         </div>
     );
 }

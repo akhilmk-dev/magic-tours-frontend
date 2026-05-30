@@ -112,7 +112,7 @@ export default function Hero({ slides: apiSlides, loading }) {
         if (e.key === 'Enter') {
             const path = searchTerm.trim()
                 ? `/tours?search=${encodeURIComponent(searchTerm)}`
-                : (slides[currentSlide].url || slides[currentSlide].link || "/tours");
+                : "/tours";
             router.push(path);
         }
     };

@@ -1,43 +1,13 @@
 "use client";
 
 export const runtime = 'edge';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Phone, Mail, MessageCircle, Clock, ShieldCheck, Award, Headphones } from 'lucide-react';
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
-
-const channels = [
-    {
-        icon: <Phone size={28} className="text-white" />,
-        bg: 'bg-[#FFA500]',
-        title: '24/7 Phone Support',
-        desc: 'Speak directly with a travel expert, day or night.',
-        detail: '+974656544321',
-        link: 'tel:+974656544321',
-        linkLabel: 'Call Now',
-    },
-    {
-        icon: <MessageCircle size={28} className="text-white" />,
-        bg: 'bg-[#25D366]',
-        title: 'WhatsApp',
-        desc: 'Message us on WhatsApp for quick answers and booking help.',
-        detail: '+974 77705750',
-        link: 'https://wa.me/97477705750',
-        linkLabel: 'Chat on WhatsApp',
-    },
-    {
-        icon: <Mail size={28} className="text-white" />,
-        bg: 'bg-[#113A74]',
-        title: 'Email Support',
-        desc: 'Drop us an email and we\'ll respond within 24 hours.',
-        detail: 'info@magictoursonline.com',
-        link: 'mailto:info@magictoursonline.com',
-        linkLabel: 'Send Email',
-    },
-];
 
 const trust = [
     {
@@ -63,6 +33,54 @@ const trust = [
 ];
 
 export default function SupportPage() {
+    const [contactSettings, setContactSettings] = useState({ phone: '', whatsapp: '', email: '' });
+
+    useEffect(() => {
+        fetch('https://api.magictours.qa/settings/public')
+            .then(r => r.json())
+            .then(data => {
+                const d = data?.data || {};
+                setContactSettings({
+                    phone:    d.company_mobile_no  || '',
+                    whatsapp: d.whatsapp_number   || '',
+                    email:    d.company_email      || '',
+                });
+            })
+            .catch(() => {});
+    }, []);
+
+    const waNumber = contactSettings.whatsapp.replace(/[^0-9]/g, '');
+
+    const channels = [
+        {
+            icon: <Phone size={28} className="text-white" />,
+            bg: 'bg-[#FFA500]',
+            title: '24/7 Phone Support',
+            desc: 'Speak directly with a travel expert, day or night.',
+            detail: contactSettings.phone,
+            link: contactSettings.phone ? `tel:${contactSettings.phone}` : '#',
+            linkLabel: 'Call Now',
+        },
+        {
+            icon: <MessageCircle size={28} className="text-white" />,
+            bg: 'bg-[#25D366]',
+            title: 'WhatsApp',
+            desc: 'Message us on WhatsApp for quick answers and booking help.',
+            detail: contactSettings.whatsapp,
+            link: waNumber ? `https://wa.me/${waNumber}` : '#',
+            linkLabel: 'Chat on WhatsApp',
+        },
+        {
+            icon: <Mail size={28} className="text-white" />,
+            bg: 'bg-[#113A74]',
+            title: 'Email Support',
+            desc: "Drop us an email and we'll respond within 24 hours.",
+            detail: contactSettings.email,
+            link: contactSettings.email ? `mailto:${contactSettings.email}` : '#',
+            linkLabel: 'Send Email',
+        },
+    ];
+
     return (
         <main className="min-h-screen bg-white font-sans overflow-hidden">
             {/* Hero */}

@@ -1,7 +1,7 @@
 "use client";
 
 export const runtime = 'edge';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -39,6 +39,21 @@ const ContactUsPage = () => {
     const { success, error } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [contactSettings, setContactSettings] = useState({ phone: '', whatsapp: '', location: '' });
+
+    useEffect(() => {
+        fetch('https://api.magictours.qa/settings/public')
+            .then(r => r.json())
+            .then(data => {
+                const d = data?.data || {};
+                setContactSettings({
+                    phone:    d.company_mobile_no || '',
+                    whatsapp: d.whatsapp_number  || '',
+                    location: d.company_location || '',
+                });
+            })
+            .catch(() => {});
+    }, []);
 
     const handleSubmit = async (values, { resetForm }) => {
         setSubmitting(true);
@@ -60,8 +75,8 @@ const ContactUsPage = () => {
         {
             icon: <Phone className="text-[#FFA500]" size={20} />,
             title: "Phone Number",
-            details: "+974656544321",
-            details2: "+974 77705750",
+            details: contactSettings.phone,
+            details2: contactSettings.whatsapp,
             bg: "bg-orange-50"
         },
         {
@@ -72,15 +87,15 @@ const ContactUsPage = () => {
                 </svg>
             ),
             title: "WhatsApp Number",
-            details: "+974 77705750",
+            details: contactSettings.whatsapp,
             details2: "Available 24/7",
             bg: "bg-[#25D366]/10"
         },
         {
             icon: <MapPin className="text-[#FFA500]" size={20} />,
             title: "Our Location",
-            details: "123 Business Bay",
-            details2: "Dubai, United Arab Emirates",
+            details: contactSettings.location,
+            details2: "",
             bg: "bg-orange-50"
         },
         {

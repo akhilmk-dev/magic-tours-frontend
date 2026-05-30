@@ -545,6 +545,19 @@ const ToursContent = () => {
     const [headerData,  setHeaderData]  = useState({ title: "Our Packages", description: "" });
     const [search,      setSearch]      = useState(urlSearch);
     const [viewMode,    setViewMode]    = useState('grid');
+    const [tourListingSettings, setTourListingSettings] = useState({ heading: '', description: '' });
+
+    useEffect(() => {
+        api.get('/settings/public')
+            .then(res => {
+                const d = res?.data || res;
+                setTourListingSettings({
+                    heading:     d?.tour_listing_heading            || '',
+                    description: d?.tour_listing_short_description  || '',
+                });
+            })
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         api.get('/packages/frontend/filters')
@@ -673,6 +686,21 @@ const ToursContent = () => {
 
                         {/* Cards column — destination bar sits here, aligned with packages */}
                         <div className="flex-1 min-w-0">
+
+                            {(tourListingSettings.heading || tourListingSettings.description) && (
+                                <div className="mb-6">
+                                    {tourListingSettings.heading && (
+                                        <h2 className="text-[20px] font-bold text-black font-heading mb-2">
+                                            {tourListingSettings.heading}
+                                        </h2>
+                                    )}
+                                    {tourListingSettings.description && (
+                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                            {tourListingSettings.description}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Destination filter bar — same width as packages grid */}
                             <DestinationBar

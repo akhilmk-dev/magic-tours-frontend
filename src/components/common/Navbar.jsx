@@ -109,7 +109,7 @@ const CurrencyDropdown = ({ isTransparent }) => {
     );
 };
 
-const TopBar = ({ isTransparent, user, onLogout }) => {
+const TopBar = ({ isTransparent, user, onLogout, siteLocation, siteMobile }) => {
     return (
         <div className={clsx(
             "border-b transition-all duration-300",
@@ -118,14 +118,18 @@ const TopBar = ({ isTransparent, user, onLogout }) => {
             <div className="px-6 sm:px-4 md:px-6 flex justify-between items-center text-[11px] sm:text-[12px] font-medium w-full py-1.5">
                 {/* Left: Location & Phone */}
                 <div className="flex items-center gap-3 sm:gap-6 text-[#0D0D0C]">
-                    <div className="hidden sm:flex items-center gap-1.5">
-                        <MapPin size={13} className="text-[#0D0D0C]/60" />
-                        <span>Doha, Qatar</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:border-l sm:pl-6 border-gray-200">
-                        <Phone size={13} className="text-[#0D0D0C]/60" />
-                        <span>+974656544321</span>
-                    </div>
+                    {siteLocation && (
+                        <div className="hidden sm:flex items-center gap-1.5">
+                            <MapPin size={13} className="text-[#0D0D0C]/60" />
+                            <span>{siteLocation}</span>
+                        </div>
+                    )}
+                    {siteMobile && (
+                        <div className="flex items-center gap-1.5 sm:border-l sm:pl-6 border-gray-200">
+                            <Phone size={13} className="text-[#0D0D0C]/60" />
+                            <span>{siteMobile}</span>
+                        </div>
+                    )}
                 </div>
                 {/* Right: Currency, FAQ, etc. */}
                 <div className="flex items-center gap-3 sm:gap-5 text-[#0D0D0C]">
@@ -160,7 +164,9 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-    const [dynamicLogo, setDynamicLogo] = useState(null);
+    const [dynamicLogo,     setDynamicLogo]     = useState(null);
+    const [siteLocation,    setSiteLocation]    = useState('');
+    const [siteMobile,      setSiteMobile]      = useState('');
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout } = useCustomerAuth();
@@ -180,9 +186,10 @@ export default function Navbar() {
         fetch('https://api.magictours.qa/settings/public')
             .then(res => res.json())
             .then(data => {
-                if (data?.data?.site_logo) {
-                    setDynamicLogo(data.data.site_logo);
-                }
+                const d = data?.data || {};
+                if (d.site_logo)        setDynamicLogo(d.site_logo);
+                if (d.company_location) setSiteLocation(d.company_location);
+                if (d.company_mobile_no) setSiteMobile(d.company_mobile_no);
             })
             .catch(err => console.error("Failed to fetch site logo:", err));
 
@@ -215,7 +222,7 @@ export default function Navbar() {
             "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
             isTransparent ? "bg-transparent" : "bg-white shadow-sm"
         )}>
-            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} />
+            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} siteLocation={siteLocation} siteMobile={siteMobile} />
             <nav className="py-3 sm:py-4 md:py-5">
                 <div className="px-6 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}

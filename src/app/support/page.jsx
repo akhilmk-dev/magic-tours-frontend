@@ -15,8 +15,8 @@ const channels = [
         bg: 'bg-[#FFA500]',
         title: '24/7 Phone Support',
         desc: 'Speak directly with a travel expert, day or night.',
-        detail: '+974 444 8888',
-        link: 'tel:+9744448888',
+        detail: '+974656544321',
+        link: 'tel:+974656544321',
         linkLabel: 'Call Now',
     },
     {
@@ -24,8 +24,8 @@ const channels = [
         bg: 'bg-[#25D366]',
         title: 'WhatsApp',
         desc: 'Message us on WhatsApp for quick answers and booking help.',
-        detail: '+974 444 8888',
-        link: 'https://wa.me/9744448888',
+        detail: '+974 77705750',
+        link: 'https://wa.me/97477705750',
         linkLabel: 'Chat on WhatsApp',
     },
     {
@@ -33,8 +33,8 @@ const channels = [
         bg: 'bg-[#113A74]',
         title: 'Email Support',
         desc: 'Drop us an email and we\'ll respond within 24 hours.',
-        detail: 'support@magictours.com',
-        link: 'mailto:support@magictours.com',
+        detail: 'info@magictoursonline.com',
+        link: 'mailto:info@magictoursonline.com',
         linkLabel: 'Send Email',
     },
 ];

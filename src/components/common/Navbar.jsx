@@ -124,7 +124,7 @@ const TopBar = ({ isTransparent, user, onLogout }) => {
                     </div>
                     <div className="flex items-center gap-1.5 sm:border-l sm:pl-6 border-gray-200">
                         <Phone size={13} className="text-[#0D0D0C]/60" />
-                        <span>+974 444 8888</span>
+                        <span>+974656544321</span>
                     </div>
                 </div>
                 {/* Right: Currency, FAQ, etc. */}

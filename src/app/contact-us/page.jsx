@@ -60,8 +60,8 @@ const ContactUsPage = () => {
         {
             icon: <Phone className="text-[#FFA500]" size={20} />,
             title: "Phone Number",
-            details: "+971 123 456 789",
-            details2: "+971 987 654 321",
+            details: "+974656544321",
+            details2: "+974 77705750",
             bg: "bg-orange-50"
         },
         {
@@ -72,7 +72,7 @@ const ContactUsPage = () => {
                 </svg>
             ),
             title: "WhatsApp Number",
-            details: "+971 987 654 321",
+            details: "+974 77705750",
             details2: "Available 24/7",
             bg: "bg-[#25D366]/10"
         },
@@ -86,8 +86,8 @@ const ContactUsPage = () => {
         {
             icon: <Mail className="text-[#113A74]" size={20} />,
             title: "Email Address",
-            details: "info@magictours.com",
-            details2: "support@magictours.com",
+            details: "info@magictoursonline.com",
+            details2: "info@magictoursonline.com",
             bg: "bg-blue-50"
         },
         {

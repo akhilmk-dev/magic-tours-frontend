@@ -556,7 +556,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
     const gallery = pkg.gallery ? (typeof pkg.gallery === 'string' ? JSON.parse(pkg.gallery) : pkg.gallery) : [];
 
     return (
-        <div className="bg-gray-50 min-h-screen pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Banner Section - Acting like Home Hero */}
             <section className="relative min-h-[80vh] lg:min-h-[85vh] w-full overflow-hidden flex items-center justify-center bg-slate-900 m-0 p-0 font-sans border-none">
                 {/* Background Image */}
@@ -828,7 +828,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             Explore the must-see attractions and unforgettable experiences included in your journey.
                                         </p>
                                     </div>
-                                    <div className="bg-[#f7f5f2] rounded-2xl p-4 sm:p-6">
+                                    <div className="bg-[#FFF8EB] rounded-2xl p-4 sm:p-6">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {groups.map(([cityName, attrs], idx) => (
                                                 <div key={cityName} className={`space-y-3 ${idx > 0 ? 'sm:border-l sm:border-gray-200 sm:pl-6' : ''} ${idx >= (groups.length % 3 === 0 ? groups.length - 3 : groups.length - (groups.length % 3)) ? '' : 'pb-4 sm:pb-0 border-b sm:border-b-0 border-gray-200'}`}>
@@ -864,8 +864,12 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     </p>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {pkg.hotels.map((hotel, idx) => (
-                                        <div key={hotel.id || idx} className="flex items-center gap-3 rounded-2xl border border-gray-100 shadow-sm p-3 bg-gray-100 w-full">
+                                    {pkg.hotels.map((hotel, idx) => {
+                                        let address = '';
+                                        try { address = JSON.parse(hotel.location_map || '{}').address || ''; } catch {}
+                                        const displayAddress = address || [hotel.continent, hotel.country, hotel.cities?.name].filter(Boolean).join(', ');
+                                        return (
+                                        <div key={hotel.id || idx} className="flex items-center gap-3 rounded-2xl border border-gray-100 shadow-sm p-3 bg-[#F4F4F4] w-full">
                                             {/* Image */}
                                             <div className="w-20 h-20 sm:w-[160px] sm:h-[100px] md:w-[200px] md:h-[115px] shrink-0 rounded-xl overflow-hidden">
                                                 <img
@@ -876,45 +880,44 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             </div>
                                             {/* Details */}
                                             <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-                                                <h3 className="text-[#FFA500] font-bold text-sm leading-tight line-clamp-1">
+                                                <h3 className="text-[#113A74] font-bold text-sm leading-tight line-clamp-1">
                                                     {hotel.name}
                                                 </h3>
-                                                {(hotel.continent || hotel.country || hotel.cities?.name) && (
+                                                {displayAddress && (
                                                     <div className="flex items-start gap-1.5 text-gray-500 text-[11px]">
                                                         <MapPin size={11} className="shrink-0 mt-0.5 text-[#113A74]" />
-                                                        <span className="line-clamp-1">
-                                                            {[hotel.continent, hotel.country, hotel.cities?.name].filter(Boolean).join(', ')}
-                                                        </span>
+                                                        <span className="line-clamp-1">{displayAddress}</span>
                                                     </div>
                                                 )}
                                                 {/* Tel + Website in one row */}
-                                                {(hotel.telephone || hotel.website_url) && (
+                                                {(hotel.phone || hotel.url) && (
                                                     <div className="flex items-center gap-4 flex-wrap">
-                                                        {hotel.website_url && (
+                                                        {hotel.url && (
                                                             <div className="flex items-center gap-1.5 text-[11px]">
                                                                 <Globe size={11} className="shrink-0 text-[#113A74]" />
                                                                 <a
-                                                                    href={hotel.website_url}
+                                                                    href={hotel.url}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="text-[#113A74] hover:text-[#FFA500] transition-colors truncate"
                                                                     onClick={e => e.stopPropagation()}
                                                                 >
-                                                                    {hotel.website_url.replace(/^https?:\/\//, '')}
+                                                                    {hotel.url.replace(/^https?:\/\//, '')}
                                                                 </a>
                                                             </div>
                                                         )}
-                                                        {hotel.telephone && (
+                                                        {hotel.phone && (
                                                             <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
                                                                 <Phone size={11} className="shrink-0 text-[#113A74]" />
-                                                                <span>Tel: {hotel.telephone}</span>
+                                                                <span>Tel: {hotel.phone}</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -931,8 +934,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 <div className="rounded-2xl border border-gray-100 overflow-hidden overflow-x-auto">
                                     <div className="min-w-[560px]">
                                     {/* Table header */}
-                                    <div className="grid grid-cols-6 px-5 py-3 bg-blue-50 border-b border-blue-100">
-                                        {['DATE', 'FLIGHT NO', 'ROUTE', 'DEPARTURE', 'ARRIVAL', 'STATUS'].map(h => (
+                                    <div className="grid grid-cols-5 px-5 py-3 bg-blue-50 border-b border-blue-100">
+                                        {['DATE', 'FLIGHT NO', 'ROUTE', 'DEPARTURE', 'ARRIVAL'].map(h => (
                                             <span key={h} className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
                                         ))}
                                     </div>
@@ -942,29 +945,20 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         const formattedDate = d
                                             ? `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`
                                             : '—';
-                                        const isDelayed = flight.status?.toLowerCase() === 'delayed';
-                                        const isCancelled = flight.status?.toLowerCase() === 'cancelled';
                                         return (
-                                            <div key={flight.id || idx} className={`grid grid-cols-6 px-5 py-4 items-center text-sm ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                                                <span className="text-gray-600 font-medium">{formattedDate}</span>
+                                            <div key={flight.id || idx} className={`grid grid-cols-5 px-5 py-3 items-center text-xs text-gray-600 ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                                                <span>{formattedDate}</span>
                                                 <div className="flex items-center gap-1.5">
-                                                    <Plane size={12} className="text-[#113A74] shrink-0" />
-                                                    <span className="font-bold text-gray-700">{flight.flight_number || '—'}</span>
+                                                    <Plane size={11} className="text-[#113A74] shrink-0" />
+                                                    <span>{flight.flight_number || '—'}</span>
                                                 </div>
-                                                <span className="font-medium text-gray-700">
+                                                <span>
                                                     {flight.departure_airport_code && flight.arrival_airport_code
                                                         ? `${flight.departure_airport_code} → ${flight.arrival_airport_code}`
                                                         : '—'}
                                                 </span>
-                                                <span className="text-gray-600">{flight.departure_time || '—'}</span>
-                                                <span className="text-gray-600">{flight.arrival_time || '—'}</span>
-                                                <span className={`text-[11px] font-bold px-3 py-1 rounded-full w-fit ${
-                                                    isCancelled ? 'bg-gray-200 text-gray-500' :
-                                                    isDelayed   ? 'bg-red-100 text-red-600'   :
-                                                                  'bg-[#FFA500] text-white'
-                                                }`}>
-                                                    {flight.status || 'On Time'}
-                                                </span>
+                                                <span>{flight.departure_time || '—'}</span>
+                                                <span>{flight.arrival_time || '—'}</span>
                                             </div>
                                         );
                                     })}
@@ -998,13 +992,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             : '—';
                                         const trainLabel = [train.operator, train.train_number].filter(Boolean).join(' ') || '—';
                                         return (
-                                            <div key={train.id || idx} className={`grid grid-cols-6 px-5 py-4 items-center text-sm ${idx < pkg.trains.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                                                <span className="text-gray-600 font-medium">{formattedDate}</span>
-                                                <span className="font-bold text-gray-700">{trainLabel}</span>
-                                                <span className="text-gray-600">{train.from_station || '—'}</span>
-                                                <span className="text-gray-600">{train.to_station || '—'}</span>
-                                                <span className="text-gray-600">{train.departure_time || '—'}</span>
-                                                <span className="text-gray-600">{train.arrival_time || '—'}</span>
+                                            <div key={train.id || idx} className={`grid grid-cols-6 px-5 py-3 items-center text-xs text-gray-600 ${idx < pkg.trains.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                                                <span>{formattedDate}</span>
+                                                <span>{trainLabel}</span>
+                                                <span>{train.from_station || '—'}</span>
+                                                <span>{train.to_station || '—'}</span>
+                                                <span>{train.departure_time || '—'}</span>
+                                                <span>{train.arrival_time || '—'}</span>
                                             </div>
                                         );
                                     })}
@@ -1028,8 +1022,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             </div>
 
                             <div className="space-y-0 relative py-2">
-                                {/* Vertical Timeline Line */}
-                                <div className="absolute left-[19px] top-6 bottom-6 w-[1.5px] bg-gray-100 -z-10"></div>
+                                {/* Vertical Timeline Line — dotted */}
+                                <div className="absolute left-[19px] top-6 bottom-6 -z-10" style={{ borderLeft: '2px dashed #e5e7eb' }}></div>
 
                                 {pkg.itinerary && pkg.itinerary.map((item) => {
                                     const isExpanded = expandedDays.includes(item.day);
@@ -1064,38 +1058,22 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                                             {/* Expanded Content */}
                                             <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[1500px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
-                                                <p className="text-sm text-gray-500 leading-relaxed mb-6 pr-4 whitespace-pre-line">
-                                                    {item.description}
-                                                </p>
-
-                                                {/* Transport & Meal Icons */}
+                                                {/* Transport & Meal Icons — right-aligned, above description */}
                                                 {(item.has_flight || item.has_train || item.has_bus || item.has_breakfast || item.has_lunch || item.has_dinner) && (
-                                                    <div className="flex flex-wrap gap-3 mb-6">
-                                                        {item.has_flight && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Plane size={14} /> Flight</div>}
-                                                        {item.has_train && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Train size={14} /> Train</div>}
-                                                        {item.has_bus && <div className="flex items-center gap-1.5 bg-[#f0f4f8] px-3 py-1.5 rounded-full text-[#113A74] text-xs font-bold font-heading"><Car size={14} /> Bus</div>}
-                                                        {item.has_breakfast && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Breakfast</div>}
-                                                        {item.has_lunch && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Lunch</div>}
-                                                        {item.has_dinner && <div className="flex items-center gap-1.5 bg-[#fff8ef] px-3 py-1.5 rounded-full text-[#FFA500] text-xs font-bold font-heading"><Utensils size={14} /> Dinner</div>}
+                                                    <div className="flex flex-wrap justify-end gap-2 mb-4">
+                                                        {item.has_flight && <div className="flex items-center gap-1 text-gray-500 text-xs"><Plane size={13} className="text-[#113A74]" /> Flight</div>}
+                                                        {item.has_train && <div className="flex items-center gap-1 text-gray-500 text-xs"><Train size={13} className="text-[#113A74]" /> Train</div>}
+                                                        {item.has_bus && <div className="flex items-center gap-1 text-gray-500 text-xs"><Car size={13} className="text-[#113A74]" /> Bus</div>}
+                                                        {item.has_breakfast && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Breakfast</div>}
+                                                        {item.has_lunch && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Lunch</div>}
+                                                        {item.has_dinner && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Dinner</div>}
                                                     </div>
                                                 )}
 
-                                                {/* Activities Box */}
-                                                {item.attractions && item.attractions.length > 0 && (
-                                                    <div className="bg-[#d5e0f9]/50 p-6 rounded-sm border border-[#d5e0f9] text-gray-500 text-xs leading-relaxed max-w-[90%] space-y-3">
-                                                        {item.attractions.map((attr, idx) => (
-                                                            <div key={idx} className="flex gap-4 items-start">
-                                                                {attr.images && attr.images.length > 0 && (
-                                                                    <img src={attr.images[0]} alt={attr.name} className="w-16 h-16 object-cover rounded-lg shrink-0" />
-                                                                )}
-                                                                <div>
-                                                                    <strong className="text-[#113A74] text-sm block mb-1">{attr.name}</strong>
-                                                                    <p className="line-clamp-2">{attr.overview}</p>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                                {/* Descriptions — one paragraph per item */}
+                                                {(item.descriptions?.length > 0 ? item.descriptions : item.description ? [item.description] : []).map((desc, di) => (
+                                                    <p key={di} className="text-sm text-gray-500 leading-relaxed mb-3 pr-4 whitespace-pre-line">{desc}</p>
+                                                ))}
                                             </div>
 
                                             {!isExpanded && <div className="border-b border-gray-100 mr-4"></div>}
@@ -1154,7 +1132,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         Black Out Days
                                     </h3>
                                 </div>
-                                <div className="rounded-2xl border border-gray-100 bg-white px-8 py-7 shadow-sm">
+                                <div className="rounded-2xl border border-gray-100 bg-[#FBFBFB] px-8 py-7 shadow-sm">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-3">
                                         {pkg.blackout_dates.map((range, index) => (
                                             <div key={range.id || index} className="flex items-center gap-3 text-sm sm:text-base text-[#4B5872] font-medium">
@@ -1171,7 +1149,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Offer Validity / Booking Policy / Cancellation Policy */}
                         {(pkg.offer_validity || pkg.booking_policy || pkg.cancellation_policy) && (
-                            <div className="space-y-0 divide-y divide-gray-100 border border-gray-100 rounded-2xl bg-white overflow-hidden">
+                            <div className="space-y-0 divide-y divide-gray-100 border border-gray-100 rounded-2xl bg-[#FBFBFB] overflow-hidden">
                                 {pkg.offer_validity && (
                                     <div className="px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
@@ -1203,44 +1181,46 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         )}
 
                         {/* FAQ */}
-                        {pkg.faqs?.length > 0 && (
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Frequently Asked Questions</h3>
+                        <div className="space-y-4 bg-white rounded-2xl p-1">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Frequently Asked Questions</h3>
+                                {pkg.faqs?.length > 0 && (
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleAllFaqs(pkg.faqs)}>
                                         <span className="text-sm text-gray-500">Expand all</span>
                                         <div className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${faqExpandAll ? 'bg-[#FFA500]' : 'bg-gray-300'}`}>
                                             <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${faqExpandAll ? 'left-[22px]' : 'left-[2px]'}`} />
                                         </div>
                                     </div>
-                                </div>
-                                <div className="space-y-3">
-                                    {pkg.faqs.map((faq, idx) => {
-                                        const isOpen = expandedFaqs.includes(idx);
-                                        return (
-                                            <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                                                <button
-                                                    className="w-full flex items-center justify-between px-5 py-4 text-left"
-                                                    onClick={() => toggleFaq(idx)}
-                                                >
-                                                    <span className="text-sm font-medium text-[#1d2a44]">{idx + 1}) {faq.question}</span>
-                                                    <ChevronDown size={16} className={`text-[#113A74] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-                                                </button>
-                                                {isOpen && (
-                                                    <div className="px-5 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
-                                                        {faq.answer}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                )}
                             </div>
-                        )}
+                            <div className="space-y-3">
+                                {pkg.faqs?.length > 0 ? pkg.faqs.map((faq, idx) => {
+                                    const isOpen = expandedFaqs.includes(idx);
+                                    return (
+                                        <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                                            <button
+                                                className="w-full flex items-center justify-between px-5 py-4 text-left"
+                                                onClick={() => toggleFaq(idx)}
+                                            >
+                                                <span className="text-sm font-medium text-[#1d2a44]">{idx + 1}) {faq.question}</span>
+                                                <ChevronDown size={16} className={`text-[#113A74] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            {isOpen && (
+                                                <div className="px-5 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
+                                                    {faq.answer}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                }) : (
+                                    <p className="text-gray-400 text-sm italic">No FAQs available for this package.</p>
+                                )}
+                            </div>
+                        </div>
 
                         {/* Links */}
                         {pkg.links?.length > 0 && (
-                            <div className="border border-gray-100 rounded-2xl bg-white px-6 py-5 space-y-3">
+                            <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
                                 <div className="flex items-center gap-3">
                                     <img src={linkIcon.src || linkIcon} alt="" className="w-5 h-5 shrink-0" />
                                     <h4 className="text-base font-bold text-black font-heading">Links</h4>
@@ -1264,14 +1244,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Important Contact */}
                         {pkg.contacts?.length > 0 && (
-                            <div className="border border-gray-100 rounded-2xl bg-white px-6 py-5 space-y-3">
+                            <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
                                 <div className="flex items-center gap-3">
                                     <img src={callIcon.src || callIcon} alt="" className="w-5 h-5 shrink-0" />
                                     <h4 className="text-base font-bold text-black font-heading">Important Contact</h4>
                                 </div>
                                 <div className="divide-y divide-gray-100">
                                     {pkg.contacts.map((contact, idx) => (
-                                        <div key={idx} className="flex items-center justify-between py-2.5 px-2 text-sm text-gray-600">
+                                        <div key={idx} className="grid grid-cols-2 py-2.5 px-2 text-sm text-gray-600">
                                             <span>{contact.name}</span>
                                             <span className="font-medium text-[#1d2a44]">{contact.mobile}</span>
                                         </div>
@@ -1285,8 +1265,36 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     {/* ── RIGHT SIDEBAR ── */}
                     <div className="lg:w-[270px] xl:w-[300px] shrink-0 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-4">
 
-                        {/* Airline & Operated By */}
-                        {(pkg.airline_name || pkg.operated_by_name) && (
+                        {/* Airline Card */}
+                        {pkg.airline_name && (
+                            <div
+                                className="rounded-2xl overflow-hidden relative mb-3"
+                                style={{
+                                    backgroundImage: `url(${airlineBg.src || airlineBg})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundColor: '#0d2d5e',
+                                    minHeight: '130px'
+                                }}
+                            >
+                                <div className="absolute inset-0 flex items-center px-4 gap-3">
+                                    <div className="w-[46px] h-[46px] rounded-full bg-white flex items-center justify-center shrink-0 shadow overflow-hidden">
+                                        {pkg.airline_logo ? (
+                                            <img src={pkg.airline_logo} alt={pkg.airline_name} className="w-[36px] h-[36px] object-contain" />
+                                        ) : (
+                                            <Plane size={20} className="text-[#0d2d5e]" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Airline</p>
+                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.airline_name}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Operated By Card */}
+                        {pkg.operated_by_name && (
                             <div
                                 className="rounded-2xl overflow-hidden relative mb-4"
                                 style={{
@@ -1297,20 +1305,17 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     minHeight: '130px'
                                 }}
                             >
-                                <div className="absolute inset-0 flex items-start pt-[18px] px-4 gap-3">
-                                    {/* Logo circle */}
+                                <div className="absolute inset-0 flex items-center px-4 gap-3">
                                     <div className="w-[46px] h-[46px] rounded-full bg-white flex items-center justify-center shrink-0 shadow overflow-hidden">
-                                        {pkg.airline_logo ? (
-                                            <img src={pkg.airline_logo} alt={pkg.airline_name || 'Airline'} className="w-[36px] h-[36px] object-contain" />
+                                        {pkg.operated_by_logo ? (
+                                            <img src={pkg.operated_by_logo} alt={pkg.operated_by_name} className="w-[36px] h-[36px] object-contain" />
                                         ) : (
-                                            <Plane size={20} className="text-[#0d2d5e]" />
+                                            <Users size={20} className="text-[#0d2d5e]" />
                                         )}
                                     </div>
-                                    <div className="pt-1 min-w-0">
-                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Airline</p>
-                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.airline_name || '—'}</p>
-                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider mt-2">Operated by</p>
-                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.operated_by_name || '—'}</p>
+                                    <div className="min-w-0">
+                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Operated by</p>
+                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.operated_by_name}</p>
                                     </div>
                                 </div>
                             </div>

@@ -1,0 +1,18 @@
+{
+  "runtime": "edge",
+  "name": "tours",
+  "deploymentTarget": "v8-worker",
+  "entrypoint": "index.js",
+  "assets": [],
+  "framework": {
+    "slug": "nextjs",
+    "version": "15.4.11"
+  },
+  "environment": {
+    "__NEXT_BUILD_ID": "iPfV56XhcLqulc_QENUzt",
+    "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "sHbxLO+FBbwzAKwplWjQ3kXKdwfZ3YI6/TnId6BI/bI=",
+    "__NEXT_PREVIEW_MODE_ID": "74ecd508abaab73e828e7f6a62e6f5ed",
+    "__NEXT_PREVIEW_MODE_SIGNING_KEY": "66050609b19a4a6091ed72739111a052cae7189c76137f50779773fa6ef6d6f9",
+    "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "44bce853fb423913d62bc6521f00e177e747b845829827346d6177983a0a37f4"
+  }
+}

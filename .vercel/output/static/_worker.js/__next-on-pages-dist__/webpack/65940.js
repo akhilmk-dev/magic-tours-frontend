@@ -1,0 +1,1 @@
+var e={},_=(c,l,o)=>(e.__chunk_65940=(r,a,t)=>{"use strict";t.d(a,{A:()=>s});let s=(0,t(38734).A)("compass",[["path",{d:"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z",key:"9ktpf1"}],["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}]])},e);export{_ as __getNamedExports};

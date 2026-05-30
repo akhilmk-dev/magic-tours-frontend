@@ -57,7 +57,9 @@ const makeGuest = (type = 'adultDouble') => ({
 const buildGuestCounts = (guests) => {
     const result = {};
     GUEST_TYPES.forEach(t => {
-        result[t.apiKey] = guests.filter(g => g.type === t.id).length;
+        const persons = guests.filter(g => g.type === t.id).length;
+        // Sharing types (double/triple/quad): send number of ROOMS, not persons
+        result[t.apiKey] = t.roomSize > 1 ? Math.ceil(persons / t.roomSize) : persons;
     });
     return result;
 };
@@ -338,7 +340,11 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                 };
             });
 
-            const countOf = (id) => values.guests.filter(g => g.type === id).length;
+            const countOf = (id) => {
+                const t = GUEST_TYPES.find(gt => gt.id === id);
+                const persons = values.guests.filter(g => g.type === id).length;
+                return (t?.roomSize ?? 1) > 1 ? Math.ceil(persons / (t?.roomSize ?? 1)) : persons;
+            };
             setProgress('Finalising submission…');
 
             const payload = {
@@ -714,7 +720,11 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                             );
                                                         }}
                                                     </Field>
-                                                    <ErrorMessage name="travelDate" component="div" className="text-red-500 text-xs font-bold uppercase" />
+                                                    <ErrorMessage name="travelDate">
+                                                        {msg => !msg?.startsWith('Unavailable') && (
+                                                            <div className="text-red-500 text-xs font-bold uppercase">{msg}</div>
+                                                        )}
+                                                    </ErrorMessage>
 
                                                     {isOutsideValidity && values.travelDate && !getBlackoutRange(values.travelDate) && (
                                                         <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-start gap-2">

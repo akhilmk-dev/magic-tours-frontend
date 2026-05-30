@@ -205,7 +205,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                                     />
                                 </div>
                                 <Link
-                                    href={searchTerm.trim() ? `/tours?search=${encodeURIComponent(searchTerm)}` : (slides[currentSlide].url || slides[currentSlide].link || "/tours")}
+                                    href={searchTerm.trim() ? `/tours?search=${encodeURIComponent(searchTerm)}` : "/tours"}
                                     className="bg-[#022C54] text-white font-heading font-bold h-10 md:h-14 px-4 md:px-8 rounded-full flex items-center justify-center gap-2 md:gap-3 transition-all group shadow-lg active:scale-95 whitespace-nowrap shrink-0"
                                 >
                                     <span className="text-[10px] md:text-[14px] tracking-wider uppercase font-extrabold">

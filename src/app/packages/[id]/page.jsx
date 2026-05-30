@@ -46,6 +46,10 @@ import locationIcon from '../../../assets/location_icon.png';
 import dateIcon from '../../../assets/date_icon.png';
 import trainIcon from '../../../assets/train_icon.png';
 import plainIcon from '../../../assets/plain_icon.png';
+import hotelsIcon from '../../../assets/hotels_package_card.png';
+import flightIcon from '../../../assets/flight_icon_package_card.png';
+import foodIcon from '../../../assets/food_icon_package_card.png';
+import FavoriteButton from '../../../components/common/FavoriteButton';
 import GalleryLoop from '../../../components/Home/GalleryLoop';
 import AdventureSection from '../../../components/Home/AdventureSection';
 import BookingModal from '../../../components/Booking/BookingModal';
@@ -379,12 +383,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
     // Advanced Pricing State
     const [counts, setCounts] = useState({
-        adultDouble: 2,
-        adultSingle: 0,
-        adultTriple: 0,
-        childBed: 0,
-        childNoBed: 0,
-        infant: 0
+        adultDouble: 1,  // rooms
+        adultSingle: 0,  // rooms
+        adultTriple: 0,  // rooms
+        adultQuad: 0,    // rooms
+        childBed: 0,     // persons
+        childNoBed: 0,   // persons
+        infant: 0        // persons
     });
     const { user, openAuthModal } = useCustomerAuth();
     const { selectedCurrency, convertPrice, formatPrice } = useCurrency();
@@ -440,12 +445,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
     const totalPrice = useMemo(() => {
         if (!pkg) return 0;
         const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
-        if (!p) return (pkg.price || 0) * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.childBed + counts.childNoBed);
+        if (!p) return (pkg.price || 0) * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.adultQuad + counts.childBed + counts.childNoBed);
 
         return (
             (counts.adultDouble * (p.adult_double    ?? pkg.price ?? 0)) +
             (counts.adultSingle * (p.adult_single    ?? pkg.price ?? 0)) +
             (counts.adultTriple * (p.adult_triple    ?? pkg.price ?? 0)) +
+            (counts.adultQuad   * (p.adult_quad      ?? pkg.price ?? 0)) +
             (counts.childBed    * (p.child_with_bed  ?? 0)) +
             (counts.childNoBed  * (p.child_no_bed    ?? 0)) +
             (counts.infant      * (p.infant           ?? 0))
@@ -584,7 +590,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         />
                         {/* Collab frame with airline logo — only shown when airline data exists */}
                         {(pkg.airline_name || pkg.airline_logo) && (
-                            <div className="absolute -top-6 md:-top-8 left-[calc(100%+2rem)] md:left-[calc(100%+3rem)] w-20 md:w-24 lg:w-28 pointer-events-none">
+                            <div className="absolute -top-10 md:-top-14 left-[calc(100%+2rem)] md:left-[calc(100%+3rem)] w-36 md:w-44 lg:w-52 pointer-events-none">
                                 <img
                                     src={collabFrame.src || collabFrame}
                                     alt="In Collaboration"
@@ -594,7 +600,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <img
                                         src={pkg.airline_logo}
                                         alt={pkg.airline_name || 'Airline'}
-                                        className="absolute bottom-[18%] left-1/2 -translate-x-1/2 w-3 h-3 md:w-4 md:h-4 object-contain"
+                                        className="absolute bottom-[18%] left-1/2 -translate-x-1/2 w-[28%] h-[28%] object-contain"
                                     />
                                 )}
                             </div>
@@ -876,7 +882,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             </div>
                                             {/* Details */}
                                             <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-                                                <h3 className="text-[#FFA500] font-bold text-sm leading-tight line-clamp-1">
+                                                <h3 className="text-[#113A74] font-bold text-[20px] leading-tight line-clamp-1">
                                                     {hotel.name}
                                                 </h3>
                                                 {(hotel.continent || hotel.country || hotel.cities?.name) && (
@@ -931,8 +937,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 <div className="rounded-2xl border border-gray-100 overflow-hidden overflow-x-auto">
                                     <div className="min-w-[560px]">
                                     {/* Table header */}
-                                    <div className="grid grid-cols-6 px-5 py-3 bg-blue-50 border-b border-blue-100">
-                                        {['DATE', 'FLIGHT NO', 'ROUTE', 'DEPARTURE', 'ARRIVAL', 'STATUS'].map(h => (
+                                    <div className="grid grid-cols-5 px-5 py-3 bg-blue-50 border-b border-blue-100">
+                                        {['DATE', 'FLIGHT NO', 'ROUTE', 'DEPARTURE', 'ARRIVAL'].map(h => (
                                             <span key={h} className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
                                         ))}
                                     </div>
@@ -942,10 +948,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         const formattedDate = d
                                             ? `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`
                                             : '—';
-                                        const isDelayed = flight.status?.toLowerCase() === 'delayed';
-                                        const isCancelled = flight.status?.toLowerCase() === 'cancelled';
                                         return (
-                                            <div key={flight.id || idx} className={`grid grid-cols-6 px-5 py-4 items-center text-sm ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                                            <div key={flight.id || idx} className={`grid grid-cols-5 px-5 py-4 items-center text-sm ${idx < pkg.flights.length - 1 ? 'border-b border-gray-50' : ''}`}>
                                                 <span className="text-gray-600 font-medium">{formattedDate}</span>
                                                 <div className="flex items-center gap-1.5">
                                                     <Plane size={12} className="text-[#113A74] shrink-0" />
@@ -958,13 +962,6 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                 </span>
                                                 <span className="text-gray-600">{flight.departure_time || '—'}</span>
                                                 <span className="text-gray-600">{flight.arrival_time || '—'}</span>
-                                                <span className={`text-[11px] font-bold px-3 py-1 rounded-full w-fit ${
-                                                    isCancelled ? 'bg-gray-200 text-gray-500' :
-                                                    isDelayed   ? 'bg-red-100 text-red-600'   :
-                                                                  'bg-[#FFA500] text-white'
-                                                }`}>
-                                                    {flight.status || 'On Time'}
-                                                </span>
                                             </div>
                                         );
                                     })}
@@ -1150,7 +1147,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="w-10 h-10 rounded-full bg-[#EEF5FF] flex items-center justify-center shrink-0">
                                         <Calendar size={19} className="text-[#113A74]" />
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-bold text-[#1d2a44] font-heading">
+                                    <h3 className="text-[22px] font-bold text-[#1d2a44] font-heading">
                                         Black Out Days
                                     </h3>
                                 </div>
@@ -1176,16 +1173,28 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={offerIcon.src || offerIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-base font-bold text-[#113A74] font-heading">Offer Validity</h4>
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Offer Validity</h4>
                                         </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed">{pkg.offer_validity}</p>
+                                        <p className="text-gray-500 text-sm leading-relaxed">
+                                            {(() => {
+                                                const date = new Date(pkg.offer_validity);
+                                                if (isNaN(date.getTime())) return pkg.offer_validity;
+                                                const formatted = date.toLocaleDateString('en-GB', {
+                                                    weekday: 'long',
+                                                    day: 'numeric',
+                                                    month: 'short',
+                                                    year: 'numeric',
+                                                });
+                                                return `This offer valid only until ${formatted}`;
+                                            })()}
+                                        </p>
                                     </div>
                                 )}
                                 {pkg.booking_policy && (
                                     <div className="px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-base font-bold text-black font-heading">Booking Policy</h4>
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Booking Policy</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed">{pkg.booking_policy}</p>
                                     </div>
@@ -1194,7 +1203,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={cancellationPolicyIcon.src || cancellationPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-base font-bold text-black font-heading">Cancellation Policy</h4>
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Cancellation Policy</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed">{pkg.cancellation_policy}</p>
                                     </div>
@@ -1206,7 +1215,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {pkg.faqs?.length > 0 && (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Frequently Asked Questions</h3>
+                                    <h3 className="text-[24px] font-bold text-black font-heading">Frequently Asked Questions</h3>
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleAllFaqs(pkg.faqs)}>
                                         <span className="text-sm text-gray-500">Expand all</span>
                                         <div className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${faqExpandAll ? 'bg-[#FFA500]' : 'bg-gray-300'}`}>
@@ -1491,41 +1500,102 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         </div>
 
                         {/* Cards — same design as tours listing page */}
-                        <div className="flex flex-wrap justify-center gap-6">
-                            {relatedPackages.map((rp) => (
-                                <div
-                                    key={rp.id}
-                                    onClick={() => router.push(`/packages/${rp.slug || rp.id}`)}
-                                    className="cursor-pointer bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col w-full sm:w-[300px] lg:w-[320px] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
-                                >
-                                    <div className="relative aspect-[4/3] overflow-hidden">
-                                        <img src={rp.image} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                        <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
-                                            <Calendar size={13} className="opacity-90" />
-                                            <span>{rp.nights} Nights, {rp.days} Days</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {relatedPackages.map((rp) => {
+                                // Build city list: prefer cities array, fall back to splitting location by comma
+                                const rpCities = (() => {
+                                    if (rp.cities?.length > 0)
+                                        return rp.cities.map(c => typeof c === 'string' ? c : c?.name).filter(Boolean);
+                                    if (rp.location) {
+                                        const parts = rp.location.split(',').map(s => s.trim()).filter(Boolean);
+                                        return parts;
+                                    }
+                                    return [];
+                                })();
+                                const cityRows = Array.from({ length: Math.ceil(rpCities.length / 3) }, (_, row) =>
+                                    rpCities.slice(row * 3, row * 3 + 3)
+                                );
+                                const hotelsIncluded = rp.hotels_included ?? rp.has_hotel;
+                                const flightsIncluded = rp.flights_included ?? rp.has_flight;
+                                const hasFood = rp.has_food;
+                                return (
+                                    <div
+                                        key={rp.id}
+                                        onClick={() => router.push(`/packages/${rp.slug || rp.id}`)}
+                                        className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                                    >
+                                        {/* Image */}
+                                        <div className="relative aspect-[4/3] overflow-hidden">
+                                            <img src={rp.image} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            <FavoriteButton packageId={rp.id} className="absolute top-3 right-3 z-20" />
+                                            <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
+                                                <Calendar size={13} className="opacity-90" />
+                                                <span>{rp.nights} Nights, {rp.days} Days</span>
+                                            </div>
+                                            {/* Airline / Operated by hover overlay */}
+                                            {(rp.airline_name || rp.operated_by_name) && (
+                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    {rp.airline_name && (
+                                                        <div className="flex items-center gap-2 text-white text-[11px] font-medium mb-1">
+                                                            {rp.airline_logo
+                                                                ? <img src={rp.airline_logo} alt={rp.airline_name} className="w-4 h-4 object-contain rounded-sm shrink-0" />
+                                                                : <Plane size={12} className="shrink-0" />}
+                                                            <span>Airline: {rp.airline_name}</span>
+                                                        </div>
+                                                    )}
+                                                    {rp.operated_by_name && (
+                                                        <p className="text-white/90 text-[11px] font-medium">
+                                                            Operated by: {rp.operated_by_name}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
-                                    </div>
-                                    <div className="p-6 flex flex-col flex-1">
-                                        <h3 className="text-xl md:text-2xl font-bold text-[#113A74] mb-1 font-heading tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2 min-h-[50px]">
-                                            {rp.title}
-                                        </h3>
-                                        {rp.location && (
-                                            <p className="text-slate-400 text-[12px] font-medium mb-2 line-clamp-1">{rp.location}</p>
-                                        )}
-                                        <div className="flex flex-col gap-4 mt-auto">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); router.push(`/packages/${rp.slug || rp.id}`); }}
-                                                className="w-fit px-8 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95"
-                                            >Book Now</button>
-                                            <div className="text-right">
-                                                <span className="text-[#FFA500] text-2xl font-black leading-none">{formatPrice(convertPrice(rp.price))}</span>
-                                                <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-1 opacity-90">onwards</p>
+
+                                        {/* Content */}
+                                        <div className="p-4 sm:p-5 flex flex-col flex-1 gap-1">
+                                            <h3 className="text-lg md:text-xl font-bold text-[#113A74] font-heading tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2">
+                                                {rp.title}
+                                            </h3>
+
+                                            {/* Cities — 3 per row with | separators, left aligned */}
+                                            {rpCities.length > 0 && (
+                                                <div className="flex flex-col gap-0.5">
+                                                    {cityRows.map((row, ri) => (
+                                                        <p key={ri} className="text-slate-400 text-[12px] font-medium leading-snug">
+                                                            {row.map((city, ci) => (
+                                                                <span key={ci}>
+                                                                    {city}
+                                                                    {ci < row.length - 1 && <span className="mx-1 text-slate-300">|</span>}
+                                                                </span>
+                                                            ))}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Amenity icons */}
+                                            <div className="flex items-center gap-2 py-0.5 flex-wrap">
+                                                {hotelsIncluded  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel"  className="w-5 h-5 object-contain" />}
+                                                {flightsIncluded && <img src={flightIcon.src || flightIcon} alt="Flight" className="w-5 h-5 object-contain" />}
+                                                {hasFood         && <img src={foodIcon.src  || foodIcon}   alt="Food"   className="w-5 h-5 object-contain" />}
+                                            </div>
+
+                                            {/* Book Now + Price */}
+                                            <div className="flex items-center justify-between gap-3 mt-auto pt-2">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); router.push(`/packages/${rp.slug || rp.id}`); }}
+                                                    className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                                                >Book Now</button>
+                                                <div className="text-right">
+                                                    <span className="text-[#FFA500] text-xl sm:text-2xl font-black leading-none">{formatPrice(convertPrice(rp.price))}</span>
+                                                    <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-90">onwards</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>

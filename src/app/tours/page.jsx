@@ -385,7 +385,21 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                     <div>
                         <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#113A74] group-hover:text-[#FFA500] transition-colors line-clamp-1 mb-1">{title || package_name}</h3>
                         {cityNames.length > 0 && (
-                            <p className="text-slate-400 text-[10px] sm:text-[11px] font-medium mb-1 line-clamp-1">{cityNames.join(' | ')}</p>
+                            <div className="flex flex-col gap-0.5 mb-1">
+                                {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
+                                    const chunk = cityNames.slice(row * 3, row * 3 + 3);
+                                    return (
+                                        <p key={row} className="text-slate-400 text-[10px] sm:text-[11px] font-medium leading-snug">
+                                            {chunk.map((city, i) => (
+                                                <span key={i}>
+                                                    {city}
+                                                    {i < chunk.length - 1 && <span className="mx-1 text-slate-300">|</span>}
+                                                </span>
+                                            ))}
+                                        </p>
+                                    );
+                                })}
+                            </div>
                         )}
                         <div className="flex items-center gap-1.5 flex-wrap mb-1">
                             {slots !== undefined && <span className="text-[10px] sm:text-[11px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
@@ -418,7 +432,6 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                     <Calendar size={13} className="opacity-90" />
                     <span>{nights} Nights, {days} Days</span>
                 </div>
-                <div className="absolute bottom-3 right-0 bg-[#FFA500] text-white px-4 py-1.5 rounded-l-full text-xs font-black shadow-lg">27% Off</div>
                 {/* Airline + Operated by overlay — visible on hover */}
                 {(airline_name || operated_by_name) && (
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -441,9 +454,21 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
             <div className="p-4 sm:p-5 flex flex-col flex-1 gap-1">
                 <h3 title={title || package_name} className="text-lg md:text-xl font-bold text-[#113A74] font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2">{title || package_name}</h3>
                 {cityNames.length > 0 && (
-                    <p className="text-slate-400 text-[12px] font-medium line-clamp-1 leading-snug">
-                        {cityNames.join(' | ')}
-                    </p>
+                    <div className="flex flex-col gap-0.5 mb-0.5">
+                        {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
+                            const chunk = cityNames.slice(row * 3, row * 3 + 3);
+                            return (
+                                <p key={row} className="text-slate-400 text-[12px] font-medium leading-snug">
+                                    {chunk.map((city, i) => (
+                                        <span key={i}>
+                                            {city}
+                                            {i < chunk.length - 1 && <span className="mx-1 text-slate-300">|</span>}
+                                        </span>
+                                    ))}
+                                </p>
+                            );
+                        })}
+                    </div>
                 )}
                 <div className="flex items-center gap-2 py-0.5 flex-wrap">
                     {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}

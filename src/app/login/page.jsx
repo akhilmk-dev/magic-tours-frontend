@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
@@ -234,7 +234,7 @@ const AuthPageContent = () => {
 
     // Fetch countries for dropdowns
     useEffect(() => {
-        fetch('https://magic-apis.staff-b0c.workers.dev/countries')
+        fetch('https://api.magictours.qa/countries')
             .then(r => r.json())
             .then(d => { 
                 if (d?.data) {

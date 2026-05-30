@@ -1,7 +1,7 @@
-export const runtime = 'edge';
+﻿export const runtime = 'edge';
 
 const BASE_URL = 'https://magic-tours-frontend.pages.dev';
-const API_BASE = 'https://magic-apis.staff-b0c.workers.dev';
+const API_BASE = 'https://api.magictours.qa';
 
 // Static routes with their SEO metadata
 const staticRoutes = [

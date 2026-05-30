@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 const ProfilePage = () => {
     const { user, logout, loading: authLoading, openAuthModal, openProfileEditModal } = useCustomerAuth();
     const [bookings, setBookings] = useState([]);
+    const [bookingRequests, setBookingRequests] = useState([]);
     const [idlApplications, setIdlApplications] = useState([]);
     const [visaApplications, setVisaApplications] = useState([]);
     const [favoritePackages, setFavoritePackages] = useState([]);
@@ -29,8 +30,9 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [bookingsRes, idlRes, visaRes, favoritePackagesRes] = await Promise.all([
+                const [bookingsRes, requestsRes, idlRes, visaRes, favoritePackagesRes] = await Promise.all([
                     api.get('/bookings/frontend/my').catch(() => ({ data: [] })),
+                    api.get('/bookings/frontend/requests').catch(() => null),
                     api.get('/idl/my').catch(() => ({ data: [] })),
                     api.get('/visa/my?page=1&limit=50').catch(() => ({ data: [] })),
                     api.get('/customers/favorites').catch(() => ({ data: [] }))
@@ -45,7 +47,19 @@ const ProfilePage = () => {
                     return [];
                 };
 
-                setBookings(ensureArray(bookingsRes));
+                const allBookings = ensureArray(bookingsRes);
+                // Split by type: 'booking' = confirmed fixed departure, 'request' = normal package request
+                const confirmedBookings = allBookings.filter(b => b.type !== 'request');
+                const inlineRequests = allBookings.filter(b => b.type === 'request');
+                // Merge with dedicated requests endpoint if available
+                const dedicatedRequests = requestsRes ? ensureArray(requestsRes) : [];
+                const mergedRequests = [
+                    ...inlineRequests,
+                    ...dedicatedRequests.filter(r => !inlineRequests.some(b => b.id === r.id)),
+                ];
+
+                setBookings(confirmedBookings);
+                setBookingRequests(mergedRequests);
                 setIdlApplications(ensureArray(idlRes));
                 setVisaApplications(ensureArray(visaRes));
                 setFavoritePackages(ensureArray(favoritePackagesRes));
@@ -186,81 +200,129 @@ const ProfilePage = () => {
                                 ))}
                             </div>
                         ) : activeTab === 'bookings' ? (
-                            bookings.length === 0 ? (
-                                <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
-                                    <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                                        <Package className="text-gray-400" size={40} />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-[#113A74] mb-3">No bookings yet</h3>
-                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">You haven't made any bookings yet. Start exploring the world with our tailored travel packages.</p>
-                                    <Link href="/tours" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-                                        Browse Packages
-                                    </Link>
-                                </div>
-                            ) : (
-                                <div className="space-y-6">
-                                    {bookings.map((booking) => {
-                                        const totalPassengers = booking.passengers?.length || 0;
-                                        const packageTitle = booking.package_name || booking.package_title || 'Tour Package';
-                                        const bookingRef = booking.display_id || booking.id?.split('-').pop()?.toUpperCase();
-                                        const totalAmount = booking.total_amount ?? null;
-                                        const bookedOnDate = booking.booking_date || booking.created_at;
+                            (() => {
+                                const BookingCard = ({ booking, isRequest = false }) => {
+                                    const totalPassengers = booking.passengers?.length || 0;
+                                    const packageTitle = booking.package_name || booking.package_title || 'Tour Package';
+                                    const ref = booking.display_id || booking.id?.split('-').pop()?.toUpperCase();
+                                    const totalAmount = booking.total_amount ?? null;
+                                    const dateField = isRequest ? (booking.travel_date || booking.requested_date) : (booking.departure_date || booking.travel_date);
+                                    const bookedOnDate = booking.booking_date || booking.created_at;
 
-                                        return (
-                                            <div key={booking.id} className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
-                                                <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
-                                                    <div className="flex-1">
-                                                        <div className="flex flex-wrap items-center gap-2 mb-3">
-                                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                                booking.status === 'Pending' ? 'bg-[#FFA500]/10 text-[#FFA500]' :
-                                                                    booking.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                                                        'bg-gray-100 text-gray-600'
-                                                                }`}>
-                                                                {booking.status}
-                                                            </span>
-                                                            <span className="text-xs font-bold text-gray-400">#{bookingRef}</span>
-                                                        </div>
-                                                        <h3 className="text-xl font-black text-[#113A74] mb-1">{packageTitle}</h3>
-                                                        {booking.currency && (
-                                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">{booking.currency}</span>
-                                                        )}
+                                    const statusColors = {
+                                        Confirmed: 'bg-green-100 text-green-700',
+                                        Paid: 'bg-emerald-100 text-emerald-700',
+                                        Pending: 'bg-[#FFA500]/10 text-[#FFA500]',
+                                        Resolved: 'bg-blue-100 text-blue-700',
+                                        Cancelled: 'bg-red-100 text-red-600',
+                                        Closed: 'bg-gray-100 text-gray-500',
+                                    };
+                                    const statusClass = statusColors[booking.status] || 'bg-gray-100 text-gray-600';
+
+                                    return (
+                                        <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/40 hover:shadow-2xl transition-all border border-transparent hover:border-gray-100">
+                                            <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-8 pb-8 border-b border-gray-100">
+                                                <div className="flex-1">
+                                                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusClass}`}>
+                                                            {booking.status || (isRequest ? 'Pending' : 'Confirmed')}
+                                                        </span>
+                                                        <span className="text-xs font-bold text-gray-400">#{ref}</span>
                                                     </div>
-                                                    <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl shrink-0">
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
-                                                        <p className="text-2xl font-black text-[#113A74]">
-                                                            {totalAmount != null ? `QAR ${totalAmount.toLocaleString()}` : '—'}
-                                                        </p>
+                                                    <h3 className="text-xl font-black text-[#113A74] mb-1">{packageTitle}</h3>
+                                                    {booking.currency && (
+                                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">{booking.currency}</span>
+                                                    )}
+                                                </div>
+                                                <div className="text-left md:text-right bg-gray-50 py-3 px-6 rounded-2xl shrink-0">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
+                                                    <p className="text-2xl font-black text-[#113A74]">
+                                                        {totalAmount != null ? `${booking.currency || 'QAR'} ${totalAmount.toLocaleString()}` : '—'}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">
+                                                        {isRequest ? 'Travel Date' : 'Departure Date'}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Calendar size={16} className="text-[#FFA500] shrink-0" />
+                                                        {dateField ? new Date(dateField).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                                                     </div>
                                                 </div>
-
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                                                    <div>
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Travel Date</p>
-                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
-                                                            <Calendar size={16} className="text-[#FFA500] shrink-0" />
-                                                            {booking.travel_date ? new Date(booking.travel_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                                                        </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Passengers</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <User size={16} className="text-[#FFA500] shrink-0" />
+                                                        {totalPassengers > 0 ? `${totalPassengers} Traveler${totalPassengers !== 1 ? 's' : ''}` : '—'}
                                                     </div>
-                                                    <div>
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Passengers</p>
-                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
-                                                            <User size={16} className="text-[#FFA500] shrink-0" />
-                                                            {totalPassengers > 0 ? `${totalPassengers} Traveler${totalPassengers !== 1 ? 's' : ''}` : '—'}
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-span-2 md:col-span-1">
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Booked On</p>
-                                                        <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
-                                                            <Clock size={16} className="text-[#FFA500] shrink-0" />
-                                                            {bookedOnDate ? new Date(bookedOnDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                                                        </div>
+                                                </div>
+                                                <div className="col-span-2 md:col-span-1">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Submitted On</p>
+                                                    <div className="flex items-center gap-2 text-sm font-black text-[#113A74]">
+                                                        <Clock size={16} className="text-[#FFA500] shrink-0" />
+                                                        {bookedOnDate ? new Date(bookedOnDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                                                     </div>
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )
+                                        </div>
+                                    );
+                                };
+
+                                const hasBookings = bookings.length > 0;
+                                const hasRequests = bookingRequests.length > 0;
+
+                                if (!hasBookings && !hasRequests) {
+                                    return (
+                                        <div className="bg-white rounded-3xl p-16 text-center shadow-xl shadow-gray-200/40">
+                                            <div className="w-24 h-24 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                                <Package className="text-gray-400" size={40} />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-[#113A74] mb-3">No bookings yet</h3>
+                                            <p className="text-gray-500 mb-8 max-w-sm mx-auto">You haven't made any bookings yet. Start exploring the world with our tailored travel packages.</p>
+                                            <Link href="/tours" className="inline-flex items-center justify-center px-8 py-4 text-sm font-black rounded-full text-white bg-[#113A74] hover:bg-[#1c4d91] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                                Browse Packages
+                                            </Link>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="space-y-10">
+                                        {/* Confirmed Bookings (Fixed Departure) */}
+                                        <div>
+                                            <h2 className="text-base font-black text-[#113A74] uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                                                Confirmed Bookings
+                                            </h2>
+                                            {hasBookings ? (
+                                                <div className="space-y-6">
+                                                    {bookings.map(b => <BookingCard key={b.id} booking={b} isRequest={false} />)}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-400 font-medium py-4 pl-4 border-l-2 border-gray-100">No confirmed bookings.</p>
+                                            )}
+                                        </div>
+
+                                        {/* Booking Requests (Normal packages) */}
+                                        <div>
+                                            <h2 className="text-base font-black text-[#113A74] uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-[#FFA500] inline-block" />
+                                                Booking Requests
+                                            </h2>
+                                            {hasRequests ? (
+                                                <div className="space-y-6">
+                                                    {bookingRequests.map(r => <BookingCard key={r.id} booking={r} isRequest={true} />)}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-400 font-medium py-4 pl-4 border-l-2 border-gray-100">No pending booking requests.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })()
                         ) : activeTab === 'visa' ? (
                             /* Visa Applications View */
                             visaApplications.length === 0 ? (

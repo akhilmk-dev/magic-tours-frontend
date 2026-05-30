@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
@@ -182,7 +182,7 @@ function HotelsContent() {
     const [promos, setPromos] = useState([]);
 
     useEffect(() => {
-        fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/hotel_listing')
+        fetch('https://api.magictours.qa/promotions/frontend/hotel_listing')
             .then(r => r.json())
             .then(data => setPromos(data?.data?.promotions || []))
             .catch(() => {});

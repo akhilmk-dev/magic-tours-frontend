@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ChevronDown } from 'lucide-react';
@@ -17,6 +17,7 @@ const HeroContactForm = ({ minimal = false }) => {
         destination: '',
         message: ''
     });
+    const [errors, setErrors] = useState({});
 
     React.useEffect(() => {
         if (user) {
@@ -29,28 +30,48 @@ const HeroContactForm = ({ minimal = false }) => {
         }
     }, [user]);
 
+    const validate = (data) => {
+        const e = {};
+        if (!data.name.trim())        e.name        = 'Full name is required';
+        if (!data.phone.trim())       e.phone       = 'Phone number is required';
+        if (!data.email.trim())       e.email       = 'Email address is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) e.email = 'Enter a valid email address';
+        if (!data.destination)        e.destination = 'Please select a destination';
+        if (!data.message.trim())     e.message     = 'Message is required';
+        return e;
+    };
+
     const handleChange = (e) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    };
+
+    const handleSelectDestination = (dest) => {
+        setFormData(prev => ({ ...prev, destination: dest }));
+        setShowDestDropdown(false);
+        if (errors.destination) setErrors(prev => ({ ...prev, destination: '' }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name || !formData.email || !formData.phone) {
-            showToast('Please fill in all required fields.', 'error');
+        const validationErrors = validate(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
 
         try {
             setSubmitting(true);
-            const response = await fetch('https://magic-apis.staff-b0c.workers.dev/contacts/frontend/submit', {
+            const response = await fetch('https://api.magictours.qa/journey-inquiries/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: formData.name,
+                    full_name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
-                    subject: 'Frontend Contact Inquiry',
-                    message: `Destination: ${formData.destination}\n\n${formData.message || 'New contact inquiry from website.'}`,
+                    destination: formData.destination,
+                    message: formData.message,
                 }),
             });
 
@@ -58,6 +79,7 @@ const HeroContactForm = ({ minimal = false }) => {
 
             showToast('Message sent successfully!', 'success');
             setFormData({ name: '', email: '', phone: '', destination: '', message: '' });
+            setErrors({});
         } catch (error) {
             showToast('Something went wrong. Please try again.', 'error');
         } finally {
@@ -69,17 +91,19 @@ const HeroContactForm = ({ minimal = false }) => {
         "Europe", "Asia", "Middle East", "Africa", "North America", "South America", "Australia"
     ];
 
-    const inputStyle = {
+    const getInputStyle = (field) => ({
         background: 'transparent',
         border: 'none',
-        borderBottom: minimal ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.3)',
+        borderBottom: errors[field]
+            ? '1px solid rgba(255, 100, 100, 0.8)'
+            : minimal ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.3)',
         color: 'white',
         width: '100%',
         padding: '10px 25px 10px 0',
         outline: 'none',
         borderRadius: '0',
         fontSize: '13px'
-    };
+    });
 
     const labelStyle = {
         fontSize: '11px',
@@ -89,6 +113,12 @@ const HeroContactForm = ({ minimal = false }) => {
         textTransform: 'uppercase',
         marginBottom: '4px'
     };
+
+    const ErrorMsg = ({ field }) => errors[field] ? (
+        <p className="text-[10px] font-semibold mt-1" style={{ color: 'rgba(255, 150, 150, 1)' }}>
+            {errors[field]}
+        </p>
+    ) : null;
 
     return (
         <motion.div
@@ -120,7 +150,7 @@ const HeroContactForm = ({ minimal = false }) => {
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div className="flex gap-4">
                     <div className="flex-1">
                         <label style={labelStyle}>FULL NAME</label>
@@ -130,10 +160,10 @@ const HeroContactForm = ({ minimal = false }) => {
                             placeholder="Your Name"
                             value={formData.name}
                             onChange={handleChange}
-                            style={inputStyle}
+                            style={getInputStyle('name')}
                             className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                            required
                         />
+                        <ErrorMsg field="name" />
                     </div>
                     <div className="flex-1">
                         <label style={labelStyle}>PHONE NUMBER</label>
@@ -143,10 +173,10 @@ const HeroContactForm = ({ minimal = false }) => {
                             placeholder="Your Phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            style={inputStyle}
+                            style={getInputStyle('phone')}
                             className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                            required
                         />
+                        <ErrorMsg field="phone" />
                     </div>
                 </div>
 
@@ -159,17 +189,23 @@ const HeroContactForm = ({ minimal = false }) => {
                             placeholder="Your Email"
                             value={formData.email}
                             onChange={handleChange}
-                            style={inputStyle}
+                            style={getInputStyle('email')}
                             className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                            required
                         />
+                        <ErrorMsg field="email" />
                     </div>
                     <div className="flex-1">
                         <label style={labelStyle}>DESTINATION</label>
                         <div className="relative">
                             <div
                                 onClick={() => setShowDestDropdown(!showDestDropdown)}
-                                style={{ ...inputStyle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                style={{
+                                    ...getInputStyle('destination'),
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
                                 className="transition-colors text-white"
                             >
                                 <span className={`whitespace-nowrap overflow-hidden text-ellipsis mr-2 ${formData.destination ? 'text-white' : (minimal ? 'text-white/30' : 'text-white/40')}`}>
@@ -192,10 +228,7 @@ const HeroContactForm = ({ minimal = false }) => {
                                                 {destinations.map(dest => (
                                                     <div
                                                         key={dest}
-                                                        onClick={() => {
-                                                            setFormData(prev => ({ ...prev, destination: dest }));
-                                                            setShowDestDropdown(false);
-                                                        }}
+                                                        onClick={() => handleSelectDestination(dest)}
                                                         className="px-4 py-2.5 text-white text-sm font-medium hover:bg-white/10 cursor-pointer transition-colors flex items-center justify-between group"
                                                     >
                                                         {dest}
@@ -208,6 +241,7 @@ const HeroContactForm = ({ minimal = false }) => {
                                 )}
                             </AnimatePresence>
                         </div>
+                        <ErrorMsg field="destination" />
                     </div>
                 </div>
 
@@ -220,7 +254,9 @@ const HeroContactForm = ({ minimal = false }) => {
                         onChange={handleChange}
                         style={{
                             background: minimal ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.08)',
-                            border: minimal ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(255, 255, 255, 0.25)',
+                            border: errors.message
+                                ? '1px solid rgba(255, 100, 100, 0.8)'
+                                : minimal ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(255, 255, 255, 0.25)',
                             borderRadius: '15px',
                             padding: '15px',
                             color: 'white',
@@ -229,7 +265,8 @@ const HeroContactForm = ({ minimal = false }) => {
                             resize: 'none'
                         }}
                         className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
-                    ></textarea>
+                    />
+                    <ErrorMsg field="message" />
                 </div>
 
                 <button

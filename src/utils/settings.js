@@ -1,6 +1,6 @@
-export async function getPublicSettings() {
+﻿export async function getPublicSettings() {
     try {
-        const response = await fetch('https://magic-apis.staff-b0c.workers.dev/homepage', {
+        const response = await fetch('https://api.magictours.qa/settings/public', {
             cache: 'no-store' // Always fetch fresh settings
         });
         if (!response.ok) throw new Error('Failed to fetch public settings');

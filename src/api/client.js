@@ -1,4 +1,4 @@
-const API_URL = 'https://magic-apis.staff-b0c.workers.dev';
+﻿const API_URL = 'https://api.magictours.qa';
 
 class ApiClient {
     constructor() {

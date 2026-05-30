@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
@@ -22,35 +22,39 @@ import foodIcon from '../../assets/food_icon_package_card.png';
 /* ─── Destination Filter Bar ──────────────────────────────── */
 const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setSearch, totalCount, viewMode, setViewMode, sort, setSort }) => {
     const [sortOpen, setSortOpen] = useState(false);
-    const [selectedContinent, setSelectedContinent] = useState('');
-    const destinations  = filterData.destinations || [];
+    const [selectedContinents, setSelectedContinents] = useState([]);
+    const destinations = filterData.destinations || [];
 
     // Extract unique continents from destinations
     const continents = [...new Set(destinations.map(d => d.continent).filter(Boolean))].sort();
 
-    // Destinations for the selected continent
-    const destinationsForContinent = selectedContinent
-        ? destinations.filter(d => d.continent === selectedContinent)
+    // Destinations belonging to any selected continent
+    const visibleDestinations = selectedContinents.length > 0
+        ? destinations.filter(d => selectedContinents.includes(d.continent))
         : [];
 
     const toggleContinent = (continent) => {
-        if (selectedContinent === continent) {
-            // Deselect continent — also clear destination
-            setSelectedContinent('');
-            const updated = { ...filters, destination: '', cities: [] };
-            setFilters(updated);
-            onApply(updated);
-        } else {
-            setSelectedContinent(continent);
-            // Clear destination when switching continent
-            const updated = { ...filters, destination: '', cities: [] };
+        const isSelected = selectedContinents.includes(continent);
+        const newContinents = isSelected
+            ? selectedContinents.filter(c => c !== continent)
+            : [...selectedContinents, continent];
+        setSelectedContinents(newContinents);
+
+        if (isSelected) {
+            // Remove destinations that belong to the deselected continent
+            const removed = destinations.filter(d => d.continent === continent).map(d => d.slug);
+            const newDest = (filters.destination || []).filter(s => !removed.includes(s));
+            const updated = { ...filters, destination: newDest };
             setFilters(updated);
             onApply(updated);
         }
     };
 
     const toggleDestination = (slug) => {
-        const next    = filters.destination === slug ? '' : slug;
+        const current = filters.destination || [];
+        const next = current.includes(slug)
+            ? current.filter(s => s !== slug)
+            : [...current, slug];
         const updated = { ...filters, destination: next, cities: [] };
         setFilters(updated);
         onApply(updated);
@@ -81,53 +85,110 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
                     <span className="text-[#FFA500] font-bold text-[13px]">Destinations</span>
                 </div>
 
-                {/* Continent checkboxes */}
+                {/* Continent checkboxes — multi-select */}
                 <div className="px-4 py-3 flex flex-wrap gap-x-6 gap-y-2.5">
                     {continents.map(continent => (
                         <CheckItem
                             key={continent}
                             label={continent}
-                            active={selectedContinent === continent}
+                            active={selectedContinents.includes(continent)}
                             onToggle={() => toggleContinent(continent)}
                             color="#113A74"
                         />
                     ))}
                 </div>
 
-                {/* Destinations sub-row — only when a continent is selected */}
-                {selectedContinent && destinationsForContinent.length > 0 && (
-                    <div className="px-4 py-3 border-t border-blue-50 bg-slate-50/50">
-                        <p className="text-[#113A74] font-bold text-[12px] mb-2.5">{selectedContinent}</p>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2.5">
-                            {destinationsForContinent.map(dest => (
-                                <CheckItem
-                                    key={dest.id}
-                                    label={dest.name}
-                                    active={filters.destination === dest.slug}
-                                    onToggle={() => toggleDestination(dest.slug)}
-                                    color="#113A74"
-                                />
-                            ))}
-                        </div>
+                {/* Destinations sub-row — one group per selected continent */}
+                {selectedContinents.length > 0 && visibleDestinations.length > 0 && (
+                    <div className="border-t border-blue-50">
+                        {selectedContinents.map((continent, idx) => {
+                            const contDests = destinations.filter(d => d.continent === continent);
+                            if (contDests.length === 0) return null;
+                            return (
+                                <div
+                                    key={continent}
+                                    className={`px-4 py-3 bg-slate-50/50 ${idx < selectedContinents.length - 1 ? 'border-b border-blue-50' : ''}`}
+                                >
+                                    <p className="text-[#113A74] font-bold text-[12px] mb-2.5">{continent}</p>
+                                    <div className="flex flex-wrap gap-x-6 gap-y-2.5">
+                                        {contDests.map(dest => (
+                                            <CheckItem
+                                                key={dest.id}
+                                                label={dest.name}
+                                                active={(filters.destination || []).includes(dest.slug)}
+                                                onToggle={() => toggleDestination(dest.slug)}
+                                                color="#113A74"
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
             {/* Search bar + sort + view toggle row */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-4">
-                {/* packages count on the left */}
-                <p className="text-[#113A74] font-bold text-[14px] shrink-0">
-                    {totalCount} packages Found
-                </p>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                {/* Search pill with inner Search button */}
-                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl pl-3 pr-1.5 py-1.5 shadow-sm flex-1 sm:w-[280px] md:w-[360px] lg:w-[420px]">
+            <div className="flex flex-col gap-2 mt-4">
+
+                {/* Row 1: count (left) + sort + toggle (right) — always one line */}
+                <div className="flex items-center justify-between gap-2">
+                    <p className="text-[#113A74] font-bold text-[14px] shrink-0 flex-1 min-w-0">
+                        {totalCount} packages Found
+                    </p>
+                    <div className="flex items-center gap-2 shrink-0">
+                        {/* Sort dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setSortOpen(p => !p)}
+                                className="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
+                            >
+                                <span className="hidden sm:inline text-slate-500 text-[12px] font-bold whitespace-nowrap">
+                                    Sort ({SORT_OPTIONS.find(o => o.value === sort)?.label || 'Recently Added'})
+                                </span>
+                                <span className="sm:hidden text-slate-500 text-[12px] font-bold">Sort</span>
+                                <ChevronDown size={13} className={`text-slate-400 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {sortOpen && (
+                                <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                                    {SORT_OPTIONS.map(opt => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => { setSort(opt.value); setSortOpen(false); }}
+                                            className={`w-full text-left px-4 py-2.5 text-[11px] font-bold transition-colors ${sort === opt.value ? 'bg-[#113A74] text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {/* Grid / List view toggle */}
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'grid' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
+                            >
+                                <LayoutGrid size={15} />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'list' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
+                            >
+                                <List size={15} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 2: full-width search pill */}
+                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl pl-3 pr-1.5 py-1.5 shadow-sm w-full">
                     <img src={searchIcon.src || searchIcon} alt="search" className="w-4 h-4 shrink-0 opacity-50" />
                     <input
                         type="text"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        placeholder="Search Destinations, Packages ,Countries , Activities...."
+                        placeholder="Search packages, destinations..."
                         className="flex-1 bg-transparent outline-none text-[12px] font-medium text-slate-500 placeholder:text-slate-400 min-w-0"
                     />
                     {search && (
@@ -135,53 +196,11 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
                             <X size={13} />
                         </button>
                     )}
-                    <button className="bg-[#113A74] text-white text-[12px] font-bold px-5 py-2 rounded-lg shrink-0 hover:bg-[#0d2a56] transition-colors">
+                    <button className="bg-[#113A74] text-white text-[12px] font-bold px-4 sm:px-5 py-2 rounded-lg shrink-0 hover:bg-[#0d2a56] transition-colors">
                         Search
                     </button>
                 </div>
 
-                {/* Sort dropdown */}
-                <div className="relative shrink-0">
-                    <button
-                        onClick={() => setSortOpen(p => !p)}
-                        className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
-                    >
-                        <span className="text-slate-500 text-[12px] font-bold whitespace-nowrap">
-                            Sort ({SORT_OPTIONS.find(o => o.value === sort)?.label || 'Recently Added'})
-                        </span>
-                        <ChevronDown size={13} className={`text-slate-400 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {sortOpen && (
-                        <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
-                            {SORT_OPTIONS.map(opt => (
-                                <button
-                                    key={opt.value}
-                                    onClick={() => { setSort(opt.value); setSortOpen(false); }}
-                                    className={`w-full text-left px-4 py-2.5 text-[11px] font-bold transition-colors ${sort === opt.value ? 'bg-[#113A74] text-white' : 'text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                    {opt.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Grid / List view toggle */}
-                <div className="flex items-center gap-1 shrink-0">
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'grid' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
-                    >
-                        <LayoutGrid size={15} />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('list')}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'list' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
-                    >
-                        <List size={15} />
-                    </button>
-                </div>
-                </div>
             </div>
         </div>
     );
@@ -328,12 +347,12 @@ const SORT_OPTIONS = [
 const SortHeader = ({ onOpenFilters }) => {
     return (
         <div className="flex items-center justify-between mb-6 gap-3">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#113A74] tracking-tight">
+            <h2 className="flex-1 min-w-0 text-base sm:text-xl md:text-2xl font-bold text-[#113A74] tracking-tight leading-tight">
                 Available <span className="text-[#FFA500]">Tour Packages</span>
             </h2>
             <button
                 onClick={onOpenFilters}
-                className="lg:hidden flex items-center gap-2 bg-[#113A74] text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-sm font-heading font-bold shadow-lg shadow-[#113A74]/20 active:scale-95 transition-all"
+                className="lg:hidden shrink-0 flex items-center gap-2 bg-[#113A74] text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-sm font-heading font-bold shadow-lg shadow-[#113A74]/20 active:scale-95 transition-all"
             >
                 <SlidersHorizontal size={14} />
                 <span>Filters</span>
@@ -343,7 +362,7 @@ const SortHeader = ({ onOpenFilters }) => {
 };
 
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airline_name, airline_logo, operated_by_name, operated_by_logo, viewMode = 'grid' }) => {
+const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airline_name, airline_logo, operated_by_name, operated_by_logo, booking_type, viewMode = 'grid' }) => {
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
     const router = useRouter();
@@ -353,9 +372,9 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
         return (
             <div
                 onClick={() => router.push(`/packages/${slug || id}`)}
-                className="cursor-pointer bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-row h-[140px] sm:h-[170px] md:h-[200px] hover:shadow-xl transition-all duration-300 group"
+                className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-row min-h-[130px] sm:h-[160px] md:h-[200px] hover:shadow-xl transition-all duration-300 group"
             >
-                <div className="relative w-[110px] sm:w-[170px] md:w-[220px] lg:w-[260px] shrink-0 overflow-hidden">
+                <div className="relative w-[100px] sm:w-[160px] md:w-[220px] lg:w-[260px] shrink-0 overflow-hidden">
                     <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute top-3 left-0 bg-[#113A74] text-white px-2 sm:px-3 py-1 rounded-r-lg flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-bold">
                         <Calendar size={10} />
@@ -368,7 +387,9 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                         {cityNames.length > 0 && (
                             <p className="text-slate-400 text-[10px] sm:text-[11px] font-medium mb-1 line-clamp-1">{cityNames.join(' | ')}</p>
                         )}
-                        {slots !== undefined && <span className="text-[10px] sm:text-[11px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block mb-1 sm:mb-2">{slots} Slots</span>}
+                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                            {slots !== undefined && <span className="text-[10px] sm:text-[11px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
+                        </div>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                         <button
@@ -388,7 +409,7 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
     return (
         <div
             onClick={() => router.push(`/packages/${slug || id}`)}
-            className="cursor-pointer bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+            className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
         >
             <div className="relative aspect-[4/3] overflow-hidden">
                 <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -424,20 +445,18 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                         {cityNames.join(' | ')}
                     </p>
                 )}
-                {(hotels_included || flights_included || has_food) && (
-                    <div className="flex items-center gap-2 py-1">
-                        {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
-                        {flights_included && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}
-                        {has_food         && <img src={foodIcon.src  || foodIcon}   alt="Food included"   className="w-5 h-5 object-contain" />}
-                    </div>
-                )}
+                <div className="flex items-center gap-2 py-0.5 flex-wrap">
+                    {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
+                    {flights_included && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}
+                    {has_food         && <img src={foodIcon.src  || foodIcon}   alt="Food included"   className="w-5 h-5 object-contain" />}
+                </div>
                 <div className="flex items-center justify-between gap-3 mt-auto pt-2">
                     <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${slug || id}?book=true`); }}
-                        className="px-6 py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                        className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
                     >Book Now</button>
                     <div className="text-right">
-                        <span className="text-[#FFA500] text-2xl font-black leading-none">{formatPrice(price)}</span>
+                        <span className="text-[#FFA500] text-xl sm:text-2xl font-black leading-none">{formatPrice(price)}</span>
                         <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-90">onwards</p>
                     </div>
                 </div>
@@ -458,14 +477,26 @@ const TourCardSkeleton = () => (
 );
 
 const Pagination = ({ page, totalPages, setPage }) => {
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    const getPageWindows = () => {
+        if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+        const pages = [];
+        if (page > 2) pages.push(1);
+        if (page > 3) pages.push('…');
+        for (let i = Math.max(1, page - 1); i <= Math.min(totalPages, page + 1); i++) pages.push(i);
+        if (page < totalPages - 2) pages.push('…');
+        if (page < totalPages - 1) pages.push(totalPages);
+        return pages;
+    };
+    const pages = getPageWindows();
     return (
-        <div className="flex items-center justify-center gap-2 mt-12 mb-4">
-            <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="w-10 h-10 flex items-center justify-center rounded-2xl border border-slate-100 text-[#113A74] disabled:opacity-50 bg-white shadow-sm"><ChevronLeft size={16} strokeWidth={3} /></button>
-            {pages.map(i => (
-                <button key={i} onClick={() => setPage(i)} className={`w-10 h-10 flex items-center justify-center rounded-2xl font-extrabold transition-colors ${page === i ? 'bg-[#113A74] text-white shadow-md' : 'bg-transparent text-[#113A74] hover:bg-white'}`}>{i}</button>
-            ))}
-            <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} className="w-10 h-10 flex items-center justify-center rounded-2xl border border-slate-100 text-[#113A74] disabled:opacity-50 bg-white shadow-sm"><ChevronRight size={16} strokeWidth={3} /></button>
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-10 sm:mt-12 mb-4 flex-wrap">
+            <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl border border-slate-100 text-[#113A74] disabled:opacity-50 bg-white shadow-sm"><ChevronLeft size={15} strokeWidth={3} /></button>
+            {pages.map((p, idx) =>
+                p === '…'
+                    ? <span key={`ellipsis-${idx}`} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-slate-400 font-bold text-sm">…</span>
+                    : <button key={p} onClick={() => setPage(p)} className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl font-extrabold text-sm transition-colors ${page === p ? 'bg-[#113A74] text-white shadow-md' : 'bg-transparent text-[#113A74] hover:bg-white'}`}>{p}</button>
+            )}
+            <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl border border-slate-100 text-[#113A74] disabled:opacity-50 bg-white shadow-sm"><ChevronRight size={15} strokeWidth={3} /></button>
         </div>
     );
 };
@@ -482,7 +513,7 @@ const ToursContent = () => {
     const [page,        setPage]        = useState(1);
     const [totalPages,  setTotalPages]  = useState(1);
     const [totalCount,  setTotalCount]  = useState(0);
-    const [filters,     setFilters]     = useState({ destination: urlDestination, cities: [], categories: [], travelers: 1, maxNights: '', departure_date: '' });
+    const [filters,     setFilters]     = useState({ destination: urlDestination ? [urlDestination] : [], cities: [], categories: [], travelers: 1, maxNights: '', departure_date: '' });
     const [filterData,  setFilterData]  = useState({ destinations: [], cities: [], categories: [] });
     const [sort,        setSort]        = useState('newest');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -497,23 +528,23 @@ const ToursContent = () => {
     }, []);
 
     useEffect(() => {
-        if (filters.destination && filterData.destinations.length > 0) {
-            const d = filterData.destinations.find(x => x.slug === filters.destination);
+        if (filters.destination?.length === 1 && filterData.destinations.length > 0) {
+            const d = filterData.destinations.find(x => x.slug === filters.destination[0]);
             if (d) {
                 setHeaderData({ title: d.meta_title || d.name || "Our Packages", description: d.meta_description || "" });
                 document.title = `${d.meta_title || d.name} | Magic Tours`;
+                return;
             }
-        } else {
-            setHeaderData({ title: "Our Packages", description: "" });
-            document.title = "Our Packages | Magic Tours";
         }
+        setHeaderData({ title: "Our Packages", description: "" });
+        document.title = "Our Packages | Magic Tours";
     }, [filters.destination, filterData.destinations]);
 
     const fetchPackages = async (activeFilters = filters, activePage = page, activeSort = sort) => {
         setLoading(true);
         try {
             let url = `/packages/frontend/list?page=${activePage}&limit=6&sort=${activeSort}`;
-            if (activeFilters.destination)          url += `&destination_slug=${activeFilters.destination}`;
+            if (activeFilters.destination?.length > 0) url += `&destination_slug=${activeFilters.destination.join(',')}`;
             if (activeFilters.cities.length > 0)    url += `&city_id=${activeFilters.cities.join(',')}`;
             if (activeFilters.categories.length > 0) url += `&category=${activeFilters.categories.join(',')}`;
             if (activeFilters.maxNights)             url += `&nights=${activeFilters.maxNights}`;
@@ -539,11 +570,15 @@ const ToursContent = () => {
     useEffect(() => {
         const urlDest = searchParams.get('destination') || '';
         const urlSrch = searchParams.get('search') || '';
-        if (urlDest !== filters.destination) { setFilters(prev => ({ ...prev, destination: urlDest })); setPage(1); }
+        const newDest = urlDest ? [urlDest] : [];
+        if (newDest.join(',') !== (filters.destination || []).join(',')) {
+            setFilters(prev => ({ ...prev, destination: newDest }));
+            setPage(1);
+        }
         if (urlSrch !== search) setSearch(urlSrch);
     }, [searchParams]);
 
-    useEffect(() => { fetchPackages(filters, page, sort); }, [page, sort, filters.destination]);
+    useEffect(() => { fetchPackages(filters, page, sort); }, [page, sort, (filters.destination || []).join(',')]);
 
     const handleApplyFilters = (f) => { setFilters(f); setPage(1); fetchPackages(f, 1, sort); setIsSidebarOpen(false); };
     const handleSortChange   = (s) => { setSort(s); setPage(1); fetchPackages(filters, 1, s); };
@@ -551,12 +586,12 @@ const ToursContent = () => {
     return (
         <main className="min-h-screen bg-white">
             {/* ── Hero banner (no search bar) ── */}
-            <section className="relative min-h-[80vh] w-full overflow-hidden flex items-center justify-center bg-slate-900">
+            <section className="relative min-h-[60vh] sm:min-h-[80vh] w-full overflow-hidden flex items-center justify-center bg-slate-900">
                 <div className="absolute inset-0 z-0">
                     <img src={bannerImg.src} alt="Banner" className="w-full h-full object-cover" />
                 </div>
-                <div className="relative z-10 w-full max-w-3xl mx-auto px-4 text-center mt-20 flex flex-col items-center gap-5">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-0 tracking-tight drop-shadow-sm font-heading">
+                <div className="relative z-10 w-full max-w-3xl mx-auto px-4 text-center mt-14 sm:mt-20 flex flex-col items-center gap-4 sm:gap-5">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-0 tracking-tight drop-shadow-sm font-heading">
                         {headerData.title}
                     </h1>
                     {headerData.description && (
@@ -576,7 +611,7 @@ const ToursContent = () => {
             </section>
 
             {/* ── Content ── */}
-            <section className="pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
+            <section className="pt-16 sm:pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
                 <div className="max-w-7xl mx-auto">
 
                     <SortHeader onOpenFilters={() => setIsSidebarOpen(true)} />
@@ -625,11 +660,13 @@ const ToursContent = () => {
                                 totalCount={totalCount}
                                 viewMode={viewMode}
                                 setViewMode={setViewMode}
+                                sort={sort}
+                                setSort={handleSortChange}
                             />
 
                             <div className={viewMode === 'list'
-                                ? 'flex flex-col gap-6'
-                                : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+                                ? 'flex flex-col gap-4 sm:gap-6'
+                                : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8'
                             }>
                                 {loading
                                     ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} />)
@@ -649,7 +686,7 @@ const ToursContent = () => {
             </section>
 
             <AdventureSection />
-            <div className="bg-[#E9F7FF]"><GalleryLoop images={images} loading={loading} /></div>
+            <div className="bg-[#E9F7FF]"><GalleryLoop /></div>
         </main>
     );
 };

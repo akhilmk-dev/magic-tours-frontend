@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 
@@ -52,7 +52,7 @@ export default function Home() {
             <SpecialOffer content={homeData?.sections_content?.special_offer} loading={loading} />
             <BlogNews blogs={homeData?.blogs} content={homeData?.sections_content?.blogs} loading={loading} />
             <AdventureSection content={homeData?.sections_content?.adventure} loading={loading} />
-            <GalleryLoop images={homeData?.bottom_slider_images} loading={loading} />
+            <GalleryLoop />
         </main>
     );
 }

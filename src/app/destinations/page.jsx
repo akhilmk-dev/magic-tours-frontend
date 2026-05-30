@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
@@ -108,7 +108,7 @@ export default function DestinationsPage() {
     }, [page]);
 
     useEffect(() => {
-        fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/destination_listing')
+        fetch('https://api.magictours.qa/promotions/frontend/destination_listing')
             .then(r => r.json())
             .then(data => setPromos(data?.data?.promotions || []))
             .catch(() => {});

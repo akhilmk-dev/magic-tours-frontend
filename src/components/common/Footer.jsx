@@ -100,9 +100,11 @@ export default function Footer() {
 
                     {/* Say Hello */}
                     <div>
-                        <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
-                            {footerData?.footer_say_hello_heading || 'Say Hello'}
-                        </h4>
+                        {footerData?.footer_say_hello_heading && (
+                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                                {footerData.footer_say_hello_heading}
+                            </h4>
+                        )}
                         <ul className="space-y-4">
                             {footerData?.footer_email && (
                                 <li>
@@ -123,9 +125,11 @@ export default function Footer() {
 
                     {/* Quick Links */}
                     <div>
-                        <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
-                            {footerData?.footer_quick_links_heading || 'Quick Links'}
-                        </h4>
+                        {footerData?.footer_quick_links_heading && (
+                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                                {footerData.footer_quick_links_heading}
+                            </h4>
+                        )}
                         <ul className="space-y-4">
                             {quickLinks.map((link, idx) => (
                                 <li key={idx}>
@@ -139,9 +143,11 @@ export default function Footer() {
 
                     {/* Trust & Support */}
                     <div>
-                        <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
-                            {footerData?.footer_trust_support_heading || 'Trust & Support'}
-                        </h4>
+                        {footerData?.footer_trust_support_heading && (
+                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                                {footerData.footer_trust_support_heading}
+                            </h4>
+                        )}
                         <div className="space-y-6">
                             {footerData?.footer_support_hours_label && (
                                 <div>

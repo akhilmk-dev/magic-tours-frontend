@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
@@ -19,7 +19,7 @@ import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 import ServicePageSkeleton from '../../components/skeletons/ServiceSkeletons';
 
-const API_BASE = 'https://magic-apis.staff-b0c.workers.dev';
+const API_BASE = 'https://api.magictours.qa';
 
 // Country codes remain static as they usually include flags and logic that doesn't change much
 const COUNTRY_CODES = [

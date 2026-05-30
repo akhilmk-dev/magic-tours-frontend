@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
@@ -594,7 +594,7 @@ const CruisesPage = () => {
             <AdventureSection content={cmsData} loading={isLoadingCMS} />
 
             {/* Gallery Loop Section */}
-            <GalleryLoop images={cruiseGalleryImages} loading={isLoadingCMS} />
+            <GalleryLoop />
         </div>
     );
 };

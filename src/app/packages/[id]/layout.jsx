@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
     try {
         // Fetch package detail for metadata
         // Note: Using the same logic as the page to get package details
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://magic-apis.staff-b0c.workers.dev'}/packages/frontend/detail/${id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.magictours.qa'}/packages/frontend/detail/${id}`, {
             cache: 'no-store'
         });
         

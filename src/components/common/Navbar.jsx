@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -177,7 +177,7 @@ export default function Navbar() {
         handleScroll();
 
         // Fetch dynamic logo
-        fetch('https://magic-apis.staff-b0c.workers.dev/settings/public')
+        fetch('https://api.magictours.qa/settings/public')
             .then(res => res.json())
             .then(data => {
                 if (data?.data?.site_logo) {

@@ -1,6 +1,6 @@
-export async function getSeoData() {
+﻿export async function getSeoData() {
     try {
-        const response = await fetch('https://magic-apis.staff-b0c.workers.dev/settings/seo', {
+        const response = await fetch('https://api.magictours.qa/settings/seo', {
             cache: 'no-store' // Always fetch fresh — admin changes reflect immediately
         });
         if (!response.ok) throw new Error('Failed to fetch SEO data');

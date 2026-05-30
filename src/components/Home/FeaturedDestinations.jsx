@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Star, Loader2 } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
@@ -128,7 +128,7 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
         const fetchDestinations = async () => {
             try {
                 // Use the public frontend list endpoint which doesn't require authentication
-                const res = await fetch('https://magic-apis.staff-b0c.workers.dev/destinations/frontend/list?limit=10');
+                const res = await fetch('https://api.magictours.qa/destinations/frontend/list?limit=10');
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }

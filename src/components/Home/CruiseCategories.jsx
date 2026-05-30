@@ -8,7 +8,7 @@ import cruiseBg from '../../assets/Cruise.png';
 function formatDuration(days, nights) {
     const d = days   ? `${days} Day${days   !== 1 ? 's' : ''}` : '';
     const n = nights ? `${nights} Night${nights !== 1 ? 's' : ''}` : '';
-    return [d, n].filter(Boolean).join(' / ') || null;
+    return [n, d].filter(Boolean).join(' / ') || null;
 }
 function formatPrice(price, currency = 'USD') {
     if (!price) return null;

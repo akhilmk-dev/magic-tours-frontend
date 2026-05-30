@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { motion, useAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Star, Calendar, MapPin } from 'lucide-react';
 import FavoriteButton from '../common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -51,6 +50,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
     const { formatPrice } = useCurrency();
     const [mounted, setMounted] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [hoveredId, setHoveredId] = useState(null);
     const isTransitioning = useRef(false);
     const cardWidth = 344; // 320px card + 24px gap
 
@@ -94,13 +94,9 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
     const slide = (direction) => {
         if (isSmallSet || isTransitioning.current || !mounted) return;
         isTransitioning.current = true;
-
         const len = packageData.length;
         setActiveIndex((prev) => (prev + direction + len) % len);
-
-        setTimeout(() => {
-            isTransitioning.current = false;
-        }, 400); // Wait for animation to finish
+        setTimeout(() => { isTransitioning.current = false; }, 400);
     };
 
     if (loading || !mounted) return <PopularPackagesSkeleton />;
@@ -138,20 +134,18 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                     <div className="flex gap-6 relative items-center justify-center w-full">
                         {packageData.map((pkg, idx) => {
                             const len = packageData.length;
-                            
-                            // Calculate relative position based on activeIndex
+
                             let diff = (idx - activeIndex);
                             if (diff > len / 2) diff -= len;
                             if (diff < -len / 2) diff += len;
 
-                            // Edge cases: 1 or 2 items should be centered and always active on desktop
                             const isActive = isSmallSet ? true : diff === 0;
-                            // On mobile, only show the current active card if we are sliding
                             const isVisible = isSmallSet ? true : (isMobile ? Math.abs(diff) < 0.5 : Math.abs(diff) <= 1.5);
                             const isJumping = !isSmallSet && Math.abs(diff) > 1.1;
-                            
-                            const xPos = isSmallSet 
-                                ? (idx - (len - 1) / 2) * cardWidth 
+                            const isHovered = hoveredId === pkg.id;
+
+                            const xPos = isSmallSet
+                                ? (idx - (len - 1) / 2) * cardWidth
                                 : diff * cardWidth;
 
                             return (
@@ -161,12 +155,12 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     animate={{
                                         x: xPos,
                                         scale: isActive ? 1.04 : 0.97,
-                                        zIndex: isActive ? 20 : 10,
+                                        zIndex: isHovered ? 30 : (isActive ? 20 : 10),
                                         opacity: isVisible ? 1 : 0,
                                         height: isActive ? 640 : 560,
                                         pointerEvents: (isVisible && mounted) ? "auto" : "none"
                                     }}
-                                    transition={{ 
+                                    transition={{
                                         type: "spring",
                                         stiffness: 300,
                                         damping: 30,
@@ -175,6 +169,8 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         x: isJumping ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }
                                     }}
                                     onClick={() => router.push(`/packages/${pkg.slug || pkg.id}`)}
+                                    onMouseEnter={() => setHoveredId(pkg.id)}
+                                    onMouseLeave={() => setHoveredId(null)}
                                     className="absolute w-[320px] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer flex flex-col shadow-xl hover:shadow-2xl"
                                     style={{
                                         backgroundColor: isActive ? "#FFFFFF" : "#113A74"
@@ -200,70 +196,166 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                     {/* Content Section */}
                                     {isActive ? (
-                                        <div className="flex-1 bg-white rounded-t-[2.5rem] -mt-8 relative z-10 p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-                                            <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
-                                            <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-
-                                            <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
-                                                <div className="flex items-center gap-3">
-                                                    <Calendar size={16} className="text-[#1A73E8] flex-shrink-0" />
-                                                    <span className="text-[#16243D] font-semibold text-[13px]">{pkg.duration}</span>
+                                        // ── CENTERED CARD ──
+                                        // Wrapper is relative so the hover panel can overlay it
+                                        <div className="flex-1 relative overflow-visible">
+                                            {/* Default navy content (visible when not hovered) */}
+                                            <div
+                                                className="absolute inset-0 bg-[#113A74] p-6 flex flex-col"
+                                                style={{
+                                                    opacity: isHovered ? 0 : 1,
+                                                    transition: 'opacity 0.3s ease',
+                                                    pointerEvents: isHovered ? 'none' : 'auto',
+                                                }}
+                                            >
+                                                <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
+ 
+                                                <div className="flex items-center gap-2 mb-auto">
+                                                    <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
+                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                 </div>
-                                                <div className="flex items-center gap-3">
-                                                    <Star size={16} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
-                                                    <span title={pkg.type} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">Tour Type :{pkg.type}</span>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <MapPin size={16} className="text-[#1A73E8] flex-shrink-0" />
-                                                    <span title={pkg.location} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">{pkg.location}</span>
-                                                </div>
-                                                <div>
-                                                    <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">
-                                                        {pkg.type}
-                                                    </span>
+ 
+                                                <div className="mt-5 flex items-end justify-between">
+                                                    <div>
+                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
+                                                        className="px-6 py-3 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[13px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                    >
+                                                        Book Now
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            <div className="mt-auto flex items-end justify-between">
-                                                <div>
-                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
-                                                    <span className="block text-[10px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
+ 
+                                            {/* Hover white detail panel — compact to fit left/right card height */}
+                                            <div
+                                                className="absolute -top-8 bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] px-4 pt-5 pb-3 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+                                                style={{
+                                                    transform: isHovered ? 'translateY(0%)' : 'translateY(100%)',
+                                                    opacity: isHovered ? 1 : 0,
+                                                    transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+                                                }}
+                                            >
+                                                <h3 title={pkg.title} className="text-[17px] font-bold text-[#16243D] mb-1 line-clamp-1 shrink-0">{pkg.title}</h3>
+ 
+                                                <p title={pkg.description} className="text-[11px] text-[#6B7280] leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
+ 
+                                                <div className="bg-[#F7F8FC] rounded-[1rem] px-3 py-2 mb-2 space-y-1.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar size={13} className="text-[#1A73E8] flex-shrink-0" />
+                                                        <span className="text-[#16243D] font-semibold text-[11px]">{pkg.duration}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
+                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin size={13} className="text-[#1A73E8] flex-shrink-0" />
+                                                        <span title={pkg.location} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">{pkg.location}</span>
+                                                    </div>
                                                 </div>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                    className="px-6 py-3 rounded-full bg-[#113A74] text-white font-bold text-[13px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
-                                                >
-                                                    Book Now
-                                                </button>
+ 
+                                                <div className="mt-auto flex items-center justify-between">
+                                                    <div>
+                                                        <span className="text-[#FFA500] text-[18px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="block text-[9px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
+                                                        className="px-4 py-2 rounded-full bg-[#113A74] text-white font-bold text-[11px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                    >
+                                                        Book Now
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex-1 bg-[#113A74] p-6 flex flex-col">
-                                            <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
-                                            <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
-
-                                            <div className="flex items-center gap-2 mb-auto">
-                                                <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
-                                                <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type :{pkg.type}</span>
-                                            </div>
-
-                                            <div className="mt-5 flex items-end justify-between">
-                                                <div>
-                                                    <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
-                                                    <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
-                                                        className="text-[12px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
+                                        // ── LEFT / RIGHT CARDS — original navy design + hover overlay ──
+                                        <div className="flex-1 relative overflow-visible">
+                                            {/* Default navy content */}
+                                            <div
+                                                className="absolute inset-0 bg-[#113A74] p-6 flex flex-col"
+                                                style={{
+                                                    opacity: isHovered ? 0 : 1,
+                                                    transition: 'opacity 0.3s ease',
+                                                    pointerEvents: isHovered ? 'none' : 'auto',
+                                                }}
+                                            >
+                                                <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
+ 
+                                                <div className="flex items-center gap-2 mb-auto">
+                                                    <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
+                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type :{pkg.type}</span>
+                                                </div>
+ 
+                                                <div className="mt-5 flex items-end justify-between">
+                                                    <div>
+                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
+                                                            className="text-[12px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
+                                                        >
+                                                            See More
+                                                        </button>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
+                                                        className="px-6 py-3 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[13px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
-                                                        See More
+                                                        Book Now
                                                     </button>
                                                 </div>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                    className="px-6 py-3 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[13px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
-                                                >
-                                                    Book Now
-                                                </button>
+                                            </div>
+ 
+                                            {/* Hover white detail panel — slides up on hover */}
+                                            <div
+                                                className="absolute -top-8 bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+                                                style={{
+                                                    transform: isHovered ? 'translateY(0%)' : 'translateY(100%)',
+                                                    opacity: isHovered ? 1 : 0,
+                                                    transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+                                                }}
+                                            >
+                                                <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
+ 
+                                                <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <Calendar size={16} className="text-[#1A73E8] flex-shrink-0" />
+                                                        <span className="text-[#16243D] font-semibold text-[13px]">{pkg.duration}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <Star size={16} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
+                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <MapPin size={16} className="text-[#1A73E8] flex-shrink-0" />
+                                                        <span title={pkg.location} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">{pkg.location}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">
+                                                            {pkg.type}
+                                                        </span>
+                                                    </div>
+                                                </div>
+ 
+                                                <div className="mt-auto flex items-end justify-between">
+                                                    <div>
+                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="block text-[10px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
+                                                        className="px-6 py-3 rounded-full bg-[#113A74] text-white font-bold text-[13px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                    >
+                                                        Book Now
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}

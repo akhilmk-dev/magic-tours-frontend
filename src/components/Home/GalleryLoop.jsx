@@ -2,19 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
-// Import assets
-import gallery1 from '../../assets/gallery1.jpg';
-import gallery2 from '../../assets/gallery2.jpg';
-import gallery3 from '../../assets/gallery3.jpg';
-import gallery4 from '../../assets/gallery4.jpg';
-import gallery5 from '../../assets/gallery5.jpg';
-import gallery6 from '../../assets/gallery6.jpg';
-
-const staticGalleryImages = [
-    gallery1.src || gallery1, gallery2.src || gallery2, gallery3.src || gallery3,
-    gallery4.src || gallery4, gallery5.src || gallery5, gallery6.src || gallery6
-];
-
 const GalleryLoopSkeleton = () => (
     <section className="py-8 sm:py-12 overflow-hidden bg-slate-50 animate-pulse">
         <div className="flex gap-4 px-4 overflow-hidden justify-center">
@@ -25,8 +12,10 @@ const GalleryLoopSkeleton = () => (
     </section>
 );
 
-export default function GalleryLoop({ images: apiImages, loading }) {
+export default function GalleryLoop({ loading: propLoading }) {
     const [selectedImage, setSelectedImage] = useState(null);
+    const [images, setImages] = useState([]);
+    const [fetchLoading, setFetchLoading] = useState(true);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -36,24 +25,29 @@ export default function GalleryLoop({ images: apiImages, loading }) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    if (loading) return <GalleryLoopSkeleton />;
-    const baseImages = apiImages && apiImages.length > 0 ? apiImages : staticGalleryImages;
-    // Repeat images to ensure enough content for the loop animation
-    const galleryImages = [...baseImages, ...baseImages, ...baseImages];
+    useEffect(() => {
+        fetch('https://api.magictours.qa/settings/public')
+            .then(res => res.json())
+            .then(data => {
+                const imgs = data?.data?.footer_slider?.images;
+                if (Array.isArray(imgs) && imgs.length > 0) setImages(imgs);
+            })
+            .catch(() => {})
+            .finally(() => setFetchLoading(false));
+    }, []);
+
+    if (propLoading || fetchLoading) return <GalleryLoopSkeleton />;
+    if (images.length === 0) return null;
+
+    const galleryImages = [...images, ...images, ...images];
 
     return (
         <section className="py-8 sm:py-12 overflow-hidden bg-transparent">
             <div className="relative">
                 <motion.div
                     className="flex gap-3 sm:gap-4 px-4"
-                    animate={{
-                        x: [0, -1200],
-                    }}
-                    transition={{
-                        duration: 40,
-                        repeat: Infinity,
-                        ease: "linear"
-                    }}
+                    animate={{ x: [0, -1200] }}
+                    transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                 >
                     {galleryImages.map((img, index) => (
                         <div
@@ -71,7 +65,6 @@ export default function GalleryLoop({ images: apiImages, loading }) {
                 </motion.div>
             </div>
 
-            {/* Lightbox Overlay */}
             <AnimatePresence>
                 {selectedImage && (
                     <motion.div
@@ -83,10 +76,7 @@ export default function GalleryLoop({ images: apiImages, loading }) {
                     >
                         <button
                             className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-white/20 hover:bg-white/40 rounded-full p-2.5 transition-colors z-[60]"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedImage(null);
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
                         >
                             <X size={24} />
                         </button>

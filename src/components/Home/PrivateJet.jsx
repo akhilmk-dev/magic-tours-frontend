@@ -188,19 +188,16 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                                                 exit={{ opacity: 0, y: -10 }}
                                                 transition={{ duration: 0.4 }}
                                             >
-                                                <div className="flex items-center gap-2.5 mb-2">
+                                                <div className="flex items-center gap-2.5">
                                                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                                                         <svg className="text-brand-magic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                                                         </svg>
                                                     </div>
-                                                    <h3 className="text-white text-lg sm:text-xl font-bold mb-1">
+                                                    <h3 className="text-white text-lg sm:text-xl font-bold">
                                                         {slides[currentSlide].title}
                                                     </h3>
                                                 </div>
-                                                <p className="text-white/70 text-xs sm:text-sm leading-relaxed">
-                                                    {slides[currentSlide].description}
-                                                </p>
                                             </motion.div>
                                         </AnimatePresence>
                                     </div>

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 export const runtime = 'edge';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '../../../context/CustomerAuthContext';
 import { useCurrency } from '../../../context/CurrencyContext';
@@ -73,6 +73,219 @@ const PackageDetailsPage = () => {
         });
     };
     
+    const downloadPDF = () => {
+        if (!pkg) return;
+        const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
+        const pricingRows = p ? [
+            { label: 'Single Traveler', value: p.adult_single },
+            { label: 'Twin Sharing',    value: p.adult_double },
+            { label: 'Triple Sharing',  value: p.adult_triple },
+            { label: 'Quad Sharing',    value: p.adult_quad },
+            { label: 'Child With Bed',  value: p.child_with_bed },
+            { label: 'Child No Bed',    value: p.child_no_bed },
+            { label: 'Infant',          value: p.infant },
+        ].filter(r => r.value != null && r.value !== 0) : [];
+
+        const currency = pkg.pricing_info?.currency || pkg.currency || '';
+        const formatVal = (v) => v ? `${currency} ${Number(v).toLocaleString()}` : '—';
+
+        // Parse inclusions/exclusions — may arrive as JSON strings
+        const parseList = (raw) => {
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            try { return JSON.parse(raw); } catch { return []; }
+        };
+        const inclusions = parseList(pkg.inclusions);
+        const exclusions = parseList(pkg.exclusions);
+
+        const listHtml = (arr) => arr.length
+            ? arr.map(item => `<li>${typeof item === 'string' ? item : item.name || item.title || ''}</li>`).join('')
+            : '<li style="color:#999">Not specified</li>';
+
+        // Transport/meal badges per day
+        const dayBadges = (day) => {
+            const badges = [];
+            if (day.has_flight)    badges.push('✈ Flight');
+            if (day.has_train)     badges.push('🚂 Train');
+            if (day.has_bus)       badges.push('🚌 Bus');
+            if (day.has_breakfast) badges.push('🍳 Breakfast');
+            if (day.has_lunch)     badges.push('🥗 Lunch');
+            if (day.has_dinner)    badges.push('🍽 Dinner');
+            return badges.length
+                ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${badges.map(b => `<span style="background:#eef3fb;color:#113A74;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;">${b}</span>`).join('')}</div>`
+                : '';
+        };
+
+        const itineraryHtml = pkg.itinerary?.length
+            ? pkg.itinerary.map((day) => `
+                <div style="margin-bottom:14px;padding:14px;background:#f8faff;border-radius:10px;border-left:4px solid #113A74;">
+                    <p style="margin:0 0 6px;font-weight:700;color:#113A74;font-size:13px;">Day ${day.day < 10 ? '0' + day.day : day.day}${day.title ? ` : ${day.title}` : ''}</p>
+                    ${day.description ? `<p style="margin:0;color:#555;font-size:12px;line-height:1.6;white-space:pre-line;">${day.description}</p>` : ''}
+                    ${dayBadges(day)}
+                </div>`).join('')
+            : '<p style="color:#999;font-size:12px;">No itinerary available.</p>';
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>${pkg.title || 'Package Details'}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; background: #fff; padding: 0; }
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none !important; }
+    @page { margin: 15mm 12mm; size: A4; }
+  }
+
+  /* Header */
+  .header { background: #113A74; color: white; padding: 28px 32px 22px; }
+  .header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; opacity: 0.85; margin-top: 8px; }
+  .header .meta span { display: flex; align-items: center; gap: 5px; }
+
+  /* Hero image */
+  .hero-img { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+
+  /* Content area */
+  .body { padding: 24px 32px; }
+
+  /* Section */
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 14px; font-weight: 800; color: #113A74; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 2px solid #e8eef8; padding-bottom: 6px; margin-bottom: 12px; }
+  .section p { font-size: 12px; line-height: 1.75; color: #444; }
+
+  /* Two columns */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* List */
+  ul { padding-left: 18px; }
+  ul li { font-size: 12px; color: #444; margin-bottom: 5px; line-height: 1.5; }
+
+  /* Pricing table */
+  .pricing-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pricing-table th { background: #113A74; color: white; padding: 9px 14px; text-align: left; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+  .pricing-table td { padding: 8px 14px; border-bottom: 1px solid #eef0f5; }
+  .pricing-table tr:last-child td { border-bottom: none; }
+  .pricing-table tr:nth-child(even) td { background: #f8faff; }
+  .price-val { font-weight: 700; color: #113A74; text-align: right; }
+
+  /* Info chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip { background: #eef3fb; color: #113A74; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+
+  /* Footer */
+  .footer { background: #f4f6fb; border-top: 1px solid #dde4f0; padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #888; margin-top: 8px; }
+
+  /* Print button */
+  .print-btn { position: fixed; bottom: 24px; right: 24px; background: #113A74; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(17,58,116,0.3); }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">⬇ Save as PDF</button>
+
+<!-- Header -->
+<div class="header">
+  <h1>${pkg.title || 'Package Details'}</h1>
+  <div class="meta">
+    ${pkg.days ? `<span>📅 ${pkg.days} Days / ${pkg.nights} Nights</span>` : ''}
+    ${pkg.continent || pkg.country ? `<span>📍 ${[pkg.continent, pkg.country].filter(Boolean).join(', ')}</span>` : ''}
+    ${pkg.cities?.length ? `<span>🏙 ${pkg.cities.map(c => c.name).join(', ')}</span>` : ''}
+    ${pkg.airline_name ? `<span>✈ ${pkg.airline_name}</span>` : ''}
+    ${pkg.operated_by_name ? `<span>👤 ${pkg.operated_by_name}</span>` : ''}
+    ${pkg.display_id ? `<span>ID: ${pkg.display_id}</span>` : ''}
+  </div>
+</div>
+
+<!-- Hero Image -->
+${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` : ''}
+
+<div class="body">
+
+  <!-- Description -->
+  ${pkg.description ? `
+  <div class="section">
+    <div class="section-title">Overview</div>
+    <p>${pkg.description}</p>
+  </div>` : ''}
+
+  <!-- Pricing -->
+  ${pricingRows.length ? `
+  <div class="section">
+    <div class="section-title">Package Cost</div>
+    <table class="pricing-table">
+      <thead><tr><th>Type</th><th style="text-align:right">Price</th></tr></thead>
+      <tbody>
+        ${pricingRows.map(r => `<tr><td>${r.label}</td><td class="price-val">${formatVal(r.value)}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  </div>` : ''}
+
+  <!-- Inclusions & Exclusions -->
+  <div class="two-col">
+    ${inclusions.length ? `
+    <div class="section">
+      <div class="section-title">✅ Inclusions</div>
+      <ul>${listHtml(inclusions)}</ul>
+    </div>` : ''}
+    ${exclusions.length ? `
+    <div class="section">
+      <div class="section-title">❌ Exclusions</div>
+      <ul>${listHtml(exclusions)}</ul>
+    </div>` : ''}
+  </div>
+
+  <!-- Itinerary -->
+  ${pkg.itinerary?.length ? `
+  <div class="section">
+    <div class="section-title">Itinerary</div>
+    ${itineraryHtml}
+  </div>` : ''}
+
+  <!-- Blackout Dates -->
+  ${pkg.blackout_dates?.length ? `
+  <div class="section">
+    <div class="section-title">Blackout Dates</div>
+    <div class="chips">
+      ${pkg.blackout_dates.map(b => `<span class="chip">${formatPackageDate(b.from || b.start_date)} — ${formatPackageDate(b.to || b.end_date)}</span>`).join('')}
+    </div>
+  </div>` : ''}
+
+  <!-- Policies -->
+  ${pkg.terms_conditions ? `
+  <div class="section">
+    <div class="section-title">Terms & Conditions</div>
+    <p>${pkg.terms_conditions}</p>
+  </div>` : ''}
+
+  ${pkg.cancellation_policy ? `
+  <div class="section">
+    <div class="section-title">Cancellation Policy</div>
+    <p>${pkg.cancellation_policy}</p>
+  </div>` : ''}
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>Magic Tours &nbsp;|&nbsp; magictours.qa</span>
+  <span>Generated on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+</div>
+
+<script>
+  window.onload = function() { setTimeout(function(){ window.print(); }, 600); };
+</script>
+</body>
+</html>`;
+
+        const win = window.open('', '_blank', 'width=900,height=700');
+        if (!win) return;
+        win.document.write(html);
+        win.document.close();
+    };
+
     const scrollRelated = (direction) => {
         if (relatedScrollRef.current) {
             const scrollAmount = direction === 'left' ? -350 : 350;
@@ -81,7 +294,7 @@ const PackageDetailsPage = () => {
     };
 
     useEffect(() => {
-        fetch('https://magic-apis.staff-b0c.workers.dev/promotions/frontend/package_details')
+        fetch('https://api.magictours.qa/promotions/frontend/package_details')
             .then(res => res.json())
             .then(data => setPromos(data?.data?.promotions || []))
             .catch(() => { });
@@ -100,7 +313,7 @@ const PackageDetailsPage = () => {
     const [sidebarPhone, setSidebarPhone] = useState('');
 
     // Itinerary Accordion State
-    const [expandedDays, setExpandedDays] = useState([1]);
+    const [expandedDays, setExpandedDays] = useState([]);
     const [activeRelatedIndex, setActiveRelatedIndex] = useState(0);
     const [expandedFaqs, setExpandedFaqs] = useState([]);
     const [faqExpandAll, setFaqExpandAll] = useState(false);
@@ -124,15 +337,21 @@ const PackageDetailsPage = () => {
         }
     };
 
-    // Auto-loop state for Related Images — prioritise attraction images from the API
+    // Auto-loop state for Related Images — each item carries { src, description }
     const relatedImages = useMemo(() => {
-        const attractionImages = pkg?.attractions?.flatMap(a => a.images || []).filter(Boolean) || [];
+        const attractionImages = pkg?.attractions?.flatMap(a =>
+            (a.images || []).map(img => ({
+                src: img?.url || img?.src || img,
+                description: a.short_description || a.description || ''
+            }))
+        ).filter(item => item.src) || [];
         if (attractionImages.length > 0) return attractionImages;
-        if (pkg?.images?.length) return pkg.images;
+        if (pkg?.images?.length) return pkg.images.map(i => ({ src: i?.src || i, description: '' }));
         if (pkg?.gallery?.length) {
-            return typeof pkg.gallery === 'string' ? JSON.parse(pkg.gallery) : pkg.gallery;
+            const g = typeof pkg.gallery === 'string' ? JSON.parse(pkg.gallery) : pkg.gallery;
+            return g.map(i => ({ src: i?.src || i, description: '' }));
         }
-        return [img4, img5, img1, img2, img3, img6];
+        return [img4, img5, img1, img2, img3, img6].map(i => ({ src: i, description: '' }));
     }, [pkg]);
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -170,12 +389,33 @@ const PackageDetailsPage = () => {
     const { user, openAuthModal } = useCustomerAuth();
     const { selectedCurrency, convertPrice, formatPrice } = useCurrency();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // If the user lands here after login with ?book=true, open the modal automatically
+    useEffect(() => {
+        if (user && searchParams.get('book') === 'true') {
+            setIsBookingModalOpen(true);
+            // Clean the query param from the URL without re-navigating
+            const clean = window.location.pathname;
+            window.history.replaceState(null, '', clean);
+        }
+    }, [user, searchParams]);
+
+    // Guard: redirect to login if not authenticated, then come back with modal open
+    const handleOpenBooking = () => {
+        if (!user) {
+            const callback = encodeURIComponent(`/packages/${id}?book=true`);
+            router.push(`/login?callback=${callback}`);
+            return;
+        }
+        setIsBookingModalOpen(true);
+    };
 
     useEffect(() => {
         if (!id) return;
         const fetchPackageDetail = async () => {
             try {
-                const response = await fetch(`https://magic-apis.staff-b0c.workers.dev/packages/frontend/detail/${id}`);
+                const response = await fetch(`https://api.magictours.qa/packages/frontend/detail/${id}`);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const data = await response.json();
                 setPkg(data.package_details || data);
@@ -199,16 +439,16 @@ const PackageDetailsPage = () => {
 
     const totalPrice = useMemo(() => {
         if (!pkg) return 0;
-        const p = pkg.pricing && pkg.pricing.length > 0 ? pkg.pricing[0] : null;
+        const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
         if (!p) return (pkg.price || 0) * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.childBed + counts.childNoBed);
 
         return (
-            (counts.adultDouble * (p.price_adult_double || pkg.price)) +
-            (counts.adultSingle * (p.price_adult_single || pkg.price)) +
-            (counts.adultTriple * (p.price_adult_triple || pkg.price)) +
-            (counts.childBed * (p.price_child_with_bed || 0)) +
-            (counts.childNoBed * (p.price_child_no_bed || 0)) +
-            (counts.infant * (p.price_infant || 0))
+            (counts.adultDouble * (p.adult_double    ?? pkg.price ?? 0)) +
+            (counts.adultSingle * (p.adult_single    ?? pkg.price ?? 0)) +
+            (counts.adultTriple * (p.adult_triple    ?? pkg.price ?? 0)) +
+            (counts.childBed    * (p.child_with_bed  ?? 0)) +
+            (counts.childNoBed  * (p.child_no_bed    ?? 0)) +
+            (counts.infant      * (p.infant           ?? 0))
         );
     }, [pkg, counts]);
 
@@ -342,21 +582,23 @@ const PackageDetailsPage = () => {
                             alt=""
                             className="absolute -top-14 -right-14 md:-top-16 md:-right-20 w-16 md:w-24 lg:w-32 opacity-90 pointer-events-none"
                         />
-                        {/* Collab frame with airline logo */}
-                        <div className="absolute -top-6 md:-top-8 left-[calc(100%+2rem)] md:left-[calc(100%+3rem)] w-20 md:w-24 lg:w-28 pointer-events-none">
-                            <img
-                                src={collabFrame.src || collabFrame}
-                                alt="In Collaboration"
-                                className="w-full h-auto"
-                            />
-                            {pkg.airline_logo && (
+                        {/* Collab frame with airline logo — only shown when airline data exists */}
+                        {(pkg.airline_name || pkg.airline_logo) && (
+                            <div className="absolute -top-6 md:-top-8 left-[calc(100%+2rem)] md:left-[calc(100%+3rem)] w-20 md:w-24 lg:w-28 pointer-events-none">
                                 <img
-                                    src={pkg.airline_logo}
-                                    alt={pkg.airline_name || 'Airline'}
-                                    className="absolute bottom-[18%] left-1/2 -translate-x-1/2 w-3 h-3 md:w-4 md:h-4 object-contain"
+                                    src={collabFrame.src || collabFrame}
+                                    alt="In Collaboration"
+                                    className="w-full h-auto"
                                 />
-                            )}
-                        </div>
+                                {pkg.airline_logo && (
+                                    <img
+                                        src={pkg.airline_logo}
+                                        alt={pkg.airline_name || 'Airline'}
+                                        className="absolute bottom-[18%] left-1/2 -translate-x-1/2 w-3 h-3 md:w-4 md:h-4 object-contain"
+                                    />
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Breadcrumbs — below title */}
@@ -393,6 +635,20 @@ const PackageDetailsPage = () => {
                         {relatedImages.length > 0 && (
                             <div className="space-y-3">
                                 <h4 className="text-[#113A74] font-bold font-heading text-sm text-center">Related Images</h4>
+
+                                {/* Description — animates with the active slide */}
+                                {relatedImages[currentImageIndex]?.description && (
+                                    <motion.p
+                                        key={currentImageIndex}
+                                        initial={{ opacity: 0, y: 4 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.4 }}
+                                        className="text-gray-500 text-xs text-center leading-relaxed px-2 line-clamp-3"
+                                    >
+                                        {relatedImages[currentImageIndex].description}
+                                    </motion.p>
+                                )}
+
                                 <div className="relative overflow-hidden h-[160px]">
                                     {mounted && (
                                         <div className="flex gap-2 h-full">
@@ -430,44 +686,6 @@ const PackageDetailsPage = () => {
                             </div>
                         )}
 
-                        {/* Airline & Operated By card */}
-                        {(pkg.airline_name || pkg.operated_by_name) && (
-                            <div
-                                className="rounded-2xl overflow-hidden relative"
-                                style={{
-                                    backgroundImage: `url(${airlineBg.src || airlineBg})`,
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                    backgroundColor: '#0d2d5e',
-                                    minHeight: '130px'
-                                }}
-                            >
-                                {/* Overlay dynamic content on top of background image */}
-                                <div className="absolute inset-0 flex items-start pt-[18px] px-4 gap-3">
-                                    {/* Logo — sits over the white circle in the bg image */}
-                                    <div className="w-[46px] h-[46px] rounded-full bg-white flex items-center justify-center shrink-0 shadow overflow-hidden">
-                                        {pkg.airline_logo ? (
-                                            <img
-                                                src={pkg.airline_logo}
-                                                alt={pkg.airline_name || 'Airline'}
-                                                className="w-[36px] h-[36px] object-contain"
-                                            />
-                                        ) : (
-                                            <Plane size={20} className="text-[#0d2d5e]" />
-                                        )}
-                                    </div>
-                                    {/* Text — overlaid on top of the baked-in label area */}
-                                    <div className="pt-1 min-w-0">
-                                        <p className="text-white font-bold text-[15px] leading-tight truncate">
-                                            Airline : <span>{pkg.airline_name || '—'}</span>
-                                        </p>
-                                        <p className="text-white/80 text-[13px] mt-[3px] truncate">
-                                            Operated by : <span>{pkg.operated_by_name || '—'}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {/* ── CENTER MAIN CONTENT ── */}
@@ -544,10 +762,16 @@ const PackageDetailsPage = () => {
                                 </div>
                             )}
                             {pkg.operated_by_name && (
-                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600">
+                                <div className={`flex items-start gap-2 px-4 py-1 text-sm text-gray-600 ${pkg.phone ? 'border-r border-gray-200' : ''}`}>
                                     <img src={headIcon.src || headIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">{pkg.operated_by_name}</span>
                                 </div>
+                            )}
+                            {pkg.phone && (
+                                <a href={`tel:${pkg.phone}`} className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600 hover:text-[#113A74] transition-colors">
+                                    <Phone size={15} className="shrink-0 mt-0.5 text-[#113A74]" />
+                                    <span className="font-medium font-montserrat leading-snug">{pkg.phone}</span>
+                                </a>
                             )}
                         </div>
 
@@ -931,12 +1155,12 @@ const PackageDetailsPage = () => {
                                     </h3>
                                 </div>
                                 <div className="rounded-2xl border border-gray-100 bg-white px-8 py-7 shadow-sm">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-3">
                                         {pkg.blackout_dates.map((range, index) => (
                                             <div key={range.id || index} className="flex items-center gap-3 text-sm sm:text-base text-[#4B5872] font-medium">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-[#FFA500] shrink-0" />
+                                                <span className="w-2 h-2 rounded-full bg-[#FFA500] shrink-0" />
                                                 <span>
-                                                    {formatPackageDate(range.start_date)} - {formatPackageDate(range.end_date)}
+                                                    {formatPackageDate(range.from || range.start_date)} - {formatPackageDate(range.to || range.end_date)}
                                                 </span>
                                             </div>
                                         ))}
@@ -1060,27 +1284,64 @@ const PackageDetailsPage = () => {
 
                     {/* ── RIGHT SIDEBAR ── */}
                     <div className="lg:w-[270px] xl:w-[300px] shrink-0 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-4">
+
+                        {/* Airline & Operated By */}
+                        {(pkg.airline_name || pkg.operated_by_name) && (
+                            <div
+                                className="rounded-2xl overflow-hidden relative mb-4"
+                                style={{
+                                    backgroundImage: `url(${airlineBg.src || airlineBg})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundColor: '#0d2d5e',
+                                    minHeight: '130px'
+                                }}
+                            >
+                                <div className="absolute inset-0 flex items-start pt-[18px] px-4 gap-3">
+                                    {/* Logo circle */}
+                                    <div className="w-[46px] h-[46px] rounded-full bg-white flex items-center justify-center shrink-0 shadow overflow-hidden">
+                                        {pkg.airline_logo ? (
+                                            <img src={pkg.airline_logo} alt={pkg.airline_name || 'Airline'} className="w-[36px] h-[36px] object-contain" />
+                                        ) : (
+                                            <Plane size={20} className="text-[#0d2d5e]" />
+                                        )}
+                                    </div>
+                                    <div className="pt-1 min-w-0">
+                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Airline</p>
+                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.airline_name || '—'}</p>
+                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider mt-2">Operated by</p>
+                                        <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.operated_by_name || '—'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="bg-[#113A74] rounded-[1.5rem] p-5 space-y-5 shadow-xl">
                             <h4 className="text-white font-bold text-base font-heading tracking-wide">Package Cost</h4>
                             <div className="space-y-3 border-t border-white/10 pt-4">
                                 {(() => {
-                                    const p = pkg.pricing && pkg.pricing.length > 0 ? pkg.pricing[0] : null;
+                                    const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
                                     if (!p) return <p className="text-white/50 text-xs italic">No pricing available</p>;
                                     const rows = [
-                                        { label: 'Single Traveler', value: p.price_adult_single },
-                                        { label: 'Twin Sharing',    value: p.price_adult_double },
-                                        { label: 'Triple Sharing',  value: p.price_adult_triple },
-                                    ].filter(r => r.value);
+                                        { label: 'Single Traveler', value: p.adult_single    },
+                                        { label: 'Twin Sharing',    value: p.adult_double    },
+                                        { label: 'Triple Sharing',  value: p.adult_triple    },
+                                        { label: 'Quad Sharing',    value: p.adult_quad      },
+                                        { label: 'Child With Bed',  value: p.child_with_bed  },
+                                        { label: 'Child No Bed',    value: p.child_no_bed    },
+                                        { label: 'Infant',          value: p.infant          },
+                                    ].filter(r => r.value != null && r.value !== 0);
+                                    if (!rows.length) return <p className="text-white/50 text-xs italic">No pricing available</p>;
                                     return rows.map(row => (
                                         <div key={row.label} className="flex items-center justify-between gap-2">
                                             <span className="text-white/70 text-xs font-medium">{row.label}</span>
-                                            <span className="text-[#FFA500] font-black text-xs">{formatPrice(row.value)}</span>
+                                            <span className="text-white font-bold text-xs">{formatPrice(row.value)}</span>
                                         </div>
                                     ));
                                 })()}
                             </div>
                             <button
-                                onClick={() => setIsBookingModalOpen(true)}
+                                onClick={handleOpenBooking}
                                 className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-2.5 flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg text-xs"
                             >
                                 Enquiry <ArrowRight size={13} />
@@ -1117,7 +1378,7 @@ const PackageDetailsPage = () => {
                                 className="w-full bg-white text-gray-800 placeholder-black/60 text-sm rounded-full px-4 py-3 outline-none border border-white/20 focus:border-[#FFA500] transition-colors"
                             />
                             <button
-                                onClick={() => setIsBookingModalOpen(true)}
+                                onClick={handleOpenBooking}
                                 className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-3 flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg text-sm"
                             >
                                 Book Now <ArrowRight size={16} />
@@ -1141,10 +1402,8 @@ const PackageDetailsPage = () => {
                                     ))}
                                 </div>
                             </div>
-                            <a
-                                href={`/packages/${pkg.slug || pkg.id}?pdf=1`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                onClick={downloadPDF}
                                 className="mt-5 flex items-center justify-between w-full border border-gray-200 rounded-full px-4 py-2.5 text-sm font-medium text-gray-600 hover:border-[#113A74] hover:text-[#113A74] transition-colors bg-white"
                             >
                                 <span>Download PDF</span>
@@ -1153,7 +1412,7 @@ const PackageDetailsPage = () => {
                                         <path d="M12 5v14M5 12l7 7 7-7"/>
                                     </svg>
                                 </span>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>{/* end flex row */}

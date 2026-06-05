@@ -54,33 +54,56 @@ export async function generateMetadata() {
 
 export default async function RootLayout({ children }) {
     const settings = await getPublicSettings();
-    const gtmId = settings.gtm_id;
     const jotformSnippet = settings.jotform_chatbot_snippet;
+
+    // The backend may send the schema wrapped in a <script type="application/ld+json"> tag.
+    // Strip the wrapper so we can inject just the JSON-LD into a real <script> element.
+    const schemaJsonLd = settings.schema
+        ? settings.schema.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim()
+        : '';
+
+    // GTM / Google Analytics snippets come from settings as full HTML
+    // (<script>/<noscript>/<iframe>). We parse them into real elements so the
+    // scripts actually execute (innerHTML-injected scripts do not run).
+    //
+    // GTM head loader: keep only the inline JS, drop the <script> wrapper.
+    const tagManagerHead = (settings.tag_manager_head || '')
+        .replace(/<\/?script[^>]*>/gi, '')
+        .trim();
+
+    // GTM body: <noscript><iframe>...; pull out the iframe src for a real <noscript>.
+    const tagManagerBodySrc = (settings.tag_manager_body || '').match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i)?.[1] || '';
+
+    // Google Analytics: an external gtag loader (src) + an inline config block.
+    const gaSrc = (settings.google_analytics || '').match(/<script[^>]*\ssrc=["']([^"']+)["']/i)?.[1] || '';
+    const gaInline = (settings.google_analytics || '')
+        .match(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/i)?.[1]?.trim() || '';
 
     return (
         <html lang="en" className={`${inter.variable} ${philosopher.variable} ${elMessiri.variable} ${plusJakartaSans.variable} ${figtree.variable} ${montserrat.variable}`}>
             <head>
-                {gtmId && (
-                    <Script
-                        id="gtm-script"
-                        strategy="afterInteractive"
-                        dangerouslySetInnerHTML={{
-                            __html: `
-                                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                                })(window,document,'script','dataLayer','${gtmId}');
-                            `,
-                        }}
+                <meta name="google-site-verification" content="WdB3WvxRcP0G0oWm0JoHQcoSz3FlNxG-2OahImYmJgM" />
+                {schemaJsonLd && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: schemaJsonLd }}
                     />
+                )}
+                {tagManagerHead && (
+                    <script dangerouslySetInnerHTML={{ __html: tagManagerHead }} />
+                )}
+                {gaSrc && (
+                    <script async src={gaSrc} />
+                )}
+                {gaInline && (
+                    <script dangerouslySetInnerHTML={{ __html: gaInline }} />
                 )}
             </head>
             <body suppressHydrationWarning className="font-sans text-slate-900 antialiased min-h-screen flex flex-col">
-                {gtmId && (
+                {tagManagerBodySrc && (
                     <noscript>
                         <iframe
-                            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+                            src={tagManagerBodySrc}
                             height="0"
                             width="0"
                             style={{ display: 'none', visibility: 'hidden' }}

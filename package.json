@@ -38,6 +38,6 @@
     "globals": "^17.4.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "wrangler": "^3.111.0"
+    "wrangler": "^4.86.0"
   }
 }

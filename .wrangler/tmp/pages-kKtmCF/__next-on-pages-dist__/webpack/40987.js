@@ -1,1 +1,0 @@
-var s={},c=(o,n,_)=>(s.__chunk_40987=(m,a,e)=>{"use strict";e.d(a,{A:()=>l});var t=e(40646);e(38286);let l=({className:r="",...d})=>(0,t.jsx)("div",{className:`bg-gray-200 animate-pulse rounded-md ${r}`,...d})},s);export{c as __getNamedExports};

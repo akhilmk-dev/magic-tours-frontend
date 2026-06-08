@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Star, Calendar, MapPin } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Star, Calendar, MapPin, Plane, Utensils, Hotel } from 'lucide-react';
 import FavoriteButton from '../common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
 
@@ -85,7 +85,10 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         currency: p.currency || 'AED',
         description: p.description || "",
         image: p.image || "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800&auto=format&fit=crop",
-        slug: p.slug
+        slug: p.slug,
+        hasFlights: !!(p.flights_included || p.has_flight),
+        hasMeals: !!(p.has_food),
+        hasHotel: !!(p.hotels_included || p.has_hotel)
     }));
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -249,11 +252,33 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-[#16243D] font-semibold text-[13px]">
-                                                                {loc.trim()}{i < arr.length - 1 && <span className="text-gray-400 mx-1">|</span>}
+                                                            <span key={i} className="text-gray-400 font-semibold text-[13px]">
+                                                                {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
                                                     </div>
+                                                    {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
+                                                        <div className="flex items-center gap-3 flex-wrap pt-1 border-t border-gray-200 mt-1">
+                                                            {pkg.hasFlights && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Plane size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Flight</span>
+                                                                </div>
+                                                            )}
+                                                            {pkg.hasMeals && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Utensils size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Meals</span>
+                                                                </div>
+                                                            )}
+                                                            {pkg.hasHotel && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Hotel size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Hotel</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                     <div>
                                                         <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">
                                                             {pkg.type}
@@ -334,11 +359,33 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-[#16243D] font-semibold text-[13px]">
-                                                                {loc.trim()}{i < arr.length - 1 && <span className="text-gray-400 mx-1">|</span>}
+                                                            <span key={i} className="text-gray-400 font-semibold text-[13px]">
+                                                                {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
                                                     </div>
+                                                    {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
+                                                        <div className="flex items-center gap-3 flex-wrap pt-1 border-t border-gray-200 mt-1">
+                                                            {pkg.hasFlights && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Plane size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Flight</span>
+                                                                </div>
+                                                            )}
+                                                            {pkg.hasMeals && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Utensils size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Meals</span>
+                                                                </div>
+                                                            )}
+                                                            {pkg.hasHotel && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Hotel size={14} className="text-[#1A73E8] flex-shrink-0" />
+                                                                    <span className="text-[11px] text-[#16243D] font-semibold">Hotel</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                     <div>
                                                         <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">
                                                             {pkg.type}

@@ -154,10 +154,10 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     initial={false}
                                     animate={{
                                         x: xPos,
-                                        scale: isActive ? 1.04 : 0.97,
+                                        scale: 1,
                                         zIndex: isHovered ? 30 : (isActive ? 20 : 10),
                                         opacity: isVisible ? 1 : 0,
-                                        height: isActive ? 640 : 560,
+                                        height: 560,
                                         pointerEvents: (isVisible && mounted) ? "auto" : "none"
                                     }}
                                     transition={{
@@ -177,7 +177,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     }}
                                 >
                                     {/* Image Section - 40% of card height */}
-                                    <div className="relative flex-shrink-0 w-full" style={{ height: isActive ? '256px' : '224px' }}>
+                                    <div className="relative flex-shrink-0 w-full" style={{ height: '224px' }}>
                                         <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover" />
                                         {/* Duration badge */}
                                         <div className="absolute top-4 left-0 bg-brand-magic text-white py-2 px-4 rounded-r-2xl flex items-center gap-2">
@@ -230,42 +230,45 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 </div>
                                             </div>
  
-                                            {/* Hover white detail panel — compact to fit left/right card height */}
+                                            {/* Hover white detail panel — slides up on hover */}
                                             <div
-                                                className="absolute -top-8 bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] px-4 pt-5 pb-3 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+                                                className="absolute -top-8 bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] p-6 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
                                                 style={{
                                                     transform: isHovered ? 'translateY(0%)' : 'translateY(100%)',
                                                     opacity: isHovered ? 1 : 0,
                                                     transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
                                                 }}
                                             >
-                                                <h3 title={pkg.title} className="text-[17px] font-bold text-[#16243D] mb-1 line-clamp-1 shrink-0">{pkg.title}</h3>
- 
-                                                <p title={pkg.description} className="text-[11px] text-[#6B7280] leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
- 
-                                                <div className="bg-[#F7F8FC] rounded-[1rem] px-3 py-2 mb-2 space-y-1.5">
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar size={13} className="text-[#1A73E8] flex-shrink-0" />
-                                                        <span className="text-[#16243D] font-semibold text-[11px]">{pkg.duration}</span>
+                                                <h3 title={pkg.title} className="text-[22px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
+
+                                                <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <Star size={16} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
+                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
-                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    <div className="flex flex-wrap gap-y-0.5">
+                                                        {pkg.location.split(',').map((loc, i, arr) => (
+                                                            <span key={i} className="text-[#16243D] font-semibold text-[13px]">
+                                                                {loc.trim()}{i < arr.length - 1 && <span className="text-gray-400 mx-1">|</span>}
+                                                            </span>
+                                                        ))}
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <MapPin size={13} className="text-[#1A73E8] flex-shrink-0" />
-                                                        <span title={pkg.location} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">{pkg.location}</span>
+                                                    <div>
+                                                        <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">
+                                                            {pkg.type}
+                                                        </span>
                                                     </div>
                                                 </div>
- 
-                                                <div className="mt-auto flex items-center justify-between">
+
+                                                <div className="mt-auto flex items-end justify-between">
                                                     <div>
-                                                        <span className="text-[#FFA500] text-[18px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
-                                                        <span className="block text-[9px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
+                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="block text-[10px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
                                                     </div>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                        className="px-4 py-2 rounded-full bg-[#113A74] text-white font-bold text-[11px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                        className="px-6 py-3 rounded-full bg-[#113A74] text-white font-bold text-[13px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
                                                         Book Now
                                                     </button>
@@ -326,16 +329,15 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
  
                                                 <div className="bg-[#F7F8FC] rounded-[1.5rem] p-4 mb-5 space-y-3">
                                                     <div className="flex items-center gap-3">
-                                                        <Calendar size={16} className="text-[#1A73E8] flex-shrink-0" />
-                                                        <span className="text-[#16243D] font-semibold text-[13px]">{pkg.duration}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
                                                         <Star size={16} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
                                                         <span title={pkg.type} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <MapPin size={16} className="text-[#1A73E8] flex-shrink-0" />
-                                                        <span title={pkg.location} className="text-[#16243D] font-semibold text-[13px] line-clamp-1">{pkg.location}</span>
+                                                    <div className="flex flex-wrap gap-y-0.5">
+                                                        {pkg.location.split(',').map((loc, i, arr) => (
+                                                            <span key={i} className="text-[#16243D] font-semibold text-[13px]">
+                                                                {loc.trim()}{i < arr.length - 1 && <span className="text-gray-400 mx-1">|</span>}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                     <div>
                                                         <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider line-clamp-1">

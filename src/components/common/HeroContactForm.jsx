@@ -274,7 +274,7 @@ const HeroContactForm = ({ minimal = false }) => {
                     disabled={submitting}
                     className="w-full py-4 mt-4 rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
                     style={{
-                        background: 'linear-gradient(90deg, #FDB338 0%, #022C54 100%)'
+                        background: '#113A74'
                     }}
                 >
                     {submitting ? (

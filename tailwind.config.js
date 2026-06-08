@@ -8,6 +8,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        // Targets small-height laptops (e.g. 768px / 800px tall screens)
+        short: { raw: '(max-height: 800px)' },
+      },
       colors: {
         primary: {
           DEFAULT: '#1a56db', // Valid blue from design button

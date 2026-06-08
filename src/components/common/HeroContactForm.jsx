@@ -99,11 +99,13 @@ const HeroContactForm = ({ minimal = false }) => {
             : minimal ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.3)',
         color: 'white',
         width: '100%',
-        padding: '10px 25px 10px 0',
+        paddingRight: '25px',
         outline: 'none',
         borderRadius: '0',
         fontSize: '13px'
     });
+
+    const inputPadClass = 'py-[10px] short:py-[6px]';
 
     const labelStyle = {
         fontSize: '11px',
@@ -125,7 +127,7 @@ const HeroContactForm = ({ minimal = false }) => {
             initial={minimal ? { opacity: 0, y: 20 } : { opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.8, delay: minimal ? 0 : 0.2 }}
-            className={`relative z-20 overflow-hidden ${minimal ? 'w-full p-0 bg-transparent' : 'w-full lg:w-[400px] p-6 sm:p-[30px] rounded-[30px] sm:rounded-[35px] bg-white/15 backdrop-blur-[30px] border-2 border-white/50'}`}
+            className={`relative z-20 overflow-hidden ${minimal ? 'w-full p-0 bg-transparent' : 'w-full lg:w-[400px] p-6 sm:p-[30px] short:p-5 rounded-[30px] sm:rounded-[35px] bg-white/15 backdrop-blur-[30px] border-2 border-white/50'}`}
             style={minimal ? {} : {
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
                 WebkitBackdropFilter: 'blur(30px)'
@@ -133,16 +135,16 @@ const HeroContactForm = ({ minimal = false }) => {
         >
             {!minimal && (
                 <>
-                    <div className="mb-4">
-                        <h2 className="text-white text-[28px] leading-tight font-heading">
+                    <div className="mb-4 short:mb-2">
+                        <h2 className="text-white text-[28px] short:text-[22px] leading-tight font-heading">
                             Plan Your Journey
                         </h2>
-                        <p className="text-white/90 text-sm mt-1">
+                        <p className="text-white/90 text-sm mt-1 short:hidden">
                             Tell us your preferences. We'll craft your perfect trip.
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-0 mb-4">
+                    <div className="flex items-center gap-0 mb-4 short:mb-2">
                         <div className="flex-1 h-[1px] bg-white/20"></div>
                         <div className="text-[#FDB338] px-4">✦</div>
                         <div className="flex-1 h-[1px] bg-white/20"></div>
@@ -150,7 +152,7 @@ const HeroContactForm = ({ minimal = false }) => {
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-4 short:space-y-2" noValidate>
                 <div className="flex gap-4">
                     <div className="flex-1">
                         <label style={labelStyle}>FULL NAME</label>
@@ -161,7 +163,7 @@ const HeroContactForm = ({ minimal = false }) => {
                             value={formData.name}
                             onChange={handleChange}
                             style={getInputStyle('name')}
-                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
                         />
                         <ErrorMsg field="name" />
                     </div>
@@ -174,7 +176,7 @@ const HeroContactForm = ({ minimal = false }) => {
                             value={formData.phone}
                             onChange={handleChange}
                             style={getInputStyle('phone')}
-                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
                         />
                         <ErrorMsg field="phone" />
                     </div>
@@ -190,7 +192,7 @@ const HeroContactForm = ({ minimal = false }) => {
                             value={formData.email}
                             onChange={handleChange}
                             style={getInputStyle('email')}
-                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
                         />
                         <ErrorMsg field="email" />
                     </div>
@@ -206,7 +208,7 @@ const HeroContactForm = ({ minimal = false }) => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
                                 }}
-                                className="transition-colors text-white"
+                                className={`${inputPadClass} transition-colors text-white`}
                             >
                                 <span className={`whitespace-nowrap overflow-hidden text-ellipsis mr-2 ${formData.destination ? 'text-white' : (minimal ? 'text-white/30' : 'text-white/40')}`}>
                                     {formData.destination || "Where to go?"}
@@ -245,7 +247,7 @@ const HeroContactForm = ({ minimal = false }) => {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 short:gap-1">
                     <label style={labelStyle}>MESSAGE</label>
                     <textarea
                         name="message"
@@ -260,11 +262,10 @@ const HeroContactForm = ({ minimal = false }) => {
                             borderRadius: '15px',
                             padding: '15px',
                             color: 'white',
-                            height: '110px',
                             outline: 'none',
                             resize: 'none'
                         }}
-                        className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
+                        className={`h-[110px] short:h-[64px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
                     />
                     <ErrorMsg field="message" />
                 </div>
@@ -272,9 +273,9 @@ const HeroContactForm = ({ minimal = false }) => {
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-4 mt-4 rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+                    className="w-full py-4 mt-4 short:py-2.5 short:mt-2 short:text-base rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
                     style={{
-                        background: '#113A74'
+                        background: '#022c54'
                     }}
                 >
                     {submitting ? (

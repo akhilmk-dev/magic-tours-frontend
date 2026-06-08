@@ -5,7 +5,6 @@ import { Plane, Check, ArrowRight, Luggage, UserRound } from 'lucide-react';
 import image01 from '../../assets/link_image_01.png';
 import image02 from '../../assets/link_image_02.png';
 import image03 from '../../assets/link_image_03.png';
-import discountImg from '../../assets/discount.png.png';
 import towerImg from '../../assets/Image.png';
 import Trophy from '../../assets/Trophy.png';
 
@@ -79,15 +78,6 @@ export default function About({ content, loading }) {
                                     src={image1}
                                     alt="Traveling Couple"
                                     className="w-full aspect-[1/1.15] object-cover"
-                                />
-                            </div>
-
-                            {/* 2. Discount Badge (Link → discount.png.png) - Overlaps face */}
-                            <div className="absolute top-[20%] md:top-[22%] right-[-5%] md:right-[2%] lg:right-[5%] z-30 w-28 md:w-36 lg:w-48 pointer-events-none">
-                                <img
-                                    src={discountImg.src || discountImg}
-                                    alt="50% Discount"
-                                    className="w-full h-auto drop-shadow-2xl"
                                 />
                             </div>
 

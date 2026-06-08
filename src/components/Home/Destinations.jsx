@@ -35,13 +35,13 @@ const tripCategories = [
 ];
 
 export default function Destinations({ content, loading }) {
-    const subtitle    = content?.subtitle    || "Trips List";
-    const line1       = content?.line1       || "Explore the Trips";
-    const highlight   = content?.highlight   || "Places";
-    const line2       = content?.line2;
+    const subtitle = content?.subtitle || "Trips List";
+    const line1 = content?.line1 || "Explore the Trips";
+    const highlight = content?.highlight || "Places";
+    const line2 = content?.line2;
     const description = content?.description || "Discover curated travel experiences and breathtaking destinations across the globe. From luxury cruises to private jet charters, we make your dream journey a reality.";
-    const buttonText  = content?.button_text || "Discover More Destinations";
-    const buttonLink  = content?.button_link || "/destinations";
+    const buttonText = content?.button_text || "Discover More Destinations";
+    const buttonLink = content?.button_link || "/destinations";
 
     /* ── skeleton ── */
     if (loading) {
@@ -82,7 +82,7 @@ export default function Destinations({ content, loading }) {
 
                     {/* ── Left: text ── */}
                     <div className="xl:w-[420px] xl:shrink-0 text-left pr-4 xl:pr-0">
-                        <div className="inline-flex items-center gap-3 bg-[#F2F5FF] px-6 py-3 rounded-full mb-5 shadow-sm">
+                        <div className="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full mb-5">
                             <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
                             </svg>
@@ -109,7 +109,6 @@ export default function Destinations({ content, loading }) {
                         </Link>
                     </div>
 
-                    {/* ── Right: cards scroll to viewport right edge ── */}
                     <div className="flex-1 min-w-0 overflow-hidden">
                         <style>{`
                             @keyframes destinations-scroll {
@@ -117,7 +116,7 @@ export default function Destinations({ content, loading }) {
                                 100% { transform: translateX(-50%); }
                             }
                             .destinations-track {
-                                animation: destinations-scroll 14s linear infinite;
+                                animation: destinations-scroll 30s linear infinite;
                                 will-change: transform;
                             }
                             .destinations-track:hover {
@@ -139,8 +138,8 @@ export default function Destinations({ content, loading }) {
                                       image AND the text section with the same colour on hover.
                                     */}
                                     <div
-                                        className="bg-white group-hover:bg-brand-magic flex flex-col transition-colors duration-500 rounded-t-[2.2rem] rounded-bl-[2.2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.09)]"
-                                        style={{ width: '248.37px', height: '348.82px' }}
+                                        className="bg-white group-hover:bg-brand-magic flex flex-col transition-colors duration-500 rounded-t-[2.2rem] rounded-bl-[2.2rem] overflow-hidden"
+                                        style={{ width: '210px', height: '295px' }}
                                     >
                                         {/* Image — fully rounded (top 2.2rem, bottom 1.8rem) */}
                                         <div

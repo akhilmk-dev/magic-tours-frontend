@@ -17,8 +17,8 @@ export default function FloatingButtons() {
         api.get('/settings/public')
             .then(res => {
                 const d = res?.data || res;
-                setWhatsapp(d?.whatsapp_number  || '');
-                setMobile(d?.company_mobile_no  || '');
+                setWhatsapp(d?.whatsapp_number || d?.footer_emergency_contact || d?.footer_phone || '');
+                setMobile(d?.company_mobile_no || d?.footer_phone || '');
             })
             .catch(() => {});
     }, []);

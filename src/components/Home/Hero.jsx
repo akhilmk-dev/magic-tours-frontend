@@ -158,10 +158,10 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-44 sm:pt-40 lg:pt-48 pb-32 sm:pb-48 lg:pb-32 min-h-full flex flex-col justify-center max-w-screen-2xl mx-auto">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 sm:gap-12 lg:gap-24">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[80px] sm:pt-[88px] lg:pt-[96px] pb-8 sm:pb-10 lg:pb-8 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8 lg:gap-16">
                     {/* Left Content */}
-                    <div className="flex-1 lg:max-w-2xl xl:max-w-3xl text-center lg:text-left">
+                    <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -170,24 +170,24 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 exit={{ opacity: 0, x: 30 }}
                                 transition={{ duration: 0.8 }}
                             >
-                                <span className="text-[#FDB338] font-bold tracking-[0.25em] uppercase text-[10px] sm:text-xs md:text-sm mb-4 block">
+                                <span className="text-[#FDB338] font-bold tracking-[0.25em] uppercase text-[10px] sm:text-xs mb-4 block">
                                     {slides[currentSlide].location}
                                 </span>
-                                <h1 className="text-[32px] sm:text-5xl md:text-6xl xl:text-[80px] font-bold text-white leading-[1.05] mb-6 tracking-tight">
-                                    {slides[currentSlide].title} <br />
-                                    <span className="text-[#FDB338] font-medium">
+                                <h1 className="text-[26px] sm:text-4xl md:text-[44px] xl:text-[52px] font-bold text-white leading-[1.05] mb-5 tracking-tight">
+                                    {slides[currentSlide].title}
+                                    <span className="text-[#FDB338] font-medium block mt-3">
                                         {slides[currentSlide].subtitle}
                                     </span>
                                 </h1>
 
-                                <p className="text-white/80 text-sm sm:text-lg md:text-xl mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                                <p className="text-white/80 text-sm sm:text-base md:text-base mb-7 max-w-sm mx-auto lg:mx-0 leading-relaxed font-medium">
                                     {slides[currentSlide].description}
                                 </p>
                             </motion.div>
                         </AnimatePresence>
 
                         {/* Search + Explore Packages */}
-                        <div className="flex justify-center lg:justify-start mt-8 sm:mt-12">
+                        <div className="flex justify-center lg:justify-start mt-4 sm:mt-5">
                             <div
                                 onMouseEnter={() => setIsAutoPlaying(false)}
                                 onMouseLeave={() => setIsAutoPlaying(true)}
@@ -206,7 +206,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 </div>
                                 <Link
                                     href={searchTerm.trim() ? `/tours?search=${encodeURIComponent(searchTerm)}` : "/tours"}
-                                    className="bg-[#022C54] text-white font-heading font-bold h-10 md:h-14 px-4 md:px-8 rounded-full flex items-center justify-center gap-2 md:gap-3 transition-all group shadow-lg active:scale-95 whitespace-nowrap shrink-0"
+                                    className="bg-[#022C54] text-white font-heading font-bold h-10 md:h-11 px-4 md:px-7 rounded-full flex items-center justify-center gap-2 md:gap-3 transition-all group shadow-lg active:scale-95 whitespace-nowrap shrink-0"
                                 >
                                     <span className="text-[10px] md:text-[14px] tracking-wider uppercase font-extrabold">
                                         {slides[currentSlide].button_text || "Explore Packages"}

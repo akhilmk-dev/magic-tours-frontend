@@ -155,7 +155,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                     </div>
 
                     {/* Right Side - Mini Slider */}
-                    <div className="w-full sm:w-[340px] md:w-[380px] lg:w-[360px] xl:w-[400px] shrink-0 self-start">
+                    <div className="w-full sm:w-[340px] md:w-[380px] lg:w-[360px] xl:w-[400px] shrink-0 self-start lg:mt-24 mt-12">
                         <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl relative">
                             {/* Slider Image */}
                             <div className="relative aspect-[4/3] overflow-hidden">
@@ -178,29 +178,26 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                                 </div>
 
                                 {/* Bottom overlay with title */}
-                                <div className="absolute bottom-4 left-4 right-4 z-10">
-                                    <div className="bg-black/30 backdrop-blur-xl rounded-2xl px-5 py-4 sm:px-6 sm:py-5">
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={slides[currentSlide].id}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ duration: 0.4 }}
-                                            >
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                                        <svg className="text-brand-magic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
-                                                        </svg>
-                                                    </div>
-                                                    <h3 className="text-white text-lg sm:text-xl font-bold">
-                                                        {slides[currentSlide].title}
-                                                    </h3>
-                                                </div>
-                                            </motion.div>
-                                        </AnimatePresence>
-                                    </div>
+                                <div className="absolute bottom-4 left-4 z-10">
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={slides[currentSlide].id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.4 }}
+                                            className="bg-[#c2bcbb]/80 backdrop-blur-md py-2.5 pr-6 pl-2.5 rounded-2xl flex items-center gap-3 shadow-md"
+                                        >
+                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <svg className="text-[#113A74]" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-white text-[16px] sm:text-[18px] font-serif font-medium leading-none">
+                                                {slides[currentSlide].title ? slides[currentSlide].title.split(' ')[0] : ''}
+                                            </h3>
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         </div>

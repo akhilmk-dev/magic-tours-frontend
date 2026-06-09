@@ -128,7 +128,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                                     <MapPin size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Safe Traveling</h4>
+                                    <h4 className="text-[#113A74] font-bold text-sm sm:text-[15px] mb-1">Safe Traveling</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Your safety is our top priority. We partner with only the most reputable operators who adhere to the highest international safety standards.
                                     </p>
@@ -139,7 +139,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                                     <Shield size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[#FDB338] font-bold text-sm sm:text-[15px] mb-1">Comfort Accommodation</h4>
+                                    <h4 className="text-[#113A74] font-bold text-sm sm:text-[15px] mb-1">Comfort Accommodation</h4>
                                     <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-sm">
                                         Enjoy unparalleled comfort in our meticulously designed cabins. From gourmet catering to state-of-the-art entertainment, every detail is crafted for your premium flight experience.
                                     </p>
@@ -155,7 +155,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                     </div>
 
                     {/* Right Side - Mini Slider */}
-                    <div className="w-full sm:w-[340px] md:w-[380px] lg:w-[360px] xl:w-[400px] shrink-0 self-start lg:mt-24 mt-12">
+                    <div className="w-full sm:w-[340px] md:w-[380px] lg:w-[360px] xl:w-[400px] shrink-0 self-start lg:mt-28 mt-10">
                         <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl relative">
                             {/* Slider Image */}
                             <div className="relative aspect-[4/3] overflow-hidden">
@@ -224,7 +224,7 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                 <img
                     src={airplaneBg.src || airplaneBg}
                     alt="Private Jet"
-                    className="w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] xl:h-[750px] object-cover object-bottom"
+                    className="w-full h-[320px] sm:h-[410px] md:h-[500px] lg:h-[600px] xl:h-[690px] object-cover object-bottom"
                 />
                 {/* Gradient overlay on top to blend with content */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#f5f6fa] via-transparent to-transparent h-[40%]" />

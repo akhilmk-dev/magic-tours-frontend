@@ -180,7 +180,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     }}
                                 >
                                     {/* Image Section */}
-                                     <div className="relative flex-shrink-0 w-full" style={{ height: '264px' }}>
+                                    <div className="relative flex-shrink-0 w-full" style={{ height: '264px' }}>
                                         <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover" />
                                         {/* Duration badge */}
                                         <div className="absolute top-4 left-0 bg-brand-magic text-white py-2 px-4 rounded-r-2xl flex items-center gap-2">
@@ -243,16 +243,16 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[10px] text-[#6B7280] leading-relaxed mb-1 line-clamp-1">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-2 space-y-1.5">
+                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">
                                                         <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
-                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-gray-400 font-semibold text-[10px]">
+                                                            <span key={i} className="text-gray-400 font-semibold text-[12px]">
                                                                 {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
@@ -261,17 +261,17 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                         <div className="flex items-center gap-3 flex-wrap">
                                                             {pkg.hasFlights && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                             {pkg.hasMeals && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                             {pkg.hasHotel && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -310,7 +310,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[18px] font-bold text-white mb-1 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[11px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-auto">
                                                     <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
@@ -347,16 +347,16 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[10px] text-[#6B7280] leading-relaxed mb-1 line-clamp-1">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-2 space-y-1.5">
+                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">
                                                         <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
-                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[11px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                        <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-gray-400 font-semibold text-[10px]">
+                                                            <span key={i} className="text-gray-400 font-semibold text-[12px]">
                                                                 {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
@@ -365,17 +365,17 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                         <div className="flex items-center gap-3 flex-wrap">
                                                             {pkg.hasFlights && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                             {pkg.hasMeals && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                             {pkg.hasHotel && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
                                                                 </div>
                                                             )}
                                                         </div>

@@ -1,19 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ChevronLeft, ChevronRight, Ship, MapPin, CalendarDays } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Ship, MapPin, CalendarDays, Anchor, Navigation } from 'lucide-react';
 import cruiseBg from '../../assets/Cruise.png';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 function formatDuration(days, nights) {
-    const d = days   ? `${days} Day${days   !== 1 ? 's' : ''}` : '';
+    const d = days ? `${days} Day${days !== 1 ? 's' : ''}` : '';
     const n = nights ? `${nights} Night${nights !== 1 ? 's' : ''}` : '';
-    return [n, d].filter(Boolean).join(' / ') || null;
+    return [d, n].filter(Boolean).join(' & ') || null;
 }
-function formatPrice(price, currency = 'USD') {
+function formatPrice(price, currency = '') {
     if (!price) return null;
-    const sym = currency === 'USD' ? '$' : currency + ' ';
-    return `From ${sym}${Number(price).toLocaleString()}`;
+    const displayCurrency = currency === 'USD' ? 'QAR' : currency;
+    return `${displayCurrency} ${Number(price).toLocaleString()}`;
+}
+function formatLocation(locationStr) {
+    if (!locationStr) return null;
+    const words = locationStr.split(/\s+/);
+    if (words.length <= 4) {
+        return <span>{locationStr}</span>;
+    }
+    const firstLine = words.slice(0, 4).join(' ');
+    const secondLine = words.slice(4).join(' ');
+    return (
+        <span className="flex flex-col">
+            <span>{firstLine}</span>
+            <span>{secondLine}</span>
+        </span>
+    );
 }
 
 /* ─── skeleton ────────────────────────────────────────────── */
@@ -29,7 +44,7 @@ const CruiseCategoriesSkeleton = () => (
                     <div className="h-12 w-36 bg-slate-700 rounded-full" />
                 </div>
                 <div className="w-full lg:flex-1 flex justify-center">
-                    <div className="bg-white rounded-[20px] overflow-hidden w-full max-w-[420px] shadow">
+                    <div className="bg-white rounded-[20px] overflow-hidden w-full max-w-[370px] shadow">
                         <div className="bg-slate-200 h-[220px] w-full" />
                         <div className="p-4 space-y-2">
                             <div className="h-3 w-24 bg-slate-200 rounded mx-auto" />
@@ -46,72 +61,116 @@ const CruiseCategoriesSkeleton = () => (
 );
 
 /* ─── card ─────────────────────────────────────────────────── */
-const CruiseCard = ({ cruise }) => (
-    <div className="bg-white rounded-[20px] shadow-[0_6px_30px_-6px_rgba(0,0,0,0.15)] w-full p-2 pb-1">
-        {/* Image — rounded on all corners */}
-        <div className="relative w-full rounded-[16px] overflow-hidden" style={{ aspectRatio: '16/10' }}>
-            {cruise.image ? (
-                <img
-                    src={cruise.image}
-                    alt={cruise.name}
-                    className="w-full h-full object-cover"
-                />
-            ) : (
-                <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                    <Ship size={48} className="text-slate-300" />
-                </div>
-            )}
-            {/* Price badge */}
-            {cruise.price && (
-                <div className="absolute top-3 right-3 bg-[#FFA500] text-white text-[12px] font-bold px-3.5 py-1.5 rounded-full shadow-md">
-                    {cruise.price}
-                </div>
-            )}
-        </div>
+const CruiseCard = ({ cruise }) => {
+    if (!cruise) return null;
+    const name = cruise.name || '';
+    const shipName = cruise.shipName || '';
+    const destination = cruise.destination || '';
+    const duration = cruise.duration || '';
+    const departs = cruise.departs || '';
+    const priceVal = cruise.priceVal;
+    const currency = cruise.currency === 'USD' ? 'QAR' : (cruise.currency || '');
+    const displayDates = cruise.departureDates || [];
 
-        {/* Info — left aligned */}
-        <div className="pt-3 pb-1">
-            {/* Cruise line label */}
-            <p className="text-left text-[#2563EB] text-[13px] font-bold uppercase tracking-[0.12em] mb-1.5">
-                {cruise.cruiseLine || 'Featured Cruise'}
-            </p>
+    const iconColor = 'rgb(17, 58, 116)';
 
-            {/* Cruise name */}
-            <h3 className="text-left text-[#022C54] text-[20px] font-bold leading-snug mb-2.5 line-clamp-2">
-                {cruise.name}
-            </h3>
-
-            {/* Info rows with dividers */}
-            <div className="divide-y divide-gray-100">
-                {cruise.shipName && (
-                    <div className="flex items-center justify-start gap-2 py-2.5">
-                        <Ship size={15} className="text-[#022C54] shrink-0" />
-                        <span className="text-gray-600 text-[14px] capitalize">{cruise.shipName}</span>
-                    </div>
-                )}
-                {cruise.destination && (
-                    <div className="flex items-center justify-start gap-2 py-2.5">
-                        <MapPin size={15} className="text-gray-400 shrink-0" />
-                        <span className="text-gray-600 text-[14px]">{cruise.destination}</span>
-                    </div>
-                )}
-                {cruise.duration && (
-                    <div className="flex items-center justify-start gap-2 py-2.5">
-                        <CalendarDays size={15} className="text-gray-400 shrink-0" />
-                        <span className="text-gray-600 text-[14px]">{cruise.duration}</span>
+    return (
+        <div className="w-full text-black select-none pb-2 h-full flex flex-col">
+            {/* Image container with top rounded corners only */}
+            <div className="relative w-full rounded-t-[16px] rounded-b-none overflow-hidden bg-slate-100 shrink-0" style={{ aspectRatio: '16/10' }}>
+                {cruise.image ? (
+                    <img
+                        src={cruise.image}
+                        alt={name}
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <Ship size={48} className="text-slate-300" />
                     </div>
                 )}
             </div>
+
+            {/* Info container with bottom rounded corners only and no top margin gap */}
+            <div className="bg-white rounded-b-[16px] rounded-t-none p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] flex-1 flex flex-col justify-between">
+                <div>
+                    {/* Cruise Name */}
+                    <h3 className="text-left text-black text-[15px] font-medium leading-tight mb-0 font-sans line-clamp-2">
+                        {name}
+                    </h3>
+
+                    {/* Subinfo Row: Duration, Region, Price */}
+                    <div className="flex items-center justify-between gap-x-2 text-black text-[12px] mb-4 font-sans font-medium">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            {duration && <span className="shrink-0 text-gray-700">{duration}</span>}
+                            {destination && (
+                                <div className="flex items-center gap-0.5 min-w-0">
+                                    <Anchor size={13} className="text-red-600 shrink-0" />
+                                    <span className="text-black truncate" title={destination}>{destination}</span>
+                                </div>
+                            )}
+                        </div>
+                        {priceVal && (
+                            <div className="text-right shrink-0 ml-2">
+                                <div className="text-black font-bold text-[13px] leading-tight">
+                                    <span className="text-red-600">{currency} </span>
+                                    <span>{Number(priceVal).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Details list */}
+                <div className="space-y-3 pt-1.5 font-sans">
+                    {/* Ship row */}
+                    {shipName && (
+                        <div className="flex items-start gap-3">
+                            <Ship size={17} style={{ color: iconColor, fill: iconColor }} className="shrink-0 mt-0.5" />
+                            <span className="text-black text-[13px] font-medium font-sans leading-tight">{shipName}</span>
+                        </div>
+                    )}
+
+                    {/* Pin row */}
+                    {departs && (
+                        <div className="flex items-start gap-3">
+                            <MapPin size={17} style={{ color: iconColor, fill: iconColor }} className="shrink-0 mt-0.5" />
+                            <span className="text-black text-[13px] font-medium font-sans leading-snug">
+                                {formatLocation(departs)}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Schedules row */}
+                    {displayDates && displayDates.length > 0 && (
+                        <div className="flex items-start gap-3">
+                            <Navigation size={17} style={{ color: iconColor, fill: iconColor }} className="shrink-0 mt-1 rotate-[45deg]" />
+                            <div className="flex-1 space-y-1">
+                                {displayDates.map((sched, sIdx) => (
+                                    <div key={sIdx} className="flex text-[13px] font-medium leading-normal text-black">
+                                        <span className="text-black w-12 shrink-0">{sched.year} :</span>
+                                        <div className="text-black flex-1 pl-1">
+                                            {sched.dates && sched.dates.map((dateLine, dIdx) => (
+                                                <div key={dIdx}>{dateLine}</div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 /* ─── main component ──────────────────────────────────────── */
 export default function CruiseCategories({ cruises: apiCruises, content, loading }) {
     const defaultContent = {
-        subtitle:    'FEATURED CRUISES',
-        heading:     'Explore The World',
-        highlight:   'In Luxury',
+        subtitle: 'FEATURED CRUISES',
+        heading: 'Explore The World',
+        highlight: 'In Luxury',
         description: "Experience the finest cruise journeys across the world's most breathtaking destinations.",
     };
     const sectionContent = { ...defaultContent, ...content };
@@ -119,57 +178,25 @@ export default function CruiseCategories({ cruises: apiCruises, content, loading
 
     const cruiseList = (apiCruises && apiCruises.length > 0)
         ? apiCruises.map((c, idx) => ({
-            id:          c.id || idx,
-            name:        c.name,
-            cruiseLine:  c.cruise_line?.trim() || null,
-            shipName:    c.ship_name?.trim()   || null,
-            image:       c.images?.[0] || c.logo_url || null,
-            duration:    formatDuration(c.days, c.nights),
+            id: c.id || idx,
+            name: c.name,
+            cruiseLine: c.cruise_line?.trim() || null,
+            shipName: c.ship_name?.trim() || null,
+            image: c.images?.[0] || null,
+            logoUrl: c.logo_url || null,
+            duration: formatDuration(c.days, c.nights),
             destination: c.destination || null,
-            price:       formatPrice(c.starting_price, c.currency),
+            departs: c.departs || null,
+            priceVal: c.starting_price || null,
+            currency: c.currency === 'USD' ? 'QAR' : (c.currency || ''),
+            departureDates: c.departure_dates || null,
         }))
         : [];
 
-    const count = cruiseList.length;
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [direction, setDirection] = useState(1);
-    const isAnimating = useRef(false);
-    const autoRef = useRef(null);
-
-    const startAuto = () => {
-        clearInterval(autoRef.current);
-        if (count <= 1) return;
-        autoRef.current = setInterval(() => navigate(1), 4500);
-    };
-
-    useEffect(() => {
-        startAuto();
-        return () => clearInterval(autoRef.current);
-    }, [count]);
-
-    const navigate = (dir) => {
-        if (isAnimating.current || count <= 1) return;
-        isAnimating.current = true;
-        setDirection(dir);
-        setCurrentIndex(prev => (prev + dir + count) % count);
-        setTimeout(() => { isAnimating.current = false; }, 450);
-    };
-
-    const goTo = (idx) => {
-        if (isAnimating.current || idx === currentIndex) return;
-        setDirection(idx > currentIndex ? 1 : -1);
-        setCurrentIndex(idx);
-        startAuto();
-    };
+    const displayCruises = cruiseList.slice(0, 2);
 
     if (loading) return <CruiseCategoriesSkeleton />;
-    if (count === 0) return null;
-
-    const variants = {
-        enter:  (dir) => ({ opacity: 0, x: dir > 0 ? 80 : -80 }),
-        center: { opacity: 1, x: 0 },
-        exit:   (dir) => ({ opacity: 0, x: dir > 0 ? -80 : 80 }),
-    };
+    if (cruiseList.length === 0) return null;
 
     return (
         <section
@@ -219,75 +246,18 @@ export default function CruiseCategories({ cruises: apiCruises, content, loading
                         </button>
                     </motion.div>
 
-                    {/* ── Right: card slider inside white panel ── */}
+                    {/* ── Right: card list ── */}
                     <div className="w-full lg:flex-1 flex justify-center">
-
-                        {/* White outer panel */}
-                        <div className="bg-white rounded-3xl shadow-2xl px-3 py-3 w-full max-w-[400px] flex flex-col items-center">
-
-                            {/* Slider row */}
-                            <div className="relative flex items-center gap-3 w-full">
-
-                                {/* Left arrow */}
-                                {count > 1 && (
-                                    <button
-                                        onClick={() => { navigate(-1); startAuto(); }}
-                                        className="shrink-0 w-9 h-9 bg-gray-100 hover:bg-[#FFA500] hover:text-white rounded-full flex items-center justify-center text-gray-500 transition-all duration-200"
-                                    >
-                                        <ChevronLeft size={20} strokeWidth={2.5} />
-                                    </button>
-                                )}
-
-                                {/* Card — slightly smaller inside the white panel */}
-                                <div className="flex-1 overflow-hidden">
-                                    <AnimatePresence mode="popLayout" initial={false} custom={direction}>
-                                        <motion.div
-                                            key={currentIndex}
-                                            custom={direction}
-                                            variants={variants}
-                                            initial="enter"
-                                            animate="center"
-                                            exit="exit"
-                                            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                                        >
-                                            <div
-                                                className="cursor-pointer"
-                                                onClick={() => router.push('/cruises')}
-                                            >
-                                                <CruiseCard cruise={cruiseList[currentIndex]} />
-                                            </div>
-                                        </motion.div>
-                                    </AnimatePresence>
+                        <div className={`w-full grid gap-6 ${displayCruises.length === 1 ? 'max-w-[310px]' : 'max-w-[640px] grid-cols-1 sm:grid-cols-2'}`}>
+                            {displayCruises.map((cruise) => (
+                                <div
+                                    key={cruise.id}
+                                    className="cursor-pointer w-full h-full"
+                                    onClick={() => router.push('/cruises')}
+                                >
+                                    <CruiseCard cruise={cruise} />
                                 </div>
-
-                                {/* Right arrow */}
-                                {count > 1 && (
-                                    <button
-                                        onClick={() => { navigate(1); startAuto(); }}
-                                        className="shrink-0 w-9 h-9 bg-gray-100 hover:bg-[#FFA500] hover:text-white rounded-full flex items-center justify-center text-gray-500 transition-all duration-200"
-                                    >
-                                        <ChevronRight size={20} strokeWidth={2.5} />
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Dots inside white panel */}
-                            {count > 1 && (
-                                <div className="flex gap-2.5 mt-5">
-                                    {cruiseList.map((_, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => goTo(i)}
-                                            className={`h-2 rounded-full transition-all duration-300 ${
-                                                i === currentIndex
-                                                    ? 'bg-[#FFA500] w-6'
-                                                    : 'bg-gray-200 hover:bg-gray-300 w-2'
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-
+                            ))}
                         </div>
                     </div>
 

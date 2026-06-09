@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -274,7 +274,7 @@ export default function Navbar() {
                                 )}
                             >
                                 <User size={12} />
-                                <span>Sign In</span>
+                                <span className="hidden xs:inline">Sign In</span>
                             </Link>
                         )}
                         <button

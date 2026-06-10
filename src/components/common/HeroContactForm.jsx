@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ChevronDown } from 'lucide-react';
@@ -105,7 +105,7 @@ const HeroContactForm = ({ minimal = false }) => {
         fontSize: '13px'
     });
 
-    const inputPadClass = 'py-[10px] short:py-[6px]';
+    const inputPadClass = 'py-[6px] short:py-[4px]';
 
     const labelStyle = {
         fontSize: '11px',
@@ -113,7 +113,7 @@ const HeroContactForm = ({ minimal = false }) => {
         letterSpacing: '0.1em',
         color: minimal ? 'rgba(255, 255, 255, 0.6)' : 'white',
         textTransform: 'uppercase',
-        marginBottom: '4px'
+        marginBottom: '2px'
     };
 
     const ErrorMsg = ({ field }) => errors[field] ? (
@@ -127,7 +127,7 @@ const HeroContactForm = ({ minimal = false }) => {
             initial={minimal ? { opacity: 0, y: 20 } : { opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.8, delay: minimal ? 0 : 0.2 }}
-            className={`relative z-20 overflow-hidden ${minimal ? 'w-full p-0 bg-transparent' : 'w-full lg:w-[400px] p-6 sm:p-[30px] short:p-5 rounded-[30px] sm:rounded-[35px] bg-white/15 backdrop-blur-[30px] border-2 border-white/50'}`}
+            className={`relative z-20 overflow-hidden ${minimal ? 'w-full p-0 bg-transparent' : 'w-full max-w-[380px] mx-auto p-5 sm:p-[22px] short:p-4 rounded-[30px] sm:rounded-[35px] bg-white/15 backdrop-blur-[30px] border-2 border-white/50'}`}
             style={minimal ? {} : {
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
                 WebkitBackdropFilter: 'blur(30px)'
@@ -135,116 +135,111 @@ const HeroContactForm = ({ minimal = false }) => {
         >
             {!minimal && (
                 <>
-                    <div className="mb-4 short:mb-2">
-                        <h2 className="text-white text-[28px] short:text-[22px] leading-tight font-heading">
+                    <div className="mb-2 short:mb-1">
+                        <h2 className="text-white text-[24px] short:text-[18px] leading-tight font-heading">
                             Plan Your Journey
                         </h2>
-                        <p className="text-white/90 text-sm mt-1 short:hidden">
-                            Tell us your preferences. We'll craft your perfect trip.
-                        </p>
                     </div>
 
-                    <div className="flex items-center gap-0 mb-4 short:mb-2">
+                    <div className="flex items-center gap-0 mb-2.5 short:mb-1.5">
                         <div className="flex-1 h-[1px] bg-white/20"></div>
-                        <div className="text-[#FDB338] px-4">✦</div>
+                        <div className="text-[#FDB338] px-4 text-xs">✦</div>
                         <div className="flex-1 h-[1px] bg-white/20"></div>
                     </div>
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 short:space-y-2" noValidate>
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label style={labelStyle}>FULL NAME</label>
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Your Name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            style={getInputStyle('name')}
-                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                        />
-                        <ErrorMsg field="name" />
-                    </div>
-                    <div className="flex-1">
-                        <label style={labelStyle}>PHONE NUMBER</label>
-                        <input
-                            type="text"
-                            name="phone"
-                            placeholder="Your Phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            style={getInputStyle('phone')}
-                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                        />
-                        <ErrorMsg field="phone" />
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-2.5 short:space-y-2" noValidate>
+                <div>
+                    <label style={labelStyle}>FULL NAME</label>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Your Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        style={getInputStyle('name')}
+                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                    />
+                    <ErrorMsg field="name" />
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label style={labelStyle}>EMAIL ADDRESS</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Your Email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            style={getInputStyle('email')}
-                            className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                        />
-                        <ErrorMsg field="email" />
-                    </div>
-                    <div className="flex-1">
-                        <label style={labelStyle}>DESTINATION</label>
-                        <div className="relative">
-                            <div
-                                onClick={() => setShowDestDropdown(!showDestDropdown)}
-                                style={{
-                                    ...getInputStyle('destination'),
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
-                                }}
-                                className={`${inputPadClass} transition-colors text-white`}
-                            >
-                                <span className={`whitespace-nowrap overflow-hidden text-ellipsis mr-2 ${formData.destination ? 'text-white' : (minimal ? 'text-white/30' : 'text-white/40')}`}>
-                                    {formData.destination || "Where to go?"}
-                                </span>
-                                <ChevronDown className={`transition-transform duration-300 shrink-0 ${showDestDropdown ? 'rotate-180' : ''} ${minimal ? 'text-white/40' : 'text-white/60'}`} size={16} />
-                            </div>
+                <div>
+                    <label style={labelStyle}>PHONE NUMBER</label>
+                    <input
+                        type="text"
+                        name="phone"
+                        placeholder="Your Phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        style={getInputStyle('phone')}
+                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                    />
+                    <ErrorMsg field="phone" />
+                </div>
 
-                            <AnimatePresence>
-                                {showDestDropdown && (
-                                    <>
-                                        <div className="fixed inset-0 z-40" onClick={() => setShowDestDropdown(false)} />
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-xl border border-white/20 shadow-2xl backdrop-blur-3xl bg-[#022C54]/95"
-                                        >
-                                            <div className="max-h-[200px] overflow-y-auto py-2">
-                                                {destinations.map(dest => (
-                                                    <div
-                                                        key={dest}
-                                                        onClick={() => handleSelectDestination(dest)}
-                                                        className="px-4 py-2.5 text-white text-sm font-medium hover:bg-white/10 cursor-pointer transition-colors flex items-center justify-between group"
-                                                    >
-                                                        {dest}
-                                                        {formData.destination === dest && <div className="w-1.5 h-1.5 rounded-full bg-[#FDB338] shadow-[0_0_10px_#FDB338]" />}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </motion.div>
-                                    </>
-                                )}
-                            </AnimatePresence>
+                <div>
+                    <label style={labelStyle}>EMAIL ADDRESS</label>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Your Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        style={getInputStyle('email')}
+                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                    />
+                    <ErrorMsg field="email" />
+                </div>
+
+                <div>
+                    <label style={labelStyle}>DESTINATION</label>
+                    <div className="relative">
+                        <div
+                            onClick={() => setShowDestDropdown(!showDestDropdown)}
+                            style={{
+                                ...getInputStyle('destination'),
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                            className={`${inputPadClass} transition-colors text-white`}
+                        >
+                            <span className={`whitespace-nowrap overflow-hidden text-ellipsis mr-2 ${formData.destination ? 'text-white' : (minimal ? 'text-white/30' : 'text-white/40')}`}>
+                                {formData.destination || "Where to go?"}
+                            </span>
+                            <ChevronDown className={`transition-transform duration-300 shrink-0 ${showDestDropdown ? 'rotate-180' : ''} ${minimal ? 'text-white/40' : 'text-white/60'}`} size={16} />
                         </div>
-                        <ErrorMsg field="destination" />
+
+                        <AnimatePresence>
+                            {showDestDropdown && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setShowDestDropdown(false)} />
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-xl border border-white/20 shadow-2xl backdrop-blur-3xl bg-[#022C54]/95"
+                                    >
+                                        <div className="max-h-[200px] overflow-y-auto py-2">
+                                            {destinations.map(dest => (
+                                                <div
+                                                    key={dest}
+                                                    onClick={() => handleSelectDestination(dest)}
+                                                    className="px-4 py-2.5 text-white text-sm font-medium hover:bg-white/10 cursor-pointer transition-colors flex items-center justify-between group"
+                                                >
+                                                    {dest}
+                                                    {formData.destination === dest && <div className="w-1.5 h-1.5 rounded-full bg-[#FDB338] shadow-[0_0_10px_#FDB338]" />}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
                     </div>
+                    <ErrorMsg field="destination" />
                 </div>
 
                 <div className="flex flex-col gap-2 short:gap-1">
@@ -263,9 +258,10 @@ const HeroContactForm = ({ minimal = false }) => {
                             padding: '15px',
                             color: 'white',
                             outline: 'none',
-                            resize: 'none'
+                            resize: 'none',
+                            overflow: 'hidden'
                         }}
-                        className={`h-[110px] short:h-[64px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
+                        className={`h-[65px] short:h-[50px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
                     />
                     <ErrorMsg field="message" />
                 </div>
@@ -273,7 +269,7 @@ const HeroContactForm = ({ minimal = false }) => {
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-4 mt-4 short:py-2.5 short:mt-2 short:text-base rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+                    className="w-full py-3 mt-2.5 short:py-2.5 short:mt-2 short:text-base rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
                     style={{
                         background: '#022c54'
                     }}

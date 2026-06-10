@@ -158,7 +158,7 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[80px] sm:pt-[88px] lg:pt-[96px] pb-8 sm:pb-10 lg:pb-8 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[110px] sm:pt-[120px] lg:pt-[130px] pb-36 sm:pb-40 lg:pb-24 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8 lg:gap-16">
                     {/* Left Content */}
                     <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left">
@@ -238,7 +238,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                     </div>
 
                     {/* Right Content - Contact Form */}
-                    <div className="hidden lg:block w-full lg:w-auto shrink-0 mt-12 lg:mt-0">
+                    <div className="w-full lg:w-auto shrink-0 mt-8 mb-16 lg:my-0 z-20">
                         <HeroContactForm />
                     </div>
                 </div>

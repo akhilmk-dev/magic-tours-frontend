@@ -2,6 +2,9 @@
 
 ## Phase 1: Foundation & Initial Integration
 - [x] Initial Project Setup with Vite + React + Tailwind CSS <!-- id: 100 -->
+- [x] Redesign `CruiseCard` component inside `CruiseCategories.jsx` <!-- id: 0 -->
+- [x] Add support/helpers for mock departure dates and logo overlay inside `CruiseCategories.jsx` <!-- id: 1 -->
+- [x] Verify the layout looks correct visually and builds cleanly <!-- id: 2 -->
 - [x] Integrated Stack AI chat agent with premium UI <!-- id: 101 -->
 - [x] Implemented mobile responsiveness for core components <!-- id: 102 -->
 - [x] Setup basic routing and page structure <!-- id: 103 -->

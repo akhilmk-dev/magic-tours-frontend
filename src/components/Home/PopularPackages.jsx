@@ -18,7 +18,7 @@ const PopularPackagesSkeleton = () => (
             <div className="flex justify-center gap-6 overflow-hidden">
                 {[1, 2, 3].map(i => (
                     <div key={i} className="w-[320px] h-[480px] bg-gray-100 rounded-[2rem] flex flex-col">
-                        <div className="h-[40%] bg-gray-200" />
+                        <div className="h-[55%] bg-gray-200" />
                         <div className="p-6 flex-1 flex flex-col justify-between">
                             <div>
                                 <div className="h-6 w-3/4 bg-gray-200 rounded mb-4" />
@@ -180,7 +180,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     }}
                                 >
                                     {/* Image Section */}
-                                     <div className="relative flex-shrink-0 w-full" style={{ height: '180px' }}>
+                                    <div className="relative flex-shrink-0 w-full" style={{ height: '264px' }}>
                                         <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover" />
                                         {/* Duration badge */}
                                         <div className="absolute top-4 left-0 bg-brand-magic text-white py-2 px-4 rounded-r-2xl flex items-center gap-2">
@@ -204,29 +204,29 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 relative overflow-visible">
                                             {/* Default navy content (visible when not hovered) */}
                                             <div
-                                                className="absolute inset-0 bg-[#113A74] p-6 flex flex-col"
+                                                className="absolute inset-0 bg-[#113A74] p-4 flex flex-col"
                                                 style={{
                                                     opacity: isHovered ? 0 : 1,
                                                     transition: 'opacity 0.3s ease',
                                                     pointerEvents: isHovered ? 'none' : 'auto',
                                                 }}
                                             >
-                                                <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
+                                                <h3 title={pkg.title} className="text-[18px] font-bold text-white mb-1 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[11px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-auto">
                                                     <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
-                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                 </div>
 
-                                                <div className="mt-5 flex items-end justify-between">
+                                                <div className="mt-3 flex items-end justify-between">
                                                     <div>
-                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="text-[#FFA500] text-[20px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                         <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
                                                     </div>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                        className="px-6 py-3 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[13px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                        className="px-5 py-2.5 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[12px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
                                                         Book Now
                                                     </button>
@@ -242,23 +242,23 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                     transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
                                                 }}
                                             >
-                                                <h3 title={pkg.title} className="text-[18px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[11px] text-[#6B7280] leading-relaxed mb-1.5 line-clamp-2">{pkg.description}</p>
+                                                <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-3 mb-2.5 space-y-2">
+                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">
-                                                        <Star size={14} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
+                                                        <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
                                                         <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-gray-400 font-semibold text-[11px]">
+                                                            <span key={i} className="text-gray-400 font-semibold text-[12px]">
                                                                 {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
                                                     </div>
                                                     {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
-                                                        <div className="flex items-center gap-3 flex-wrap pt-1 mt-0.5">
+                                                        <div className="flex items-center gap-3 flex-wrap">
                                                             {pkg.hasFlights && (
                                                                 <div className="flex items-center gap-1.5">
                                                                     <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
@@ -285,12 +285,12 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                                 <div className="mt-auto flex items-end justify-between">
                                                     <div>
-                                                        <span className="text-[#FFA500] text-[18px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="text-[#FFA500] text-[17px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                         <span className="block text-[9px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
                                                     </div>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                        className="px-5 py-2 rounded-full bg-[#113A74] text-white font-bold text-[12px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                        className="px-5 py-2 rounded-full bg-[#113A74] text-white font-bold text-[11px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
                                                         Book Now
                                                     </button>
@@ -302,35 +302,35 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <div className="flex-1 relative overflow-visible">
                                             {/* Default navy content */}
                                             <div
-                                                className="absolute inset-0 bg-[#113A74] p-6 flex flex-col"
+                                                className="absolute inset-0 bg-[#113A74] p-4 flex flex-col"
                                                 style={{
                                                     opacity: isHovered ? 0 : 1,
                                                     transition: 'opacity 0.3s ease',
                                                     pointerEvents: isHovered ? 'none' : 'auto',
                                                 }}
                                             >
-                                                <h3 title={pkg.title} className="text-[22px] font-bold text-white mb-2 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
+                                                <h3 title={pkg.title} className="text-[18px] font-bold text-white mb-1 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-auto">
                                                     <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
-                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[13px] line-clamp-1">Tour Type :{pkg.type}</span>
+                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                 </div>
 
-                                                <div className="mt-5 flex items-end justify-between">
+                                                <div className="mt-3 flex items-end justify-between">
                                                     <div>
-                                                        <span className="text-[#FFA500] text-[22px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="text-[#FFA500] text-[20px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                         <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
-                                                            className="text-[12px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
+                                                            className="text-[11px] font-bold text-white/60 hover:text-white transition-colors mt-1 text-left"
                                                         >
                                                             See More
                                                         </button>
                                                     </div>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                        className="px-6 py-3 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[13px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                        className="px-5 py-2.5 rounded-full bg-[#FFA500] text-[#113A74] font-bold text-[12px] shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
                                                         Book Now
                                                     </button>
@@ -346,23 +346,23 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                     transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
                                                 }}
                                             >
-                                                <h3 title={pkg.title} className="text-[18px] font-bold text-[#16243D] mb-1 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[11px] text-[#6B7280] leading-relaxed mb-1.5 line-clamp-2">{pkg.description}</p>
+                                                <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
 
-                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-3 mb-2.5 space-y-2">
+                                                <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">
-                                                        <Star size={14} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
+                                                        <Star size={13} fill="#FACC15" className="text-[#FACC15] flex-shrink-0" />
                                                         <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5">
                                                         {pkg.location.split(',').map((loc, i, arr) => (
-                                                            <span key={i} className="text-gray-400 font-semibold text-[11px]">
+                                                            <span key={i} className="text-gray-400 font-semibold text-[12px]">
                                                                 {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
                                                             </span>
                                                         ))}
                                                     </div>
                                                     {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
-                                                        <div className="flex items-center gap-3 flex-wrap pt-1 mt-0.5">
+                                                        <div className="flex items-center gap-3 flex-wrap">
                                                             {pkg.hasFlights && (
                                                                 <div className="flex items-center gap-1.5">
                                                                     <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
@@ -389,12 +389,12 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                                 <div className="mt-auto flex items-end justify-between">
                                                     <div>
-                                                        <span className="text-[#FFA500] text-[18px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
+                                                        <span className="text-[#FFA500] text-[17px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                         <span className="block text-[9px] font-bold uppercase text-gray-400 mt-0.5">Onwards</span>
                                                     </div>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}?book=true`); }}
-                                                        className="px-5 py-2 rounded-full bg-[#113A74] text-white font-bold text-[12px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                                        className="px-5 py-2 rounded-full bg-[#113A74] text-white font-bold text-[11px] shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                                     >
                                                         Book Now
                                                     </button>

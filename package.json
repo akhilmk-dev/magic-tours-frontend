@@ -11,6 +11,7 @@
     "pages:build": "npx @cloudflare/next-on-pages"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
     "@tailwindcss/typography": "^0.5.19",
     "clsx": "^2.1.1",
     "formik": "^2.4.9",

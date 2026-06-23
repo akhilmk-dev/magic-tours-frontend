@@ -4,6 +4,9 @@ import { api } from '../api/client';
 
 const CurrencyContext = createContext(null);
 
+// Active currencies for now — limit selectable options in the header.
+const ALLOWED_CURRENCIES = ['QAR', 'INR', 'USD'];
+
 export const CurrencyProvider = ({ children }) => {
     const [selectedCurrency, setSelectedCurrency] = useState({ code: 'QAR', symbol: 'QAR', qar_rate: 1, name: 'Qatari Riyal' });
     const [currencies, setCurrencies] = useState([]);
@@ -27,7 +30,7 @@ export const CurrencyProvider = ({ children }) => {
                 const finalCurrencies = [
                     baseCurrency,
                     ...mappedCurrencies.filter(c => c.code !== 'QAR')
-                ];
+                ].filter(c => ALLOWED_CURRENCIES.includes(c.code));
                 
                 setCurrencies(finalCurrencies);
                 

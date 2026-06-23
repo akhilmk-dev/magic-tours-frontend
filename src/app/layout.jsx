@@ -7,6 +7,7 @@ import ProfileEditModal from '../components/common/ProfileEditModal';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import FloatingButtons from '../components/common/FloatingButtons';
+import AnniversaryBanner from '../components/common/AnniversaryBanner';
 import { generatePageMetadata } from '../utils/seo';
 import { getPublicSettings } from '../utils/settings';
 import Script from 'next/script';
@@ -120,6 +121,7 @@ export default async function RootLayout({ children }) {
                             </main>
                             <Footer />
                             <FloatingButtons />
+                            <AnniversaryBanner imageUrl={settings?.anniversary_banner || ''} />
                         {jotformSnippet && (() => {
                                 const srcMatch = jotformSnippet.match(/src=['"]([^'"]+)['"]/);
                                 return srcMatch ? (

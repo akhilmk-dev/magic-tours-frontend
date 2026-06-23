@@ -75,7 +75,12 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
         }
     }, [propLoading]);
 
+    // Keep local state in sync with the CMS-selected destinations passed from the
+    // homepage payload (they may arrive after the first render while data loads).
     useEffect(() => {
+        if (Array.isArray(initialDestinations)) {
+            setDestinations(initialDestinations);
+        }
     }, [initialDestinations]);
     // ... rest of the state
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -123,7 +128,9 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
     const cloneOffset = Math.min(4, activeDestinations.length);
 
     useEffect(() => {
-        if (initialDestinations) return;
+        // When the homepage manages this section's data (propLoading provided),
+        // only show the CMS-selected destinations — never fall back to fetching all.
+        if (propLoading !== undefined || initialDestinations) return;
 
         const fetchDestinations = async () => {
             try {
@@ -141,7 +148,7 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
             }
         };
         fetchDestinations();
-    }, [initialDestinations]);
+    }, [initialDestinations, propLoading]);
 
     const displayItems = activeDestinations.length > 0
         ? [...activeDestinations.slice(-cloneOffset), ...activeDestinations, ...activeDestinations.slice(0, cloneOffset)]

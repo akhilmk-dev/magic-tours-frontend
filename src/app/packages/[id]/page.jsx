@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 export const runtime = 'edge';
 
@@ -35,8 +35,8 @@ import offerIcon from '../../../assets/offer_icon.png';
 import bookingPolicyIcon from '../../../assets/booking_policy.png';
 import cancellationPolicyIcon from '../../../assets/cancellation_policy.png';
 import flightRouteIcon from '../../../assets/flight_route.png';
-import collabFrame from '../../../assets/collab_frame.png';
 import airlineBg from '../../../assets/airline_background.png';
+import handshakeIcon from '../../../assets/handshake.jpg';
 import facebookIcon from '../../../assets/facebook_icon.png';
 import instagramIcon from '../../../assets/instagram_icon.png';
 import twitterIcon from '../../../assets/twitter_icon.png';
@@ -49,7 +49,9 @@ import plainIcon from '../../../assets/plain_icon.png';
 import hotelsIcon from '../../../assets/hotels_package_card.png';
 import flightIcon from '../../../assets/flight_icon_package_card.png';
 import foodIcon from '../../../assets/food_icon_package_card.png';
+import airlineTailIcon from '../../../assets/airline_tail_icon.png';
 import FavoriteButton from '../../../components/common/FavoriteButton';
+import PackageRouteMap from '../../../components/common/PackageRouteMap';
 import GalleryLoop from '../../../components/Home/GalleryLoop';
 import AdventureSection from '../../../components/Home/AdventureSection';
 import BookingModal from '../../../components/Booking/BookingModal';
@@ -62,9 +64,14 @@ const PackageDetailsPage = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [mounted, setMounted] = useState(false);
+    const [showFullOverview, setShowFullOverview] = useState(false);
+    const [overviewOverflows, setOverviewOverflows] = useState(false);
+    const overviewRef = useRef(null);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [visibleCards, setVisibleCards] = useState(3);
     const [promos, setPromos] = useState([]);
     const relatedScrollRef = useRef(null);
 
@@ -76,6 +83,12 @@ const PackageDetailsPage = () => {
             year: 'numeric'
         });
     };
+
+    const cleanItineraryTitle = (title) => {
+        if (!title) return '';
+        return title.replace(/^day\s*\d+\s*[:\-]?\s*/i, '').trim();
+    };
+
     
     const downloadPDF = () => {
         if (!pkg) return;
@@ -123,7 +136,7 @@ const PackageDetailsPage = () => {
         const itineraryHtml = pkg.itinerary?.length
             ? pkg.itinerary.map((day) => `
                 <div style="margin-bottom:14px;padding:14px;background:#f8faff;border-radius:10px;border-left:4px solid #113A74;">
-                    <p style="margin:0 0 6px;font-weight:700;color:#113A74;font-size:13px;">Day ${day.day < 10 ? '0' + day.day : day.day}${day.title ? ` : ${day.title}` : ''}</p>
+                    <p style="margin:0 0 6px;font-weight:700;color:#113A74;font-size:13px;">Day ${day.day < 10 ? '0' + day.day : day.day}${day.title ? ` : ${cleanItineraryTitle(day.title)}` : ''}</p>
                     ${day.description ? `<p style="margin:0;color:#555;font-size:12px;line-height:1.6;white-space:pre-line;">${day.description}</p>` : ''}
                     ${dayBadges(day)}
                 </div>`).join('')
@@ -208,11 +221,11 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
 <div class="body">
 
-  <!-- Description -->
-  ${pkg.description ? `
+  <!-- Journey Overview -->
+  ${(pkg.journey_overview || pkg.description) ? `
   <div class="section">
-    <div class="section-title">Overview</div>
-    <p>${pkg.description}</p>
+    <div class="section-title">Journey Overview</div>
+    <p>${pkg.journey_overview || pkg.description}</p>
   </div>` : ''}
 
   <!-- Pricing -->
@@ -308,6 +321,38 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640) {
+                setVisibleCards(1);
+            } else if (window.innerWidth < 1024) {
+                setVisibleCards(2);
+            } else {
+                setVisibleCards(3);
+            }
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        const maxSlide = Math.max(0, relatedPackages.length - visibleCards);
+        if (currentSlide > maxSlide) {
+            setCurrentSlide(maxSlide);
+        }
+    }, [visibleCards, relatedPackages.length, currentSlide]);
+
+    // Detect whether the Journey Overview exceeds 4 lines (to show "Show more").
+    useEffect(() => {
+        const el = overviewRef.current;
+        if (!el) return;
+        // Measure only in the collapsed state.
+        if (!showFullOverview) {
+            setOverviewOverflows(el.scrollHeight > el.clientHeight + 1);
+        }
+    }, [pkg, showFullOverview, mounted]);
+
     // Booking Form State
     const [bookingDate, setBookingDate] = useState('');
     const [bookingLoading, setBookingLoading] = useState(false);
@@ -396,6 +441,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    const formatEntryFee = (fee) => {
+        if (Number(fee) === 0) return 'Free';
+        const converted = convertPrice(fee);
+        const symbol = selectedCurrency?.symbol || selectedCurrency?.code || 'QAR';
+        const rounded = Math.round(Number(converted));
+        return `${symbol} ${rounded.toLocaleString()}`;
+    };
+
     // If the user lands here after login with ?book=true, open the modal automatically
     useEffect(() => {
         if (user && searchParams.get('book') === 'true') {
@@ -424,8 +477,24 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const data = await response.json();
                 setPkg(data.package_details || data);
-                if (data.related_packages) {
+                if (data.related_packages && data.related_packages.length > 0) {
                     setRelatedPackages(data.related_packages.slice(0, 6));
+                    setRelatedLoading(false);
+                } else {
+                    // Fallback: fetch other packages from /packages/frontend/list
+                    const listResponse = await fetch('https://api.magictours.qa/packages/frontend/list');
+                    if (listResponse.ok) {
+                        const listData = await listResponse.json();
+                        const allPkgs = listData.data || listData;
+                        if (Array.isArray(allPkgs)) {
+                            // Filter out current package and limit to 6
+                            const currentPkgId = data.package_details?.id || data.id;
+                            const filtered = allPkgs
+                                .filter(p => p.id !== currentPkgId)
+                                .slice(0, 6);
+                            setRelatedPackages(filtered);
+                        }
+                    }
                     setRelatedLoading(false);
                 }
             } catch (err) {
@@ -561,6 +630,11 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
     const exclusions = pkg.exclusions ? (typeof pkg.exclusions === 'string' ? JSON.parse(pkg.exclusions) : pkg.exclusions) : [];
     const gallery = pkg.gallery ? (typeof pkg.gallery === 'string' ? JSON.parse(pkg.gallery) : pkg.gallery) : [];
 
+    const blackoutDates = pkg.blackout_dates ? (typeof pkg.blackout_dates === 'string' ? JSON.parse(pkg.blackout_dates) : pkg.blackout_dates) : [];
+    const termsConditions = pkg.terms_conditions ? (typeof pkg.terms_conditions === 'string' ? JSON.parse(pkg.terms_conditions) : pkg.terms_conditions) : null;
+    const servicePolicy = pkg.service_policy ? (typeof pkg.service_policy === 'string' ? JSON.parse(pkg.service_policy) : pkg.service_policy) : null;
+
+
     return (
         <div className="bg-white min-h-screen pb-20">
             {/* Banner Section - Acting like Home Hero */}
@@ -578,37 +652,43 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-12 md:mt-20">
 
                     {/* Title with flight route icon + collab frame */}
-                    <div className="relative inline-block">
-                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] tracking-tight drop-shadow-sm font-heading">
+                    <div className="relative flex flex-col items-center md:inline-block">
+                        <h1 className="order-2 md:order-none text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] tracking-tight drop-shadow-sm font-heading">
                             {pkg.title}
                         </h1>
-                        {/* Flight route icon — top right of title */}
+                        {/* Flight route icon — decorative, top-right of title (desktop only) */}
                         <img
                             src={flightRouteIcon.src || flightRouteIcon}
                             alt=""
-                            className="absolute -top-14 -right-14 md:-top-16 md:-right-20 w-16 md:w-24 lg:w-32 opacity-90 pointer-events-none"
+                            className="hidden md:block absolute md:-top-16 md:-right-20 w-24 lg:w-32 opacity-90 pointer-events-none"
                         />
-                        {/* Collab frame with airline logo — only shown when airline data exists */}
+                        {/* Collab pill — handshake icon on the left, "In Collaboration With"
+                            text above the airline logo. Crisp HTML/CSS so text stays sharp.
+                            On mobile it sits in flow below the title (no overlap); on md+ it
+                            floats beside the title. */}
                         {(pkg.airline_name || pkg.airline_logo) && (
-                            <div className="absolute -top-6 -right-4 md:-top-14 md:left-[calc(100%+3rem)] md:right-auto w-20 md:w-44 lg:w-52 pointer-events-none">
-                                <img
-                                    src={collabFrame.src || collabFrame}
-                                    alt="In Collaboration"
-                                    className="w-full h-auto"
-                                />
-                                {pkg.airline_logo && (
-                                    <img
-                                        src={pkg.airline_logo}
-                                        alt={pkg.airline_name || 'Airline'}
-                                        className="absolute bottom-[18%] left-1/2 -translate-x-1/2 w-[28%] h-[28%] object-contain"
-                                    />
-                                )}
+                            <div className="order-1 md:order-none flex justify-center mb-4 md:mb-0 md:block md:absolute md:-top-14 md:left-[calc(100%+2rem)] pointer-events-none">
+                                <div className="inline-flex items-center gap-2.5 bg-white rounded-full shadow-lg border border-slate-100 pl-2 pr-5 py-2">
+                                    <span className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden shrink-0 border border-slate-100">
+                                        <img src={handshakeIcon.src || handshakeIcon} alt="In collaboration" className="w-full h-full object-cover" />
+                                    </span>
+                                    <div className="flex flex-col items-center justify-center gap-1.5">
+                                        <span className="text-[10px] md:text-[11px] font-semibold tracking-wide text-slate-400 leading-none whitespace-nowrap">
+                                            In Collaboration With
+                                        </span>
+                                        {pkg.airline_logo ? (
+                                            <img src={pkg.airline_logo} alt={pkg.airline_name || 'Airline'} className="h-5 md:h-6 w-auto max-w-[90px] object-contain" />
+                                        ) : (
+                                            <span className="text-[12px] md:text-[13px] font-bold text-[#113A74] leading-tight whitespace-nowrap">{pkg.airline_name}</span>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
 
                     {/* Breadcrumbs — below title */}
-                    <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-[0.05em] mt-4">
+                    <nav className="flex items-center justify-center gap-1.5 text-[12px] md:text-xs font-bold text-[#113A74] uppercase tracking-[0.05em] mt-4">
                         <Link href="/" className="hover:text-[#FFA500] transition-colors">
                             Home
                         </Link>
@@ -631,7 +711,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
                     {/* ── LEFT SIDEBAR ── */}
-                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-4">
+                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
                         {/* Promo image */}
                         <div className="rounded-[1.5rem] overflow-hidden shadow-sm border border-slate-100">
                             <img src={bookingImg.src || bookingImg} alt="Special Offer" className="w-full h-auto object-cover" />
@@ -640,7 +720,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {/* Related Images */}
                         {relatedImages.length > 0 && (
                             <div className="space-y-3">
-                                <h4 className="text-[#113A74] font-bold font-heading text-sm text-center">Related Images</h4>
+                                <h4 className="text-[#113A74] font-bold font-heading text-lg text-center">Related Images</h4>
 
                                 {/* Description — animates with the active slide */}
                                 {relatedImages[currentImageIndex]?.description && (
@@ -695,7 +775,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     </div>
 
                     {/* ── CENTER MAIN CONTENT ── */}
-                    <div className="flex-1 min-w-0 space-y-10 border border-gray-200 rounded-2xl p-4 sm:p-6">
+                    <div className="flex-1 min-w-0 space-y-6 border border-gray-200 rounded-2xl p-1.5 sm:p-2.5">
 
                         {/* Gallery carousel + Title grouped with tight spacing */}
                         <div className="space-y-3">
@@ -724,24 +804,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {/* Title row + Tour Code */}
                         <div className="space-y-1">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-black font-heading leading-tight">
+                                <h2 className="text-xl md:text-2xl font-bold text-black font-heading leading-tight">
                                     {pkg.title}
                                 </h2>
-                                <div className="shrink-0 space-y-1 text-right">
+                                <div className="shrink-0 text-right">
                                     <div className="flex items-center gap-1.5 justify-end">
-                                        <QrCode size={13} className="text-[#113A74]" />
-                                        <span className="text-[#113A74] font-bold text-xs">Tour Code : <span className="font-black">{pkg.display_id || 'N/A'}</span></span>
+                                        <QrCode size={15} className="text-[#113A74]" />
+                                        <span className="text-[#113A74] font-bold text-sm">Tour Code : <span className="text-gray-500 font-semibold">{pkg.display_id || 'N/A'}</span></span>
                                     </div>
-                                    {(pkg.valid_from || pkg.valid_to) && (
-                                        <div className="flex items-center gap-1.5 justify-end text-xs text-gray-500">
-                                            <img src={dateIcon.src || dateIcon} alt="" className="w-3 h-3 shrink-0" />
-                                            <span className="font-montserrat">
-                                                {pkg.valid_from ? new Date(pkg.valid_from).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-                                                {pkg.valid_from && pkg.valid_to ? ' - ' : ''}
-                                                {pkg.valid_to ? new Date(pkg.valid_to).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                             <p className="text-gray-400 text-sm">{pkg.nights} Nights &amp; {pkg.days} Days</p>
@@ -749,7 +819,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         </div>{/* end gallery+title group */}
 
                         {/* Info rows grouped tightly */}
-                        <div className="space-y-1 -mt-10">
+                        <div className="space-y-1">
                         <div className="flex flex-wrap gap-y-2">
                             {(pkg.continent || pkg.country) && (
                                 <div className="flex items-start gap-2 pr-4 py-1 text-sm text-gray-600 border-r border-gray-200">
@@ -767,17 +837,21 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     </span>
                                 </div>
                             )}
+                            {(pkg.valid_from || pkg.valid_to) && (
+                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600 border-r border-gray-200">
+                                    <img src={dateIcon.src || dateIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span className="font-medium font-montserrat leading-snug">
+                                        {pkg.valid_from ? new Date(pkg.valid_from).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                        {pkg.valid_from && pkg.valid_to ? ' - ' : ''}
+                                        {pkg.valid_to ? new Date(pkg.valid_to).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                    </span>
+                                </div>
+                            )}
                             {pkg.operated_by_name && (
-                                <div className={`flex items-start gap-2 px-4 py-1 text-sm text-gray-600 ${pkg.phone ? 'border-r border-gray-200' : ''}`}>
+                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600">
                                     <img src={headIcon.src || headIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">{pkg.operated_by_name}</span>
                                 </div>
-                            )}
-                            {pkg.phone && (
-                                <a href={`tel:${pkg.phone}`} className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600 hover:text-[#113A74] transition-colors">
-                                    <Phone size={15} className="shrink-0 mt-0.5 text-[#113A74]" />
-                                    <span className="font-medium font-montserrat leading-snug">{pkg.phone}</span>
-                                </a>
                             )}
                         </div>
 
@@ -786,9 +860,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             <div className="flex flex-wrap gap-y-1">
                                 <div className="flex items-center gap-2 pr-4 py-1.5 text-sm text-gray-600 border-r border-gray-200">
                                     <img src={trainIcon.src || trainIcon} alt="" className="w-4 h-4 shrink-0" />
-                                    <span className="font-montserrat">Fixed Departure</span>
+                                    <span className="font-montserrat">Customized Holidays, Fixed Departure</span>
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-1.5 text-xs text-gray-600 min-w-0 max-w-full overflow-hidden">
+                                <div className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-600 min-w-0 max-w-full overflow-hidden">
                                     <img src={plainIcon.src || plainIcon} alt="" className="w-4 h-4 shrink-0" />
                                     <span className="truncate font-montserrat">
                                         {Object.entries(
@@ -806,13 +880,30 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         </div>{/* end info rows group */}
 
 
-                        {/* Journey Overview title + description */}
-                        <div className="space-y-3">
-                            <div className="border-t border-gray-200 pt-4">
-                                <h2 className="text-lg font-bold text-black font-heading">Journey Overview :</h2>
-                            </div>
-                            <p className="text-gray-500 text-sm leading-relaxed">{pkg.description}</p>
-                        </div>
+                        {/* Journey Overview title + text (4 lines, then Show more) */}
+                        {(() => {
+                            const overviewText = pkg.journey_overview || '';
+                            if (!overviewText) return null;
+                            return (
+                                <div className="space-y-3">
+                                    <div className="border-t border-gray-200 pt-4">
+                                        <h2 className="text-xl md:text-2xl font-bold text-black font-heading">Journey Overview :</h2>
+                                    </div>
+                                    <p ref={overviewRef} className={`text-gray-500 text-sm leading-relaxed whitespace-pre-line ${showFullOverview ? '' : 'line-clamp-4'}`}>
+                                        {overviewText}
+                                    </p>
+                                    {(overviewOverflows || showFullOverview) && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowFullOverview(v => !v)}
+                                            className="text-[#113A74] text-sm font-bold hover:text-[#FFA500] transition-colors"
+                                        >
+                                            {showFullOverview ? 'Show less' : 'Show more'}
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {/* Journey Highlights — grouped attractions by city */}
                         {pkg.attractions?.length > 0 && (() => {
@@ -825,7 +916,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             }, {});
                             const groups = Object.entries(grouped);
                             return (
-                                <div className="space-y-5">
+                                <div className="space-y-4">
                                     <div>
                                         <h2 className="text-xl md:text-2xl font-bold text-black font-heading">
                                             Journey Highlights :
@@ -835,32 +926,153 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         </p>
                                     </div>
                                     <div className="bg-[#FFF8EB] rounded-2xl p-4 sm:p-6">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {groups.map(([cityName, attrs], idx) => (
-                                                <div key={cityName} className={`space-y-3 ${idx > 0 ? 'sm:border-l sm:border-gray-200 sm:pl-6' : ''} ${idx >= (groups.length % 3 === 0 ? groups.length - 3 : groups.length - (groups.length % 3)) ? '' : 'pb-4 sm:pb-0 border-b sm:border-b-0 border-gray-200'}`}>
-                                                    <div className="flex items-center gap-2">
-                                                        <MapPin size={15} className="text-[#113A74] shrink-0" />
-                                                        <h4 className="text-[#113A74] font-bold text-base">{cityName}</h4>
-                                                    </div>
-                                                    <ul className="space-y-1.5 pl-1">
-                                                        {attrs.map((attr, i) => (
-                                                            <li key={attr.id || i} className="flex items-start gap-2 text-gray-500 text-sm">
-                                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                                                                {attr.name}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
+                                        {(() => {
+                                            // Columns adapt to the number of cities so space is shared evenly:
+                                            //  1 city → 1 col, 2 → 2 cols, 3+ → 3 cols (wraps to new rows).
+                                            // Responsive: 1 col (mobile) → 2 cols (sm) → N cols (lg).
+                                            const colsLg = Math.min(groups.length, 2);
+                                            const lgColClass = colsLg === 1 ? 'lg:grid-cols-1' : 'lg:grid-cols-2';
+                                            return (
+                                                <div className={`grid grid-cols-1 ${lgColClass} gap-x-6 gap-y-8`}>
+                                                    {groups.map(([cityName, attrs], idx) => (
+                                                        <div
+                                                            key={cityName}
+                                                            className={`space-y-3 ${idx % 2 === 1 ? 'lg:border-l lg:border-gray-200 lg:pl-6' : ''}`}
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <MapPin size={15} className="text-[#113A74] shrink-0" />
+                                                                <h4 className="text-[#113A74] font-bold text-base">{cityName}</h4>
+                                                            </div>
+                                                            <ul className="space-y-1.5 pl-1">
+                                                                {attrs.map((attr, i) => (
+                                                                    <li key={attr.id || i} className="flex items-start gap-2 text-gray-500 text-sm">
+                                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                                                        <span className="flex-1 min-w-0">
+                                                                            {attr.url ? (
+                                                                                <a
+                                                                                    href={attr.url}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="hover:text-orange-500 hover:underline transition-colors cursor-pointer text-slate-700 font-medium"
+                                                                                >
+                                                                                    {attr.name}
+                                                                                </a>
+                                                                            ) : (
+                                                                                <span className="text-slate-700 font-medium">{attr.name}</span>
+                                                                            )}
+                                                                            {attr.entry_fee !== null && attr.entry_fee !== undefined && attr.entry_fee !== '' && (
+                                                                                <span className="text-[#113A74] font-semibold text-xs ml-1.5">
+                                                                                    (Entry: {formatEntryFee(attr.entry_fee)})
+                                                                                </span>
+                                                                            )}
+                                                                        </span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             );
                         })()}
 
+                        {/* Itinerary Accordion */}
+                        <div className="space-y-4 pt-2">
+                            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                                <h3 className="text-[22px] md:text-[26px] font-bold text-black font-heading">Itinerary</h3>
+                                <div className="flex items-center gap-3 cursor-pointer" onClick={toggleAllDays}>
+                                    <span className="text-sm font-medium text-gray-500">Expand all</span>
+                                    <button
+                                        className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'bg-[#FFA500]' : 'bg-gray-300'}`}
+                                    >
+                                        <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'left-[22px]' : 'left-[2px]'}`}></div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-0 relative py-2">
+                                {/* Vertical Timeline Line — dotted */}
+                                <div className="absolute left-[19px] top-6 bottom-6 -z-10" style={{ borderLeft: '2px dashed #e5e7eb' }}></div>
+
+                                {pkg.itinerary && pkg.itinerary.map((item) => {
+                                    const isExpanded = expandedDays.includes(item.day);
+                                    return (
+                                        <div key={item.day} className="relative pl-14 pt-2">
+                                            {/* Timeline Node */}
+                                            <div className="absolute left-0 top-[18px] w-10 h-10 flex items-center justify-center">
+                                                {isExpanded ? (
+                                                    <div className="w-10 h-10 rounded-full bg-[#FFA500] flex items-center justify-center shadow-lg shadow-[#FFA500]/30 z-10 transition-transform scale-100 object-contain p-1">
+                                                        <MapPin className="text-white w-5 h-5" fill="white" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-[14px] h-[14px] rounded-full border-[2.5px] border-[#FFA500] bg-white z-10 transition-transform hover:scale-110"></div>
+                                                )}
+                                            </div>
+
+                                            {/* Header */}
+                                            <button
+                                                onClick={() => toggleDay(item.day)}
+                                                className="w-full flex justify-between items-center py-4 text-left group"
+                                            >
+                                                <h4 className="font-bold font-heading text-lg text-black">
+                                                    <span>Day {item.day < 10 ? `0${item.day}` : item.day} : </span>
+                                                    <span>{cleanItineraryTitle(item.title)}</span>
+                                                </h4>
+                                                {isExpanded ? (
+                                                    <ChevronUp className="text-[#FFA500] w-5 h-5 transition-transform" />
+                                                ) : (
+                                                    <ChevronDown className="text-gray-400 w-5 h-5 transition-transform group-hover:text-[#FFA500]" />
+                                                )}
+                                            </button>
+
+                                            {/* Expanded Content */}
+                                            <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[1500px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
+                                                {/* Descriptions — one paragraph per item */}
+                                                {(item.descriptions?.length > 0 ? item.descriptions : item.description ? [item.description] : []).map((desc, di) => (
+                                                    <p key={di} className="text-sm text-black leading-relaxed mb-3 pr-4 whitespace-pre-line">{desc}</p>
+                                                ))}
+
+                                                {/* Transport & Meal Icons — bottom right corner, below description */}
+                                                {(item.has_flight || item.has_train || item.has_bus || item.has_breakfast || item.has_lunch || item.has_dinner) && (
+                                                    <div className="flex flex-wrap justify-end gap-3 mt-3">
+                                                        {item.has_flight && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Plane size={15} className="text-[#113A74]" /> Flight</div>}
+                                                        {item.has_train && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Train size={15} className="text-[#113A74]" /> Train</div>}
+                                                        {item.has_bus && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Car size={15} className="text-[#113A74]" /> Bus</div>}
+                                                        {item.has_breakfast && (
+                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+                                                                Breakfast
+                                                            </div>
+                                                        )}
+                                                        {item.has_lunch && (
+                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 21H17"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 3a6 6 0 0 1 4.94.96"/><path d="M20.97 8c-.472-3.195-3.395-5.12-6.97-5"/></svg>
+                                                                Lunch
+                                                            </div>
+                                                        )}
+                                                        {item.has_dinner && (
+                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+                                                                Dinner
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {!isExpanded && <div className="border-b border-gray-100 mr-4"></div>}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         {/* Hotels Used */}
                         {pkg.hotels?.length > 0 && (
-                            <div className="space-y-5">
+                            <div className="space-y-4">
                                 <div>
                                     <h2 className="text-xl md:text-2xl font-bold text-black font-heading">
                                         Hotels Used :
@@ -890,7 +1102,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                     {hotel.name}
                                                 </h3>
                                                 {displayAddress && (
-                                                    <div className="flex items-start gap-1.5 text-gray-500 text-[11px]">
+                                                    <div className="flex items-start gap-1.5 text-gray-500 text-[12px]">
                                                         <MapPin size={11} className="shrink-0 mt-0.5 text-[#113A74]" />
                                                         <span className="line-clamp-1">{displayAddress}</span>
                                                     </div>
@@ -899,8 +1111,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                 {(hotel.phone || hotel.url) && (
                                                     <div className="flex items-center gap-4 flex-wrap">
                                                         {hotel.url && (
-                                                            <div className="flex items-center gap-1.5 text-[11px]">
-                                                                <Globe size={11} className="shrink-0 text-[#113A74]" />
+                                                            <div className="flex items-center gap-1.5 text-[12px]">
+                                                                <Globe size={12} className="shrink-0 text-[#113A74]" />
                                                                 <a
                                                                     href={hotel.url}
                                                                     target="_blank"
@@ -908,13 +1120,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                     className="text-[#113A74] hover:text-[#FFA500] transition-colors truncate"
                                                                     onClick={e => e.stopPropagation()}
                                                                 >
-                                                                    {hotel.url.replace(/^https?:\/\//, '')}
+                                                                    Website
                                                                 </a>
                                                             </div>
                                                         )}
                                                         {hotel.phone && (
-                                                            <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                                                                <Phone size={11} className="shrink-0 text-[#113A74]" />
+                                                            <div className="flex items-center gap-1.5 text-gray-500 text-[12px]">
+                                                                <Phone size={12} className="shrink-0 text-[#113A74]" />
                                                                 <span>Tel: {hotel.phone}</span>
                                                             </div>
                                                         )}
@@ -942,7 +1154,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     {/* Table header */}
                                     <div className="grid grid-cols-5 px-5 py-3 bg-blue-50 border-b border-blue-100">
                                         {['DATE', 'FLIGHT NO', 'ROUTE', 'DEPARTURE', 'ARRIVAL'].map(h => (
-                                            <span key={h} className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
+                                            <span key={h} className="text-[12px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
                                         ))}
                                     </div>
                                     {/* Rows */}
@@ -985,9 +1197,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 <div className="rounded-2xl border border-gray-100 overflow-hidden overflow-x-auto">
                                     <div className="min-w-[560px]">
                                     {/* Table header */}
-                                    <div className="grid grid-cols-6 px-5 py-3 bg-blue-50 border-b border-blue-100">
+                                    <div className="grid grid-cols-6 px-5 py-3 bg-[#EEF5FF] border-b border-[#E1EEFF]">
                                         {['DATE', 'TRAIN', 'FROM', 'TO', 'DEPARTURE', 'ARRIVAL'].map(h => (
-                                            <span key={h} className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
+                                            <span key={h} className="text-[12px] font-bold text-[#1D2A44] uppercase tracking-wider">{h}</span>
                                         ))}
                                     </div>
                                     {/* Rows */}
@@ -1013,85 +1225,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             </div>
                         )}
 
-                        {/* Itinerary Accordion */}
-                        <div className="space-y-6 pt-6">
-                            <div className="flex justify-between items-center border-b border-gray-100 pb-6">
-                                <h3 className="text-2xl md:text-3xl font-bold text-[#113A74] font-heading">Itinerary</h3>
-                                <div className="flex items-center gap-3 cursor-pointer" onClick={toggleAllDays}>
-                                    <span className="text-sm font-medium text-gray-500">Expand all</span>
-                                    <button
-                                        className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'bg-[#FFA500]' : 'bg-gray-300'}`}
-                                    >
-                                        <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all duration-300 shadow-sm ${(pkg.itinerary && expandedDays.length === pkg.itinerary.length && pkg.itinerary.length > 0) ? 'left-[22px]' : 'left-[2px]'}`}></div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-0 relative py-2">
-                                {/* Vertical Timeline Line — dotted */}
-                                <div className="absolute left-[19px] top-6 bottom-6 -z-10" style={{ borderLeft: '2px dashed #e5e7eb' }}></div>
-
-                                {pkg.itinerary && pkg.itinerary.map((item) => {
-                                    const isExpanded = expandedDays.includes(item.day);
-                                    return (
-                                        <div key={item.day} className="relative pl-14 pt-2">
-                                            {/* Timeline Node */}
-                                            <div className="absolute left-0 top-[18px] w-10 h-10 flex items-center justify-center">
-                                                {isExpanded ? (
-                                                    <div className="w-10 h-10 rounded-full bg-[#FFA500] flex items-center justify-center shadow-lg shadow-[#FFA500]/30 z-10 transition-transform scale-100 object-contain p-1">
-                                                        <MapPin className="text-white w-5 h-5" fill="white" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-[14px] h-[14px] rounded-full border-[2.5px] border-[#FFA500] bg-white z-10 transition-transform hover:scale-110"></div>
-                                                )}
-                                            </div>
-
-                                            {/* Header */}
-                                            <button
-                                                onClick={() => toggleDay(item.day)}
-                                                className="w-full flex justify-between items-center py-4 text-left group"
-                                            >
-                                                <h4 className="font-bold font-heading text-lg">
-                                                    <span className="text-[#113A74]">Day {item.day < 10 ? `0${item.day}` : item.day} : </span>
-                                                    <span className="text-gray-800">{item.title}</span>
-                                                </h4>
-                                                {isExpanded ? (
-                                                    <ChevronUp className="text-[#FFA500] w-5 h-5 transition-transform" />
-                                                ) : (
-                                                    <ChevronDown className="text-gray-400 w-5 h-5 transition-transform group-hover:text-[#FFA500]" />
-                                                )}
-                                            </button>
-
-                                            {/* Expanded Content */}
-                                            <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[1500px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
-                                                {/* Transport & Meal Icons — right-aligned, above description */}
-                                                {(item.has_flight || item.has_train || item.has_bus || item.has_breakfast || item.has_lunch || item.has_dinner) && (
-                                                    <div className="flex flex-wrap justify-end gap-2 mb-4">
-                                                        {item.has_flight && <div className="flex items-center gap-1 text-gray-500 text-xs"><Plane size={13} className="text-[#113A74]" /> Flight</div>}
-                                                        {item.has_train && <div className="flex items-center gap-1 text-gray-500 text-xs"><Train size={13} className="text-[#113A74]" /> Train</div>}
-                                                        {item.has_bus && <div className="flex items-center gap-1 text-gray-500 text-xs"><Car size={13} className="text-[#113A74]" /> Bus</div>}
-                                                        {item.has_breakfast && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Breakfast</div>}
-                                                        {item.has_lunch && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Lunch</div>}
-                                                        {item.has_dinner && <div className="flex items-center gap-1 text-gray-500 text-xs"><Utensils size={13} className="text-gray-400" /> Dinner</div>}
-                                                    </div>
-                                                )}
-
-                                                {/* Descriptions — one paragraph per item */}
-                                                {(item.descriptions?.length > 0 ? item.descriptions : item.description ? [item.description] : []).map((desc, di) => (
-                                                    <p key={di} className="text-sm text-gray-500 leading-relaxed mb-3 pr-4 whitespace-pre-line">{desc}</p>
-                                                ))}
-                                            </div>
-
-                                            {!isExpanded && <div className="border-b border-gray-100 mr-4"></div>}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
                         {/* Inclusion / Exclusion */}
                         <div className="space-y-4">
-                            <h3 className="text-xl font-bold text-black font-heading">Inclusion/Exclusion</h3>
+                            <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Inclusion/Exclusion</h3>
                             <div className="bg-[#fdf8f2] rounded-2xl p-6">
                                 <div className="flex flex-col sm:flex-row">
                                     {/* Inclusions */}
@@ -1128,21 +1264,21 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         </div>
 
                         {/* Blackout Days */}
-                        {pkg.blackout_dates?.length > 0 && (
+                        {blackoutDates?.length > 0 && (
                             <div className="space-y-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-[#EEF5FF] flex items-center justify-center shrink-0">
-                                        <Calendar size={19} className="text-[#113A74]" />
+                                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[#113A74]">
+                                        <Calendar size={19} />
                                     </div>
-                                    <h3 className="text-[22px] font-bold text-[#1d2a44] font-heading">
+                                    <h3 className="text-xl md:text-2xl font-bold text-black font-heading">
                                         Black Out Days
                                     </h3>
                                 </div>
-                                <div className="rounded-2xl border border-gray-100 bg-[#FBFBFB] px-8 py-7 shadow-sm">
+                                <div className="rounded-[1.5rem] border border-slate-100 bg-[#FBFBFB] p-6 sm:p-8 shadow-sm">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-3">
-                                        {pkg.blackout_dates.map((range, index) => (
-                                            <div key={range.id || index} className="flex items-center gap-3 text-sm sm:text-base text-[#4B5872] font-medium">
-                                                <span className="w-2 h-2 rounded-full bg-[#FFA500] shrink-0" />
+                                        {blackoutDates.map((range, index) => (
+                                            <div key={range.id || index} className="flex items-center gap-2.5 text-sm sm:text-base text-[#4B5872] font-medium">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#FFA500] shrink-0" />
                                                 <span>
                                                     {formatPackageDate(range.from || range.start_date)} - {formatPackageDate(range.to || range.end_date)}
                                                 </span>
@@ -1153,11 +1289,12 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             </div>
                         )}
 
-                        {/* Offer Validity / Booking Policy / Cancellation Policy */}
-                        {(pkg.offer_validity || pkg.booking_policy || pkg.cancellation_policy) && (
-                            <div className="space-y-0 divide-y divide-gray-100 border border-gray-100 rounded-2xl bg-[#FBFBFB] overflow-hidden">
+                        {/* Policies Wrapper to reduce gap between sections */}
+                        {(pkg.offer_validity || pkg.booking_policy || pkg.cancellation_policy || termsConditions || servicePolicy) && (
+                            <div className="space-y-3">
+                                {/* Offer Validity — separate section */}
                                 {pkg.offer_validity && (
-                                    <div className="px-6 py-5 space-y-2">
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={offerIcon.src || offerIcon} alt="" className="w-5 h-5 shrink-0" />
                                             <h4 className="text-[20px] font-bold text-black font-heading">Offer Validity</h4>
@@ -1177,8 +1314,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         </p>
                                     </div>
                                 )}
+
+                                {/* Booking Policy — separate section */}
                                 {pkg.booking_policy && (
-                                    <div className="px-6 py-5 space-y-2">
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
                                             <h4 className="text-[20px] font-bold text-black font-heading">Booking Policy</h4>
@@ -1186,13 +1325,59 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         <p className="text-gray-500 text-sm leading-relaxed">{pkg.booking_policy}</p>
                                     </div>
                                 )}
+
+                                {/* Cancellation Policy — separate section */}
                                 {pkg.cancellation_policy && (
-                                    <div className="px-6 py-5 space-y-2">
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={cancellationPolicyIcon.src || cancellationPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
                                             <h4 className="text-[20px] font-bold text-black font-heading">Cancellation Policy</h4>
                                         </div>
                                         <p className="text-gray-500 text-sm leading-relaxed">{pkg.cancellation_policy}</p>
+                                    </div>
+                                )}
+
+                                {/* Terms & Conditions — separate section */}
+                                {(Array.isArray(termsConditions) ? termsConditions.length > 0 : !!termsConditions) && (
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Terms &amp; Conditions</h4>
+                                        </div>
+                                        {Array.isArray(termsConditions) ? (
+                                            <ul className="space-y-1.5 pl-1">
+                                                {termsConditions.map((item, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                                        {typeof item === 'string' ? item : item.name || item.title || ''}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-500 text-sm leading-relaxed">{termsConditions}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Service Policy — separate section */}
+                                {(Array.isArray(servicePolicy) ? servicePolicy.length > 0 : !!servicePolicy) && (
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Service Policy</h4>
+                                        </div>
+                                        {Array.isArray(servicePolicy) ? (
+                                            <ul className="space-y-1.5 pl-1">
+                                                {servicePolicy.map((item, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                                        {typeof item === 'string' ? item : item.name || item.title || ''}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-500 text-sm leading-relaxed">{servicePolicy}</p>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1202,7 +1387,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {pkg.faqs?.length > 0 && (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-[24px] font-bold text-black font-heading">Frequently Asked Questions</h3>
+                                    <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Frequently Asked Questions</h3>
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleAllFaqs(pkg.faqs)}>
                                         <span className="text-sm text-gray-500">Expand all</span>
                                         <div className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${faqExpandAll ? 'bg-[#FFA500]' : 'bg-gray-300'}`}>
@@ -1234,52 +1419,63 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             </div>
                         )}
 
-                        {/* Links */}
-                        {pkg.links?.length > 0 && (
-                            <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <img src={linkIcon.src || linkIcon} alt="" className="w-5 h-5 shrink-0" />
-                                    <h4 className="text-base font-bold text-black font-heading">Links</h4>
-                                </div>
-                                <div className="space-y-1.5 pl-8">
-                                    {pkg.links.map((link, idx) => (
-                                        <a
-                                            key={idx}
-                                            href={link.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block text-sm text-[#113A74] hover:underline"
-                                        >
-                                            {link.url}
-                                        </a>
-                                    ))}
-                                </div>
-                                <div className="border-t border-gray-100 mt-2" />
-                            </div>
-                        )}
-
-                        {/* Important Contact */}
-                        {pkg.contacts?.length > 0 && (
-                            <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <img src={callIcon.src || callIcon} alt="" className="w-5 h-5 shrink-0" />
-                                    <h4 className="text-base font-bold text-black font-heading">Important Contact</h4>
-                                </div>
-                                <div className="divide-y divide-gray-100">
-                                    {pkg.contacts.map((contact, idx) => (
-                                        <div key={idx} className="grid grid-cols-2 py-2.5 px-2 text-sm text-gray-600">
-                                            <span>{contact.name}</span>
-                                            <span className="font-medium text-[#1d2a44]">{contact.mobile}</span>
+                        {/* Links & Important Contact Grouped Container */}
+                        {((pkg.links && pkg.links.length > 0) || (pkg.contacts && pkg.contacts.length > 0)) && (
+                            <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-4 sm:px-6 py-4 sm:py-5 space-y-4">
+                                {/* Links */}
+                                {pkg.links?.length > 0 && (
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <img src={linkIcon.src || linkIcon} alt="" className="w-5 h-5 shrink-0" />
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Links</h4>
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="space-y-1.5 pl-5 sm:pl-8">
+                                            {pkg.links.map((link, idx) => (
+                                                <a
+                                                    key={idx}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block text-sm text-[#113A74] hover:underline"
+                                                >
+                                                    {link.name || link.title || link.label || link.url}
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Horizontal separator if both exist */}
+                                {pkg.links?.length > 0 && pkg.contacts?.length > 0 && (
+                                    <div className="border-t border-gray-100 -mx-4 sm:-mx-6" />
+                                )}
+
+                                {/* Important Contact */}
+                                {pkg.contacts?.length > 0 && (
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <img src={callIcon.src || callIcon} alt="" className="w-5 h-5 shrink-0" />
+                                            <h4 className="text-[20px] font-bold text-black font-heading">Important Contact</h4>
+                                        </div>
+                                        <div className="max-w-[450px] pl-5 sm:pl-8">
+                                            <div className="divide-y divide-gray-200">
+                                                {pkg.contacts.map((contact, idx) => (
+                                                    <div key={idx} className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-y-1 sm:gap-y-0 gap-x-4 py-3 sm:py-3.5 first:pt-0 last:pb-0 text-sm sm:text-base items-start sm:items-center">
+                                                        <span className="text-[#4B5872] font-medium">{contact.name}</span>
+                                                        <span className="text-[#1D2A44] font-normal">{contact.mobile}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
                     </div>{/* end center main content */}
 
                     {/* ── RIGHT SIDEBAR ── */}
-                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-4">
+                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
 
                         {/* Airline Card */}
                         {pkg.airline_name && (
@@ -1290,7 +1486,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                     backgroundColor: '#0d2d5e',
-                                    minHeight: '130px'
+                                    minHeight: '74px'
                                 }}
                             >
                                 <div className="absolute inset-0 flex items-center px-4 gap-3">
@@ -1302,7 +1498,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         )}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Airline</p>
+                                        <p className="text-white/60 text-[12px] font-semibold uppercase tracking-wider">Airline</p>
                                         <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.airline_name}</p>
                                     </div>
                                 </div>
@@ -1318,7 +1514,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                     backgroundColor: '#0d2d5e',
-                                    minHeight: '130px'
+                                    minHeight: '74px'
                                 }}
                             >
                                 <div className="absolute inset-0 flex items-center px-4 gap-3">
@@ -1330,7 +1526,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         )}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-white/60 text-[11px] font-semibold uppercase tracking-wider">Operated by</p>
+                                        <p className="text-white/60 text-[12px] font-semibold uppercase tracking-wider">Operated by</p>
                                         <p className="text-white font-bold text-[14px] leading-tight truncate">{pkg.operated_by_name}</p>
                                     </div>
                                 </div>
@@ -1355,8 +1551,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     if (!rows.length) return <p className="text-white/50 text-xs italic">No pricing available</p>;
                                     return rows.map(row => (
                                         <div key={row.label} className="flex items-center justify-between gap-2">
-                                            <span className="text-white/70 text-xs font-medium">{row.label}</span>
-                                            <span className="text-white font-bold text-xs">{formatPrice(row.value)}</span>
+                                            <span className="text-white/70 text-sm font-medium">{row.label}</span>
+                                            <span className="text-white font-bold text-sm">{formatPrice(row.value)}</span>
                                         </div>
                                     ));
                                 })()}
@@ -1441,9 +1637,23 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                 {/* Location Map Section */}
                 {(pkg.location_map || pkg.destination?.name || pkg.location) ? (
-                    <div className="mt-8 sm:mt-12 lg:mt-20">
+                    <div className="mt-4 sm:mt-6 lg:mt-8">
                         <div className="rounded-[2rem] overflow-hidden shadow-md border border-gray-100 h-[300px] sm:h-[380px] lg:h-[450px] relative">
                             {(() => {
+                                // Multi-stop route: parse location_map into coordinate stops (array | single object).
+                                let routeStops = [];
+                                if (pkg.location_map && !String(pkg.location_map).includes('<iframe')) {
+                                    try {
+                                        const parsed = typeof pkg.location_map === 'string' ? JSON.parse(pkg.location_map) : pkg.location_map;
+                                        const arr = Array.isArray(parsed) ? parsed : [parsed];
+                                        routeStops = arr.filter(s => s && s.lat != null && s.lng != null)
+                                            .map(s => ({ lat: Number(s.lat), lng: Number(s.lng), address: s.address || '' }));
+                                    } catch { /* not JSON — fall through to iframe */ }
+                                }
+                                if (routeStops.length >= 1) {
+                                    return <PackageRouteMap locations={routeStops} />;
+                                }
+
                                 let mapUrl = "";
                                 if (pkg.location_map) {
                                     if (pkg.location_map.includes('<iframe')) {
@@ -1498,12 +1708,12 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
             {/* Related Packages */}
             {relatedPackages.length > 0 && (
                 <section className="py-14 bg-[#EAF4FB]">
-                    <div className="max-w-[1100px] mx-auto px-6">
+                    <div className="max-w-[1100px] mx-auto px-6 overflow-hidden">
                         {/* Header */}
                         <div className="text-center mb-10">
                             <div className="inline-flex items-center gap-2 border border-[#113A74]/20 bg-white px-5 py-2 rounded-full mb-5">
                                 <Plane size={14} className="text-[#113A74]" />
-                                <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#113A74]">Related</span>
+                                <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-[#113A74]">Related</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl font-bold text-[#113A74] font-heading">
                                 Related Trips You{' '}
@@ -1511,104 +1721,131 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             </h2>
                         </div>
 
-                        {/* Cards — same design as tours listing page */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {relatedPackages.map((rp) => {
-                                // Build city list: prefer cities array, fall back to splitting location by comma
-                                const rpCities = (() => {
-                                    if (rp.cities?.length > 0)
-                                        return rp.cities.map(c => typeof c === 'string' ? c : c?.name).filter(Boolean);
-                                    if (rp.location) {
-                                        const parts = rp.location.split(',').map(s => s.trim()).filter(Boolean);
-                                        return parts;
-                                    }
-                                    return [];
-                                })();
-                                const cityRows = Array.from({ length: Math.ceil(rpCities.length / 3) }, (_, row) =>
-                                    rpCities.slice(row * 3, row * 3 + 3)
-                                );
-                                const hotelsIncluded = rp.hotels_included ?? rp.has_hotel;
-                                const flightsIncluded = rp.flights_included ?? rp.has_flight;
-                                const hasFood = rp.has_food;
-                                return (
-                                    <div
-                                        key={rp.id}
-                                        onClick={() => router.push(`/packages/${rp.slug || rp.id}`)}
-                                        className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
-                                    >
-                                        {/* Image */}
-                                        <div className="relative aspect-[4/3] overflow-hidden">
-                                            <img src={rp.image} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                            <FavoriteButton packageId={rp.id} className="absolute top-3 right-3 z-20" />
-                                            <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
-                                                <Calendar size={13} className="opacity-90" />
-                                                <span>{rp.nights} Nights, {rp.days} Days</span>
-                                            </div>
-                                            {/* Airline / Operated by hover overlay */}
-                                            {(rp.airline_name || rp.operated_by_name) && (
-                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                    {rp.airline_name && (
-                                                        <div className="flex items-center gap-2 text-white text-[11px] font-medium mb-1">
-                                                            {rp.airline_logo
-                                                                ? <img src={rp.airline_logo} alt={rp.airline_name} className="w-4 h-4 object-contain rounded-sm shrink-0" />
-                                                                : <Plane size={12} className="shrink-0" />}
-                                                            <span>Airline: {rp.airline_name}</span>
+                        {/* Slider Container */}
+                        <div className="relative">
+                            <div className="overflow-hidden">
+                                <div
+                                    className="flex transition-transform duration-500 ease-out"
+                                    style={{
+                                        transform: `translateX(-${currentSlide * (100 / visibleCards)}%)`,
+                                    }}
+                                >
+                                    {relatedPackages.map((rp) => {
+                                        // Build city list: prefer cities array, fall back to splitting location by comma
+                                        const rpCities = (() => {
+                                            if (rp.cities?.length > 0)
+                                                return rp.cities.map(c => typeof c === 'string' ? c : c?.name).filter(Boolean);
+                                            if (rp.location) {
+                                                const parts = rp.location.split(',').map(s => s.trim()).filter(Boolean);
+                                                return parts;
+                                            }
+                                            return [];
+                                        })();
+                                        const cityRows = Array.from({ length: Math.ceil(rpCities.length / 3) }, (_, row) =>
+                                            rpCities.slice(row * 3, row * 3 + 3)
+                                        );
+                                        const hotelsIncluded = rp.hotels_included ?? rp.has_hotel;
+                                        const flightsIncluded = rp.flights_included ?? rp.has_flight;
+                                        const hasFood = rp.has_food;
+                                        return (
+                                            <div
+                                                key={rp.id}
+                                                style={{ width: `${100 / visibleCards}%` }}
+                                                className="shrink-0 px-3"
+                                            >
+                                                <div
+                                                    onClick={() => router.push(`/packages/${rp.slug || rp.id}`)}
+                                                    className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                                                >
+                                                    {/* Image */}
+                                                    <div className="relative aspect-[4/3.6] overflow-hidden">
+                                                        <img src={rp.image} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                        <FavoriteButton packageId={rp.id} className="absolute top-4 right-4 z-20 !bg-white/20 hover:!bg-white/30 !shadow-none border border-white/60 !backdrop-blur-sm [&_svg]:text-white" />
+                                                        <div className="absolute top-4 left-0 bg-[#113A74] text-white pl-4 pr-3 py-2 rounded-r-lg flex items-center gap-2 text-[13px] font-bold shadow-lg">
+                                                            <Calendar size={13} className="opacity-90" />
+                                                            <span>{rp.nights} Nights, {rp.days} Days</span>
                                                         </div>
-                                                    )}
-                                                    {rp.operated_by_name && (
-                                                        <p className="text-white/90 text-[11px] font-medium">
-                                                            Operated by: {rp.operated_by_name}
-                                                        </p>
-                                                    )}
+                                                        {/* Airline + Operated by overlay — visible on hover (bottom-left) */}
+                                                        {(rp.airline_name || rp.operated_by_name) && (
+                                                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-8 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                {rp.airline_name && (
+                                                                    <div className="flex items-center gap-2 text-white text-[15px] font-heading leading-tight">
+                                                                        <img src={airlineTailIcon.src || airlineTailIcon} alt="Airline" className="w-7 h-7 object-contain shrink-0 scale-150" />
+                                                                        <span>Airline : {rp.airline_name}</span>
+                                                                    </div>
+                                                                )}
+                                                                {rp.operated_by_name && (
+                                                                    <p className="text-white/90 text-[15px] font-heading leading-tight">
+                                                                        Operated by : {rp.operated_by_name}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Content */}
+                                                    <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-1 justify-between">
+                                                        <div>
+                                                            <h3 title={rp.title} className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-2">{rp.title}</h3>
+                                                            {rpCities.length > 0 && (
+                                                                <div className="flex flex-col gap-0.5 mb-0.5 mt-1">
+                                                                    {cityRows.map((row, ri) => (
+                                                                        <p key={ri} className="text-slate-400 text-[13px] font-medium leading-snug">
+                                                                            {row.map((city, ci) => (
+                                                                                <span key={ci}>
+                                                                                    {city}
+                                                                                    {ci < row.length - 1 && <span className="mx-1 text-slate-300">|</span>}
+                                                                                </span>
+                                                                            ))}
+                                                                        </p>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-2.5 mt-auto pt-2">
+                                                            {/* Amenity icons */}
+                                                            <div className="flex items-center gap-2 py-0.5 flex-wrap">
+                                                                {hotelsIncluded  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
+                                                                {flightsIncluded && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}
+                                                                {hasFood         && <img src={foodIcon.src  || foodIcon}   alt="Food included"   className="w-5 h-5 object-contain" />}
+                                                            </div>
+
+                                                            {/* Book Now + Price */}
+                                                            <div className="flex items-center justify-between gap-3 mt-auto pt-2 border-t border-gray-100">
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); router.push(`/packages/${rp.slug || rp.id}?book=true`); }}
+                                                                    className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-[13px] font-sans-force font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                                                                >Book Now</button>
+                                                                <div className="text-right">
+                                                                    <span className="text-[#FFA500] text-xl font-black leading-none">{formatPrice(rp.price)}</span>
+                                                                    <p className="text-[#113A74] text-[13px] font-bold tracking-wider mt-0.5 opacity-90">Onwards</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-4 sm:p-5 flex flex-col flex-1 gap-1">
-                                            <h3 className="text-lg md:text-xl font-bold text-[#113A74] font-heading tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2">
-                                                {rp.title}
-                                            </h3>
-
-                                            {/* Cities — 3 per row with | separators, left aligned */}
-                                            {rpCities.length > 0 && (
-                                                <div className="flex flex-col gap-0.5">
-                                                    {cityRows.map((row, ri) => (
-                                                        <p key={ri} className="text-slate-400 text-[12px] font-medium leading-snug">
-                                                            {row.map((city, ci) => (
-                                                                <span key={ci}>
-                                                                    {city}
-                                                                    {ci < row.length - 1 && <span className="mx-1 text-slate-300">|</span>}
-                                                                </span>
-                                                            ))}
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {/* Amenity icons */}
-                                            <div className="flex items-center gap-2 py-0.5 flex-wrap">
-                                                {hotelsIncluded  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel"  className="w-5 h-5 object-contain" />}
-                                                {flightsIncluded && <img src={flightIcon.src || flightIcon} alt="Flight" className="w-5 h-5 object-contain" />}
-                                                {hasFood         && <img src={foodIcon.src  || foodIcon}   alt="Food"   className="w-5 h-5 object-contain" />}
                                             </div>
-
-                                            {/* Book Now + Price */}
-                                            <div className="flex items-center justify-between gap-3 mt-auto pt-2">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); router.push(`/packages/${rp.slug || rp.id}`); }}
-                                                    className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
-                                                >Book Now</button>
-                                                <div className="text-right">
-                                                    <span className="text-[#FFA500] text-xl sm:text-2xl font-black leading-none">{formatPrice(convertPrice(rp.price))}</span>
-                                                    <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-90">onwards</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Slide Indicators / Dots */}
+                        {relatedPackages.length > visibleCards && (
+                            <div className="flex justify-center gap-2 mt-8">
+                                {Array.from({ length: relatedPackages.length - visibleCards + 1 }).map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentSlide(idx)}
+                                        className={`h-2.5 rounded-full transition-all duration-300 ${
+                                            currentSlide === idx ? 'bg-[#FFA500] w-6' : 'bg-gray-300 w-2.5'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </section>
             )}

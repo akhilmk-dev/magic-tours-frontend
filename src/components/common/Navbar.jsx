@@ -6,6 +6,7 @@ import { Menu, X, User, LogOut, MapPin, Phone, ChevronDown } from 'lucide-react'
 import { clsx } from 'clsx';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useGeoLocation } from '../../hooks/useGeoLocation';
 
 const getFlagCode = (currencyCode) => {
     const map = {
@@ -165,8 +166,12 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [dynamicLogo,     setDynamicLogo]     = useState(null);
-    const [siteLocation,    setSiteLocation]    = useState('');
     const [siteMobile,      setSiteMobile]      = useState('');
+    const [mapsKey,         setMapsKey]         = useState('');
+
+    // Geo-detected "City, Country" from the visitor's device location.
+    // Falls back to null (slot hidden) if permission is denied or it fails.
+    const { location: geoLocation } = useGeoLocation(mapsKey);
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout } = useCustomerAuth();
@@ -188,8 +193,8 @@ export default function Navbar() {
             .then(data => {
                 const d = data?.data || {};
                 if (d.site_logo)        setDynamicLogo(d.site_logo);
-                if (d.company_location) setSiteLocation(d.company_location);
                 if (d.company_mobile_no) setSiteMobile(d.company_mobile_no);
+                if (d.google_maps_api_key) setMapsKey(d.google_maps_api_key);
             })
             .catch(err => console.error("Failed to fetch site logo:", err));
 
@@ -222,7 +227,7 @@ export default function Navbar() {
             "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
             isTransparent ? "bg-transparent" : "bg-white shadow-sm"
         )}>
-            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} siteLocation={siteLocation} siteMobile={siteMobile} />
+            <TopBar isTransparent={isTransparent} user={user} onLogout={handleLogout} siteLocation={geoLocation} siteMobile={siteMobile} />
             <nav className="py-3 sm:py-4 md:py-5">
                 <div className="px-6 sm:px-4 md:px-6 flex items-center justify-between w-full">
                     {/* Logo */}

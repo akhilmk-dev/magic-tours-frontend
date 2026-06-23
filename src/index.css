@@ -23,6 +23,19 @@
   .button-secondary {
     @apply font-heading normal-case !important;
   }
+
+  /* Opt-out: force the body sans (Inter) font on specific elements,
+     overriding the global font-heading rules for buttons and headings above. */
+  button.font-sans-force,
+  h1.font-sans-force,
+  h2.font-sans-force,
+  h3.font-sans-force,
+  h4.font-sans-force,
+  h5.font-sans-force,
+  h6.font-sans-force,
+  .font-sans-force {
+    font-family: var(--font-inter), Inter, sans-serif !important;
+  }
 }
 
 @layer utilities {
@@ -79,4 +92,25 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Hide scrollbar while keeping scroll (used by the hero form on very short screens) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Anniversary badge — 3D horizontal sway (stays readable, never mirrored) */
+@keyframes annivSway {
+  0%   { transform: rotateY(-30deg); }
+  50%  { transform: rotateY(30deg); }
+  100% { transform: rotateY(-30deg); }
+}
+.anniv-spin {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  animation: annivSway 3.5s ease-in-out infinite;
 }

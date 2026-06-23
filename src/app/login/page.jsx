@@ -180,19 +180,9 @@ const individualSchema = Yup.object({
     name: Yup.string().required('Required'),
     email: Yup.string().email('Invalid email').required('Required'),
     phone: Yup.string().required('Required'),
+    date_of_birth: Yup.date().required('Required'),
     password: Yup.string().min(8, 'Min 8 chars').required('Required'),
     confirmPassword: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Required'),
-    address: Yup.string().required('Required'),
-    city: Yup.string().required('Required'),
-    country: Yup.string().required('Required'),
-    gender: Yup.string().required('Required'),
-    date_of_birth: Yup.date().required('Required'),
-    nationality: Yup.string().required('Required'),
-    country_of_residence: Yup.string().required('Required'),
-    passport_number: Yup.string().required('Required'),
-    passport_issue_country: Yup.string().required('Required'),
-    passport_issue_date: Yup.date().required('Required'),
-    passport_expiry_date: Yup.date().required('Required'),
 });
 
 const corporateSchema = Yup.object({
@@ -325,26 +315,12 @@ const AuthPageContent = () => {
 
                 if (customerType === 'individual') {
                     payload.status = 'Active';
+                    // Individual customers only provide: name, email, phone, DOB, password.
                     payload.individual_profile = {
-                        full_name: values.name, gender: values.gender, date_of_birth: values.date_of_birth,
-                        nationality: values.nationality, country_of_residence: values.country_of_residence,
-                        mobile: values.phone, whatsapp: values.whatsapp || values.phone,
-                        address: values.address, city: values.city, country: values.country,
-                        preferred_contact: values.preferred_contact, passport_number: values.passport_number,
-                        passport_issue_country: values.passport_issue_country,
-                        passport_issue_date: values.passport_issue_date,
-                        passport_expiry_date: values.passport_expiry_date,
-                        passport_url: values.passport_url,
-                        profile_image: values.profile_image,
-                        preferred_departure_airport: values.preferred_departure_airport,
-                        preferred_travel_class: values.preferred_travel_class,
-                        preferred_hotel_category: values.preferred_hotel_category,
-                        preferred_destinations: values.preferred_destinations,
-                        travel_interests: values.travel_interests.map(i => i.toLowerCase()), meal_preference: values.meal_preference,
-                        special_assistance: values.special_assistance,
-                        marketing_consent: values.marketing_consent,
+                        full_name: values.name,
+                        date_of_birth: values.date_of_birth,
+                        mobile: values.phone,
                     };
-                    payload.frequent_flyer = values.frequent_flyers.filter(ff => ff.airline.trim() && ff.membership_number.trim());
                 } else {
                     payload.corporate_profile = {
                         registered_company_name: values.company_name, trade_name: values.trade_name,
@@ -581,111 +557,36 @@ const AuthPageContent = () => {
                                                         <label className={labelClass}>Primary Phone <span className="text-[#FFA500]">*</span></label>
                                                         <InternationalPhoneInput value={registerFormik.values.phone} onChange={v => registerFormik.setFieldValue('phone', v)} error={registerFormik.touched.phone && registerFormik.errors.phone} />
                                                     </div>
-                                                    <div className="space-y-1.5 w-full">
-                                                        <label className={labelClass}>WhatsApp Number</label>
-                                                        <InternationalPhoneInput value={registerFormik.values.whatsapp} onChange={v => registerFormik.setFieldValue('whatsapp', v)} error={registerFormik.touched.whatsapp && registerFormik.errors.whatsapp} />
-                                                    </div>
+                                                    {/* Date of Birth — individual customers */}
+                                                    {customerType === 'individual' && (
+                                                        <FormInput label="Date of Birth" icon={Calendar} type="date" required formik={registerFormik} name="date_of_birth" />
+                                                    )}
+                                                    {customerType === 'corporate' && (
+                                                        <div className="space-y-1.5 w-full">
+                                                            <label className={labelClass}>WhatsApp Number</label>
+                                                            <InternationalPhoneInput value={registerFormik.values.whatsapp} onChange={v => registerFormik.setFieldValue('whatsapp', v)} error={registerFormik.touched.whatsapp && registerFormik.errors.whatsapp} />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                                    <FormSelect label="City" icon={MapPin} required formik={registerFormik} name="city" options={cityList} />
-                                                    <FormSelect label="Country" icon={Globe} required formik={registerFormik} name="country" options={countryList} />
-                                                </div>
-                                                <FormInput label="Main Address" icon={MapPin} required formik={registerFormik} name="address" />
+                                                {customerType === 'corporate' && (
+                                                    <>
+                                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                                                            <FormSelect label="City" icon={MapPin} required formik={registerFormik} name="city" options={cityList} />
+                                                            <FormSelect label="Country" icon={Globe} required formik={registerFormik} name="country" options={countryList} />
+                                                        </div>
+                                                        <FormInput label="Main Address" icon={MapPin} required formik={registerFormik} name="address" />
+                                                    </>
+                                                )}
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                                                     <PasswordField label="Password" value={registerFormik.values.password} show={showRegPw} onToggle={() => setShowRegPw(!showRegPw)} formikProps={registerFormik.getFieldProps('password')} error={registerFormik.touched.password && registerFormik.errors.password} />
                                                     <PasswordField label="Confirm Password" value={registerFormik.values.confirmPassword} show={showRegConfirmPw} onToggle={() => setShowRegConfirmPw(!showRegConfirmPw)} formikProps={registerFormik.getFieldProps('confirmPassword')} error={registerFormik.touched.confirmPassword && registerFormik.errors.confirmPassword} />
                                                 </div>
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                                    <FormSelect label="Preferred Contact Method" icon={Phone} formik={registerFormik} name="preferred_contact" options={[{label:'Email',value:'email'},{label:'WhatsApp',value:'whatsapp'},{label:'Phone',value:'phone'}]} />
-                                                </div>
+                                                {customerType === 'corporate' && (
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                                                        <FormSelect label="Preferred Contact Method" icon={Phone} formik={registerFormik} name="preferred_contact" options={[{label:'Email',value:'email'},{label:'WhatsApp',value:'whatsapp'},{label:'Phone',value:'phone'}]} />
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            {/* INDIVIDUAL SECTION */}
-                                            {customerType === 'individual' && (
-                                                <>
-                                                    <div className="space-y-6">
-                                                        <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-                                                            <ShieldCheck size={16} className="text-[#113A74]" />
-                                                            <h3 className="text-xs font-black text-[#113A74] uppercase tracking-widest">Personal & Passport Details</h3>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                            <FormSelect label="Gender" icon={User} required formik={registerFormik} name="gender" options={['Male','Female','Other']} />
-                                                            <FormInput label="Date of Birth" icon={Calendar} type="date" required formik={registerFormik} name="date_of_birth" />
-                                                            <FormSelect label="Nationality" icon={Globe} required formik={registerFormik} name="nationality" options={countryList} />
-                                                            <FormSelect label="Country of Residence" icon={MapPin} required formik={registerFormik} name="country_of_residence" options={countryList} />
-                                                        </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
-                                                            <FormInput label="Passport Number" icon={ShieldCheck} required formik={registerFormik} name="passport_number" />
-                                                            <FormSelect label="Passport Issue Country" icon={Globe} required formik={registerFormik} name="passport_issue_country" options={countryList} />
-                                                            <FormInput label="Passport Issue Date" icon={Calendar} type="date" required formik={registerFormik} name="passport_issue_date" />
-                                                            <FormInput label="Passport Expiry Date" icon={Calendar} type="date" required formik={registerFormik} name="passport_expiry_date" />
-                                                        </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
-                                                            <ImageUpload label="Passport Copy" formik={registerFormik} name="passport_url" />
-                                                            <ImageUpload label="Profile Photo" formik={registerFormik} name="profile_image" circle />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-6">
-                                                        <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-                                                            <Plane size={16} className="text-[#113A74]" />
-                                                            <h3 className="text-xs font-black text-[#113A74] uppercase tracking-widest">Travel & Luxury Preferences</h3>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                            <FormSelect label="Flight Class" formik={registerFormik} name="preferred_travel_class" options={['Economy','Premium Economy','Business','First Class']} />
-                                                            <FormInput label="Preferred Departure Airport" icon={Plane} formik={registerFormik} name="preferred_departure_airport" placeholder="e.g. DXB, LHR" />
-                                                            <FormSelect label="Hotel Category" formik={registerFormik} name="preferred_hotel_category" options={['3 Star','4 Star','5 Star','Luxury/Boutique']} />
-                                                            <FormInput label="Special Meal Request" icon={Check} formik={registerFormik} name="meal_preference" placeholder="e.g. Vegetarian, Halal" />
-                                                            <FormInput label="Special Assistance Needed" icon={Check} formik={registerFormik} name="special_assistance" placeholder="e.g. Wheelchair, None" />
-                                                        </div>
-                                                        
-                                                        <div className="mt-4 p-5 bg-gray-50/50 rounded-xl border border-gray-100">
-                                                            <div className="flex items-center justify-between mb-4">
-                                                                <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Frequent Flyer Memberships (Optional)</h4>
-                                                                <button type="button" onClick={() => registerFormik.setFieldValue('frequent_flyers', [...registerFormik.values.frequent_flyers, { airline: '', membership_number: '' }])}
-                                                                    className="text-xs text-[#FFA500] font-bold hover:underline flex items-center gap-1">
-                                                                    + Add Airline
-                                                                </button>
-                                                            </div>
-                                                            <div className="space-y-4">
-                                                                {registerFormik.values.frequent_flyers.map((item, index) => (
-                                                                    <div key={index} className="flex gap-3 items-end">
-                                                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                                            <div className="space-y-1">
-                                                                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Airline</label>
-                                                                                <input type="text" placeholder="e.g. Emirates" className={`${inputBase} py-2.5 px-4`}
-                                                                                    value={item.airline} onChange={e => {
-                                                                                        const updated = [...registerFormik.values.frequent_flyers];
-                                                                                        updated[index].airline = e.target.value;
-                                                                                        registerFormik.setFieldValue('frequent_flyers', updated);
-                                                                                    }} />
-                                                                            </div>
-                                                                            <div className="space-y-1">
-                                                                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Membership Number</label>
-                                                                                <input type="text" placeholder="e.g. EK123456" className={`${inputBase} py-2.5 px-4`}
-                                                                                    value={item.membership_number} onChange={e => {
-                                                                                        const updated = [...registerFormik.values.frequent_flyers];
-                                                                                        updated[index].membership_number = e.target.value;
-                                                                                        registerFormik.setFieldValue('frequent_flyers', updated);
-                                                                                    }} />
-                                                                            </div>
-                                                                        </div>
-                                                                        {registerFormik.values.frequent_flyers.length > 1 && (
-                                                                            <button type="button" onClick={() => registerFormik.setFieldValue('frequent_flyers', registerFormik.values.frequent_flyers.filter((_, i) => i !== index))}
-                                                                                className="text-red-500 hover:text-red-700 font-bold text-xs pb-3">
-                                                                                Remove
-                                                                            </button>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-
-                                                        <MultiSelectTags label="Preferred Destinations (Select multiple)" formik={registerFormik} name="preferred_destinations" options={['London','New York','Paris','Dubai','Singapore','Tokyo','Sydney','Bangkok']} />
-                                                        <MultiSelectTags label="Travel Interests (Select multiple)" formik={registerFormik} name="travel_interests" options={['Adventure','Beach','Culture & History','Relaxation','Nature','Wildlife Safari','City Breaks','Food & Wine']} />
-                                                    </div>
-                                                </>
-                                            )}
 
                                             {/* CORPORATE SECTION */}
                                             {customerType === 'corporate' && (

@@ -138,6 +138,11 @@ export default function Footer() {
                                     </Link>
                                 </li>
                             ))}
+                            <li>
+                                <Link href="/login?view=register" className="text-gray-500 hover:text-primary transition-colors text-sm">
+                                    Customer Registration
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

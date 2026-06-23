@@ -8,9 +8,14 @@ export async function generateMetadata({ params }) {
     try {
         // Fetch package detail for metadata
         // Note: Using the same logic as the page to get package details
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.magictours.qa'}/packages/frontend/detail/${id}`, {
-            cache: 'no-store'
+            cache: 'no-store',
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (!response.ok) throw new Error('Failed to fetch package for metadata');
         

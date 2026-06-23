@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
@@ -18,6 +18,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import hotelsIcon from '../../assets/hotels_package_card.png';
 import flightIcon from '../../assets/flight_icon_package_card.png';
 import foodIcon from '../../assets/food_icon_package_card.png';
+import airlineTailIcon from '../../assets/airline_tail_icon.png';
 
 /* ─── Destination Filter Bar ──────────────────────────────── */
 const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setSearch, totalCount, viewMode, setViewMode, sort, setSort }) => {
@@ -62,15 +63,14 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
 
     const CheckItem = ({ label, active, onToggle, color = '#113A74' }) => (
         <div
-            className="flex items-center gap-2 cursor-pointer group select-none"
+            className="flex items-center gap-2.5 cursor-pointer group select-none"
             onClick={onToggle}
         >
-            <div className={`w-[15px] h-[15px] rounded-[3px] border flex items-center justify-center transition-colors shrink-0`}
+            <div className={`w-[18px] h-[18px] rounded-md border flex items-center justify-center transition-colors shrink-0`}
                 style={{ backgroundColor: active ? color : 'white', borderColor: active ? color : '#cbd5e1' }}>
-                {active && <Check size={9} strokeWidth={3} className="text-white" />}
+                {active && <Check size={12} strokeWidth={3} className="text-white" />}
             </div>
-            <span className={`text-[13px] font-medium transition-colors whitespace-nowrap`}
-                style={{ color: active ? color : '#64748b' }}>
+            <span className="text-[14px] font-sans font-light whitespace-nowrap" style={{ color }}>
                 {label}
             </span>
         </div>
@@ -81,12 +81,12 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
             {/* White destination selector card */}
             <div className="bg-white border border-blue-100 rounded-xl overflow-hidden">
                 {/* Header */}
-                <div className="px-4 py-2.5 border-b border-blue-100">
-                    <span className="text-[#FFA500] font-bold text-[13px]">Destinations</span>
+                <div className="px-5 py-3 border-b border-blue-100">
+                    <span className="text-[#FFA500] font-sans font-bold text-[17px]">Destinations</span>
                 </div>
 
                 {/* Continent checkboxes — multi-select */}
-                <div className="px-4 py-3 flex flex-wrap gap-x-6 gap-y-2.5">
+                <div className="px-4 sm:px-5 py-3 sm:py-4 flex flex-wrap gap-x-4 sm:gap-x-8 gap-y-2.5 sm:gap-y-3">
                     {continents.map(continent => (
                         <CheckItem
                             key={continent}
@@ -100,17 +100,19 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
 
                 {/* Destinations sub-row — one group per selected continent */}
                 {selectedContinents.length > 0 && visibleDestinations.length > 0 && (
-                    <div className="border-t border-blue-50">
-                        {selectedContinents.map((continent, idx) => {
+                    <div>
+                        {selectedContinents.map((continent) => {
                             const contDests = destinations.filter(d => d.continent === continent);
                             if (contDests.length === 0) return null;
                             return (
-                                <div
-                                    key={continent}
-                                    className={`px-4 py-3 bg-slate-50/50 ${idx < selectedContinents.length - 1 ? 'border-b border-blue-50' : ''}`}
-                                >
-                                    <p className="text-[#113A74] font-bold text-[12px] mb-2.5">{continent}</p>
-                                    <div className="flex flex-wrap gap-x-6 gap-y-2.5">
+                                <div key={continent} className="px-4 sm:px-5 pb-3 sm:pb-4">
+                                    {/* Inline label with a hairline on both sides */}
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="h-px w-4 bg-blue-100 shrink-0" />
+                                        <span className="text-slate-700 font-sans font-medium text-[14px] shrink-0">{continent}</span>
+                                        <span className="h-px flex-1 bg-blue-100" />
+                                    </div>
+                                    <div className="flex flex-wrap gap-x-4 sm:gap-x-8 gap-y-2.5 sm:gap-y-3">
                                         {contDests.map(dest => (
                                             <CheckItem
                                                 key={dest.id}
@@ -128,77 +130,98 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
                 )}
             </div>
 
-            {/* Search bar + sort + view toggle row */}
-            <div className="flex flex-col gap-2 mt-4">
+            {/* Sort + count + search + view toggle */}
+            <div className="flex flex-col gap-4 mt-4">
 
-                {/* Row 1: count (left) + sort + toggle (right) — always one line */}
-                <div className="flex items-center justify-between gap-2">
-                    <p className="text-[#113A74] font-bold text-[14px] shrink-0 flex-1 min-w-0">
-                        {totalCount} packages Found
-                    </p>
-                    <div className="flex items-center gap-2 shrink-0">
-                        {/* Sort dropdown */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setSortOpen(p => !p)}
-                                className="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
-                            >
-                                <span className="hidden sm:inline text-slate-500 text-[12px] font-bold whitespace-nowrap">
-                                    Sort ({SORT_OPTIONS.find(o => o.value === sort)?.label || 'Recently Added'})
-                                </span>
-                                <span className="sm:hidden text-slate-500 text-[12px] font-bold">Sort</span>
-                                <ChevronDown size={13} className={`text-slate-400 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            {sortOpen && (
-                                <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
-                                    {SORT_OPTIONS.map(opt => (
-                                        <button
-                                            key={opt.value}
-                                            onClick={() => { setSort(opt.value); setSortOpen(false); }}
-                                            className={`w-full text-left px-4 py-2.5 text-[11px] font-bold transition-colors ${sort === opt.value ? 'bg-[#113A74] text-white' : 'text-slate-500 hover:bg-slate-50'}`}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                        {/* Grid / List view toggle */}
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => setViewMode('grid')}
-                                className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'grid' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
-                            >
-                                <LayoutGrid size={15} />
-                            </button>
-                            <button
-                                onClick={() => setViewMode('list')}
-                                className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'list' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
-                            >
-                                <List size={15} />
-                            </button>
-                        </div>
+                {/* Row 1: Sort pill — right aligned */}
+                <div className="flex justify-end">
+                    <div className="relative">
+                        <button
+                            onClick={() => setSortOpen(p => !p)}
+                            className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
+                        >
+                            <span className="text-black text-[14px] font-sans-force whitespace-nowrap">
+                                Sort ({SORT_OPTIONS.find(o => o.value === sort)?.label || 'Recently Added'})
+                            </span>
+                            <ChevronDown size={14} className={`text-slate-400 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {sortOpen && (
+                            <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                                {SORT_OPTIONS.map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        onClick={() => { setSort(opt.value); setSortOpen(false); }}
+                                        className={`font-sans-force w-full text-left px-4 py-2.5 text-[14px] transition-colors ${sort === opt.value ? 'bg-[#113A74] text-white' : 'text-[#113A74] hover:bg-slate-50'}`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Row 2: full-width search pill */}
-                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl pl-3 pr-1.5 py-1.5 shadow-sm w-full">
-                    <img src={searchIcon.src || searchIcon} alt="search" className="w-4 h-4 shrink-0 opacity-50" />
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        placeholder="Search packages, destinations..."
-                        className="flex-1 bg-transparent outline-none text-[12px] font-medium text-slate-500 placeholder:text-slate-400 min-w-0"
-                    />
-                    {search && (
-                        <button onClick={() => setSearch('')} className="text-slate-400 hover:text-[#113A74] mr-1">
-                            <X size={13} />
-                        </button>
-                    )}
-                    <button className="bg-[#113A74] text-white text-[12px] font-bold px-4 sm:px-5 py-2 rounded-lg shrink-0 hover:bg-[#0d2a56] transition-colors">
-                        Search
-                    </button>
+                {/* Row 2: count (left) + search + view toggle (right) */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-black font-sans font-bold text-[16px] sm:text-[18px] shrink-0">
+                            {totalCount} packages Found
+                        </p>
+                        {/* View toggle — inline with count on mobile */}
+                        <div className="flex items-center gap-1 shrink-0 sm:hidden">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'grid' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400'}`}
+                            >
+                                <LayoutGrid size={16} />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'list' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400'}`}
+                            >
+                                <List size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Search + view toggle — grouped to the right with a gap from the count */}
+                    <div className="flex items-center gap-3 w-full sm:w-auto sm:ml-auto sm:max-w-[560px] sm:flex-1">
+                        {/* Search pill */}
+                        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl pl-3 pr-1.5 py-1.5 shadow-sm flex-1 min-w-0">
+                            <img src={searchIcon.src || searchIcon} alt="search" className="w-4 h-4 shrink-0 opacity-50" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Search packages…"
+                                className="flex-1 bg-transparent outline-none text-[13px] font-sans font-medium text-slate-500 placeholder:text-slate-400 min-w-0"
+                            />
+                            {search && (
+                                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-[#113A74] mr-1 shrink-0">
+                                    <X size={13} />
+                                </button>
+                            )}
+                            <button className="bg-[#113A74] text-white text-[13px] font-sans font-bold px-3.5 sm:px-5 py-2 rounded-lg shrink-0 hover:bg-[#0d2a56] transition-colors">
+                                Search
+                            </button>
+                        </div>
+
+                        {/* Grid / List view toggle — desktop only (mobile shows it next to count) */}
+                        <div className="hidden sm:flex items-center gap-1 shrink-0">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'grid' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
+                            >
+                                <LayoutGrid size={16} />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all ${viewMode === 'list' ? 'bg-[#113A74] border-[#113A74] text-white' : 'bg-white border-slate-200 text-slate-400 hover:border-[#113A74] hover:text-[#113A74]'}`}
+                            >
+                                <List size={16} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -233,9 +256,9 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
 
     const FilterSection = ({ title, children }) => (
         <div className="flex flex-col gap-3">
-            <div className="flex items-center">
-                <div className="w-1 h-5 bg-[#FFA500]" />
-                <h3 className="text-[#113A74] font-bold text-[11px] bg-[#eff6ff] px-2.5 py-1 ml-2 uppercase tracking-wider">{title}</h3>
+            <div className="flex items-stretch">
+                <div className="w-1.5 bg-[#FFA500] rounded-sm shrink-0" />
+                <h3 className="text-[#113A74] font-sans font-normal text-[18px] bg-[#eff6ff] pl-3 pr-16 py-2.5">{title}</h3>
             </div>
             {children}
         </div>
@@ -249,7 +272,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
             >
                 {checked && <Check size={9} strokeWidth={3} className="text-white" />}
             </div>
-            <span className="text-[10px] font-semibold text-[#113A74] group-hover:text-[#FFA500] transition-colors">{label}</span>
+            <span className="text-[13px] font-sans font-semibold text-[#113A74]">{label}</span>
         </label>
     );
 
@@ -262,9 +285,9 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
             )}
 
             <div className="flex items-center justify-between px-1">
-                <h3 className="text-[15px] font-bold text-[#113A74]">Filters</h3>
+                <h3 className="text-[18px] font-sans font-bold text-black">Filters</h3>
                 <div className="flex items-center gap-4">
-                    <button onClick={handleClear} className="text-[11px] font-bold text-[#113A74] hover:text-[#FFA500] transition-colors">Clear All</button>
+                    <button onClick={handleClear} className="text-[13px] font-sans font-bold text-[#113A74] hover:text-[#FFA500] transition-colors">Clear All</button>
                     {onClose && (
                         <button onClick={onClose} className="lg:hidden p-1.5 bg-slate-100 rounded-full text-[#113A74]">
                             <X size={16} />
@@ -277,21 +300,18 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
                 {/* No of Days */}
                 <FilterSection title="No of Days">
                     <div className="mt-1 px-1">
-                        <div className="relative">
+                        <div className="flex items-center gap-3">
+                            <span className="text-[13px] font-sans text-black shrink-0">0 days</span>
                             <input
-                                type="range" min="0" max="30"
+                                type="range" min="0" max="21"
                                 value={localFilters.maxNights || 0}
                                 onChange={e => setLocalFilters(prev => ({ ...prev, maxNights: parseInt(e.target.value) }))}
-                                className="w-full accent-[#FFA500] cursor-pointer"
+                                className="flex-1 min-w-0 accent-[#FFA500] cursor-pointer h-1.5 rounded-full appearance-none"
                                 style={{
-                                    height: '3px',
-                                    background: `linear-gradient(to right, #113A74 ${((localFilters.maxNights || 0) / 30) * 100}%, #e2e8f0 ${((localFilters.maxNights || 0) / 30) * 100}%)`
+                                    background: `linear-gradient(to right, #113A74 ${((localFilters.maxNights || 0) / 21) * 100}%, #e2e8f0 ${((localFilters.maxNights || 0) / 21) * 100}%)`
                                 }}
                             />
-                            <div className="flex justify-between items-center mt-1.5">
-                                <span className="text-[9px] font-bold text-[#113A74]">0 Days</span>
-                                <span className="text-[9px] font-bold text-[#113A74]">{localFilters.maxNights || 0} days</span>
-                            </div>
+                            <span className="text-[13px] font-sans text-black shrink-0">21 days</span>
                         </div>
                     </div>
                 </FilterSection>
@@ -300,7 +320,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
 
                 {/* Type of Trip */}
                 <FilterSection title="Type of Trip">
-                    <div className="flex flex-col gap-2 mt-1">
+                    <div className="flex flex-col gap-5 mt-1">
                         {filterData.categories.slice(0, CATEGORY_INITIAL_COUNT).map(cat => (
                             <CheckItem
                                 key={cat.id}
@@ -321,7 +341,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
                         {filterData.categories.length > CATEGORY_INITIAL_COUNT && (
                             <button
                                 onClick={() => setShowMoreCats(p => !p)}
-                                className="text-[10px] font-bold text-[#FFA500] hover:text-[#113A74] transition-colors text-left mt-1 w-fit"
+                                className="text-[14px] font-sans font-bold text-[#113A74] hover:text-[#0d2a56] transition-colors text-left mt-2 w-fit"
                             >
                                 {showMoreCats ? 'Show less' : `Show more`}
                             </button>
@@ -330,7 +350,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
                 </FilterSection>
 
                 <div className="mt-2">
-                    <button onClick={handleApply} className="w-full bg-[#113A74] text-white py-3 rounded-full font-heading font-bold text-sm hover:bg-[#0d2a56] transition-all shadow-md active:scale-95">Apply</button>
+                    <button onClick={handleApply} className="w-full bg-[#113A74] text-white py-3.5 rounded-full font-sans-force font-bold text-[16px] hover:bg-[#0d2a56] transition-all shadow-md active:scale-95">Apply</button>
                 </div>
             </div>
         </div>
@@ -346,13 +366,10 @@ const SORT_OPTIONS = [
 
 const SortHeader = ({ onOpenFilters }) => {
     return (
-        <div className="flex items-center justify-between mb-6 gap-3">
-            <h2 className="flex-1 min-w-0 text-base sm:text-xl md:text-2xl font-bold text-[#113A74] tracking-tight leading-tight">
-                Available <span className="text-[#FFA500]">Tour Packages</span>
-            </h2>
+        <div className="flex items-center justify-end mb-6 gap-3 lg:hidden">
             <button
                 onClick={onOpenFilters}
-                className="lg:hidden shrink-0 flex items-center gap-2 bg-[#113A74] text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-sm font-heading font-bold shadow-lg shadow-[#113A74]/20 active:scale-95 transition-all"
+                className="shrink-0 flex items-center gap-2 bg-[#113A74] text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[13px] font-sans font-bold shadow-lg shadow-[#113A74]/20 active:scale-95 transition-all"
             >
                 <SlidersHorizontal size={14} />
                 <span>Filters</span>
@@ -362,7 +379,7 @@ const SortHeader = ({ onOpenFilters }) => {
 };
 
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airline_name, airline_logo, operated_by_name, operated_by_logo, booking_type, viewMode = 'grid' }) => {
+const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airline_name, operated_by_name, booking_type, viewMode = 'grid' }) => {
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
     const router = useRouter();
@@ -372,24 +389,24 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
         return (
             <div
                 onClick={() => router.push(`/packages/${slug || id}`)}
-                className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-row min-h-[130px] sm:h-[160px] md:h-[200px] hover:shadow-xl transition-all duration-300 group"
+                className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col sm:flex-row hover:shadow-xl transition-all duration-300 group"
             >
-                <div className="relative w-[100px] sm:w-[160px] md:w-[220px] lg:w-[260px] shrink-0 overflow-hidden">
+                <div className="relative w-full h-[180px] sm:w-[160px] sm:h-auto md:w-[220px] lg:w-[260px] shrink-0 overflow-hidden">
                     <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-3 left-0 bg-[#113A74] text-white px-2 sm:px-3 py-1 rounded-r-lg flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-bold">
+                    <div className="absolute top-3 left-0 bg-[#113A74] text-white px-2 sm:px-3 py-1 rounded-r-lg flex items-center gap-1 sm:gap-1.5 text-[13px] font-bold">
                         <Calendar size={10} />
                         <span>{nights}N / {days}d</span>
                     </div>
                 </div>
-                <div className="flex-1 p-3 sm:p-4 md:p-5 flex flex-col justify-between min-w-0">
+                <div className="flex-1 p-4 sm:p-4 md:p-5 flex flex-col justify-between min-w-0">
                     <div>
-                        <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#113A74] group-hover:text-[#FFA500] transition-colors line-clamp-1 mb-1">{title || package_name}</h3>
+                        <h3 className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-1 mb-1">{title || package_name}</h3>
                         {cityNames.length > 0 && (
                             <div className="flex flex-col gap-0.5 mb-1">
                                 {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
                                     const chunk = cityNames.slice(row * 3, row * 3 + 3);
                                     return (
-                                        <p key={row} className="text-slate-400 text-[10px] sm:text-[11px] font-medium leading-snug">
+                                        <p key={row} className="text-slate-400 text-[13px] font-medium leading-snug">
                                             {chunk.map((city, i) => (
                                                 <span key={i}>
                                                     {city}
@@ -402,17 +419,17 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                             </div>
                         )}
                         <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                            {slots !== undefined && <span className="text-[10px] sm:text-[11px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
+                            {slots !== undefined && <span className="text-[13px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
                         </div>
                     </div>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 mt-3 sm:mt-0">
                         <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/packages/${slug || id}?book=true`); }}
-                            className="px-3 sm:px-5 md:px-6 py-1.5 sm:py-2 border border-[#113A74] text-[#113A74] rounded-full text-xs sm:text-sm font-bold hover:bg-[#113A74] hover:text-white transition-all shrink-0"
+                            className="px-4 py-1.5 sm:px-5 sm:py-2 border border-[#113A74] text-[#113A74] rounded-full text-[13px] font-sans font-bold hover:bg-[#113A74] hover:text-white transition-all shrink-0"
                         >Book Now</button>
                         <div className="text-right">
-                            <span className="text-[#FFA500] text-base sm:text-lg md:text-xl font-black">{formatPrice(price)}</span>
-                            <p className="text-[#113A74] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-70">onwards</p>
+                            <span className="text-[#FFA500] text-xl font-black">{formatPrice(price)}</span>
+                            <p className="text-[#113A74] text-[13px] font-bold tracking-wider opacity-70">Onwards</p>
                         </div>
                     </div>
                 </div>
@@ -425,40 +442,38 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
             onClick={() => router.push(`/packages/${slug || id}`)}
             className="cursor-pointer bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
         >
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="relative aspect-[4/3.6] overflow-hidden">
                 <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                <FavoriteButton packageId={id} className="absolute top-3 right-3 z-20" />
-                <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 py-1.5 rounded-r-lg flex items-center gap-2 text-xs font-bold shadow-lg">
+                <FavoriteButton packageId={id} className="absolute top-4 right-4 z-20 !bg-white/20 hover:!bg-white/30 !shadow-none border border-white/60 !backdrop-blur-sm [&_svg]:text-white" />
+                <div className="absolute top-4 left-0 bg-[#113A74] text-white pl-4 pr-3 py-2 rounded-r-lg flex items-center gap-2 text-[13px] font-bold shadow-lg">
                     <Calendar size={13} className="opacity-90" />
                     <span>{nights} Nights, {days} Days</span>
                 </div>
-                {/* Airline + Operated by overlay — visible on hover */}
+                {/* Airline + Operated by overlay — visible on hover (bottom-left) */}
                 {(airline_name || operated_by_name) && (
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-8 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         {airline_name && (
-                            <div className="flex items-center gap-2 text-white text-[11px] font-philosopher mb-1">
-                                {airline_logo
-                                    ? <img src={airline_logo} alt={airline_name} className="w-4 h-4 object-contain rounded-sm shrink-0" />
-                                    : <Plane size={12} className="shrink-0" />}
+                            <div className="flex items-center gap-2 text-white text-[15px] font-heading leading-tight">
+                                <img src={airlineTailIcon.src || airlineTailIcon} alt="Airline" className="w-7 h-7 object-contain shrink-0 scale-150" />
                                 <span>Airline : {airline_name}</span>
                             </div>
                         )}
                         {operated_by_name && (
-                            <p className="text-white/90 text-[11px] font-philosopher">
+                            <p className="text-white/90 text-[15px] font-heading leading-tight">
                                 Operated by : {operated_by_name}
                             </p>
                         )}
                     </div>
                 )}
             </div>
-            <div className="p-4 sm:p-5 flex flex-col flex-1 gap-1">
-                <h3 title={title || package_name} className="text-lg md:text-xl font-bold text-[#113A74] font-display tracking-tight leading-tight group-hover:text-[#FFA500] transition-colors line-clamp-2">{title || package_name}</h3>
+            <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-1">
+                <h3 title={title || package_name} className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-2">{title || package_name}</h3>
                 {cityNames.length > 0 && (
                     <div className="flex flex-col gap-0.5 mb-0.5">
                         {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
                             const chunk = cityNames.slice(row * 3, row * 3 + 3);
                             return (
-                                <p key={row} className="text-slate-400 text-[12px] font-medium leading-snug">
+                                <p key={row} className="text-slate-400 text-[13px] font-medium leading-snug">
                                     {chunk.map((city, i) => (
                                         <span key={i}>
                                             {city}
@@ -478,11 +493,11 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                 <div className="flex items-center justify-between gap-3 mt-auto pt-2">
                     <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${slug || id}?book=true`); }}
-                        className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-sm font-heading font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                        className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-[13px] font-sans-force font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
                     >Book Now</button>
                     <div className="text-right">
-                        <span className="text-[#FFA500] text-xl sm:text-2xl font-black leading-none">{formatPrice(price)}</span>
-                        <p className="text-[#113A74] text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-90">onwards</p>
+                        <span className="text-[#FFA500] text-xl font-black leading-none">{formatPrice(price)}</span>
+                        <p className="text-[#113A74] text-[13px] font-bold tracking-wider mt-0.5 opacity-90">Onwards</p>
                     </div>
                 </div>
             </div>
@@ -490,16 +505,64 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
     );
 };
 
-const TourCardSkeleton = () => (
-    <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-[400px] animate-pulse">
-        <div className="relative aspect-[4/3] bg-slate-200"></div>
-        <div className="p-6 flex flex-col flex-1">
-            <div className="h-6 w-3/4 bg-slate-200 rounded mb-4"></div>
-            <div className="h-4 w-1/3 bg-slate-200 rounded mb-4"></div>
-            <div className="h-10 w-full bg-slate-200 rounded-full mt-auto"></div>
+const TourCardSkeleton = ({ viewMode = 'grid' }) => {
+    if (viewMode === 'list') {
+        // Mirrors the list TourCard exactly: side image (stacked on mobile) + content.
+        return (
+            <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col sm:flex-row animate-pulse">
+                <div className="relative w-full h-[180px] sm:w-[160px] sm:h-auto md:w-[220px] lg:w-[260px] shrink-0 bg-slate-200">
+                    {/* date pill top-left */}
+                    <div className="absolute top-3 left-0 h-6 w-20 bg-slate-300/70 rounded-r-lg" />
+                </div>
+                <div className="flex-1 p-4 sm:p-4 md:p-5 flex flex-col justify-between min-w-0">
+                    <div>
+                        <div className="h-[18px] w-3/4 bg-slate-200 rounded mb-2" />
+                        <div className="h-[14px] w-1/2 bg-slate-200 rounded mb-2" />
+                        <div className="h-6 w-16 bg-slate-200 rounded-md" />
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-3 sm:mt-0">
+                        <div className="h-9 w-24 bg-slate-200 rounded-full" />
+                        <div className="flex flex-col items-end gap-1">
+                            <div className="h-6 w-20 bg-slate-200 rounded" />
+                            <div className="h-3 w-12 bg-slate-200 rounded" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    // Mirrors the grid TourCard exactly.
+    return (
+        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full animate-pulse">
+            <div className="relative aspect-[4/3.6] bg-slate-200">
+                {/* date pill top-left + favorite circle top-right */}
+                <div className="absolute top-4 left-0 h-8 w-32 bg-slate-300/70 rounded-r-lg" />
+                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-300/70" />
+            </div>
+            <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-1">
+                {/* title (2 lines) */}
+                <div className="h-[22px] w-5/6 bg-slate-200 rounded mb-0.5" />
+                <div className="h-[22px] w-2/3 bg-slate-200 rounded mb-1.5" />
+                {/* cities line */}
+                <div className="h-[14px] w-1/2 bg-slate-200 rounded mb-1.5" />
+                {/* amenity icons row */}
+                <div className="flex items-center gap-2 py-0.5">
+                    <div className="w-5 h-5 bg-slate-200 rounded" />
+                    <div className="w-5 h-5 bg-slate-200 rounded" />
+                    <div className="w-5 h-5 bg-slate-200 rounded" />
+                </div>
+                {/* footer: Book Now + price */}
+                <div className="flex items-center justify-between gap-3 mt-auto pt-2">
+                    <div className="h-9 w-24 bg-slate-200 rounded-full" />
+                    <div className="flex flex-col items-end gap-1">
+                        <div className="h-6 w-20 bg-slate-200 rounded" />
+                        <div className="h-3 w-12 bg-slate-200 rounded" />
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const Pagination = ({ page, totalPages, setPage }) => {
     const getPageWindows = () => {
@@ -602,7 +665,7 @@ const ToursContent = () => {
     const filteredPackages = packages.filter(pkg => {
         if (!search.trim()) return true;
         const q = search.toLowerCase();
-        return pkg.title?.toLowerCase().includes(q) || pkg.package_name?.toLowerCase().includes(q) || pkg.description?.toLowerCase().includes(q);
+        return pkg.title?.toLowerCase().includes(q) || pkg.package_name?.toLowerCase().includes(q) || pkg.journey_overview?.toLowerCase().includes(q);
     });
 
     useEffect(() => {
@@ -633,11 +696,11 @@ const ToursContent = () => {
                         {headerData.title}
                     </h1>
                     {headerData.description && (
-                        <p className="text-[#113A74]/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-medium">
+                        <p className="text-[#113A74]/80 text-[13px] max-w-2xl mx-auto leading-relaxed font-sans font-medium">
                             {headerData.description}
                         </p>
                     )}
-                    <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-wider">
+                    <nav className="flex items-center justify-center gap-1.5 text-[13px] font-sans font-bold text-[#113A74] uppercase tracking-wider">
                         <Link href="/" className="hover:text-[#FFA500]">Home</Link>
                         <span className="opacity-50">—</span>
                         <span>Tour Packages</span>
@@ -690,12 +753,12 @@ const ToursContent = () => {
                             {(tourListingSettings.heading || tourListingSettings.description) && (
                                 <div className="mb-6">
                                     {tourListingSettings.heading && (
-                                        <h2 className="text-[20px] font-bold text-black font-heading mb-2">
+                                        <h2 className="text-[24px] font-bold text-black font-heading mb-2">
                                             {tourListingSettings.heading}
                                         </h2>
                                     )}
                                     {tourListingSettings.description && (
-                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                        <p className="text-gray-600 text-[15px] font-sans leading-relaxed">
                                             {tourListingSettings.description}
                                         </p>
                                     )}
@@ -719,10 +782,10 @@ const ToursContent = () => {
 
                             <div className={viewMode === 'list'
                                 ? 'flex flex-col gap-4 sm:gap-6'
-                                : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8'
+                                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8'
                             }>
                                 {loading
-                                    ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} />)
+                                    ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} viewMode={viewMode} />)
                                     : filteredPackages.length > 0
                                         ? filteredPackages.map(pkg => <TourCard key={pkg.id} {...pkg} viewMode={viewMode} />)
                                         : <div className="col-span-full py-20 text-center font-bold text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">No packages found.</div>
@@ -757,16 +820,16 @@ const ToursPageSkeleton = () => (
                 <img src={gutterImg.src} alt="" className="w-full h-auto block opacity-50" />
             </div>
         </section>
-        <section className="pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
+        <section className="pt-16 sm:pt-24 pb-20 lg:pb-32 px-4 bg-[#E9F7FF] font-sans">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-2xl h-24 mb-6 animate-pulse" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
                     <div className="h-8 w-64 bg-slate-200 rounded-xl animate-pulse" />
                     <div className="h-10 w-48 bg-slate-200 rounded-xl animate-pulse" />
                 </div>
-                <div className="flex gap-8 items-start">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
                     <div className="hidden lg:block w-[300px] h-[600px] bg-white rounded-[2rem] border border-slate-100 shadow-sm animate-pulse shrink-0" />
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="flex-1 min-w-0 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                         {[...Array(6)].map((_, i) => <TourCardSkeleton key={i} />)}
                     </div>
                 </div>

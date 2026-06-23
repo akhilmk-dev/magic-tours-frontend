@@ -100,20 +100,21 @@ const HeroContactForm = ({ minimal = false }) => {
         color: 'white',
         width: '100%',
         paddingRight: '25px',
+        paddingTop: 'clamp(5px, 0.9vh, 9px)',
+        paddingBottom: 'clamp(5px, 0.9vh, 9px)',
         outline: 'none',
         borderRadius: '0',
         fontSize: '13px'
     });
 
-    const inputPadClass = 'py-[6px] short:py-[4px]';
-
     const labelStyle = {
-        fontSize: '11px',
+        fontSize: '10.5px',
         fontWeight: '800',
         letterSpacing: '0.1em',
-        color: minimal ? 'rgba(255, 255, 255, 0.6)' : 'white',
+        color: minimal ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255,255,255,0.85)',
         textTransform: 'uppercase',
-        marginBottom: '2px'
+        marginBottom: '3px',
+        display: 'block'
     };
 
     const ErrorMsg = ({ field }) => errors[field] ? (
@@ -127,73 +128,85 @@ const HeroContactForm = ({ minimal = false }) => {
             initial={minimal ? { opacity: 0, y: 20 } : { opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.8, delay: minimal ? 0 : 0.2 }}
-            className={`relative z-20 overflow-hidden ${minimal ? 'w-full p-0 bg-transparent' : 'w-full max-w-[380px] mx-auto p-5 sm:p-[22px] short:p-4 rounded-[30px] sm:rounded-[35px] bg-white/15 backdrop-blur-[30px] border-2 border-white/50'}`}
+            className={`relative z-20 ${minimal ? 'w-full p-0 bg-transparent overflow-hidden' : 'w-full sm:w-[420px] lg:w-[430px] xl:w-[440px] max-w-full mx-auto rounded-[28px] sm:rounded-[32px] bg-white/15 backdrop-blur-[30px] border border-white/40 lg:overflow-y-auto no-scrollbar lg:max-h-[calc(100dvh-150px)]'}`}
             style={minimal ? {} : {
+                // Fluid padding that scales across laptop heights. The viewport height
+                // cap only applies on lg+ (where the form sits inside the hero); when
+                // stacked on small screens it grows naturally so the button keeps its
+                // bottom spacing.
+                padding: 'clamp(18px, 2.4vh, 26px)',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
                 WebkitBackdropFilter: 'blur(30px)'
             }}
         >
             {!minimal && (
                 <>
-                    <div className="mb-2 short:mb-1">
-                        <h2 className="text-white text-[24px] short:text-[18px] leading-tight font-heading">
-                            Plan Your Journey
-                        </h2>
-                    </div>
+                    <h2
+                        className="text-white leading-tight font-heading"
+                        style={{ fontSize: 'clamp(19px, 2.6vh, 26px)' }}
+                    >
+                        Plan Your Journey
+                    </h2>
+                    <p className="text-white/60 text-[11px] font-medium mt-0.5">
+                        Tell us your dream trip — we'll craft it.
+                    </p>
 
-                    <div className="flex items-center gap-0 mb-2.5 short:mb-1.5">
-                        <div className="flex-1 h-[1px] bg-white/20"></div>
-                        <div className="text-[#FDB338] px-4 text-xs">✦</div>
-                        <div className="flex-1 h-[1px] bg-white/20"></div>
+                    <div className="flex items-center gap-3 my-[clamp(8px,1.6vh,16px)]">
+                        <div className="flex-1 h-px bg-white/20" />
+                        <div className="text-[#FDB338] text-xs">✦</div>
+                        <div className="flex-1 h-px bg-white/20" />
                     </div>
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-2.5 short:space-y-2" noValidate>
-                <div>
-                    <label style={labelStyle}>FULL NAME</label>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Your Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        style={getInputStyle('name')}
-                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                    />
-                    <ErrorMsg field="name" />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-[clamp(8px,1.5vh,16px)]" noValidate>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="min-w-0">
+                        <label style={labelStyle}>FULL NAME</label>
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder="Your Name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            style={getInputStyle('name')}
+                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                        />
+                        <ErrorMsg field="name" />
+                    </div>
+
+                    <div className="min-w-0">
+                        <label style={labelStyle}>PHONE NUMBER</label>
+                        <input
+                            type="text"
+                            name="phone"
+                            placeholder="Your Phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            style={getInputStyle('phone')}
+                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                        />
+                        <ErrorMsg field="phone" />
+                    </div>
                 </div>
 
-                <div>
-                    <label style={labelStyle}>PHONE NUMBER</label>
-                    <input
-                        type="text"
-                        name="phone"
-                        placeholder="Your Phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        style={getInputStyle('phone')}
-                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                    />
-                    <ErrorMsg field="phone" />
-                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="min-w-0">
+                        <label style={labelStyle}>EMAIL ADDRESS</label>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Your Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            style={getInputStyle('email')}
+                            className={`${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
+                        />
+                        <ErrorMsg field="email" />
+                    </div>
 
-                <div>
-                    <label style={labelStyle}>EMAIL ADDRESS</label>
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Your Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        style={getInputStyle('email')}
-                        className={`${inputPadClass} ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]' : 'placeholder:text-white/40 focus:border-[#FDB338]'} transition-colors`}
-                    />
-                    <ErrorMsg field="email" />
-                </div>
-
-                <div>
-                    <label style={labelStyle}>DESTINATION</label>
+                    <div className="min-w-0">
+                        <label style={labelStyle}>DESTINATION</label>
                     <div className="relative">
                         <div
                             onClick={() => setShowDestDropdown(!showDestDropdown)}
@@ -204,7 +217,7 @@ const HeroContactForm = ({ minimal = false }) => {
                                 alignItems: 'center',
                                 justifyContent: 'space-between'
                             }}
-                            className={`${inputPadClass} transition-colors text-white`}
+                            className={`transition-colors text-white`}
                         >
                             <span className={`whitespace-nowrap overflow-hidden text-ellipsis mr-2 ${formData.destination ? 'text-white' : (minimal ? 'text-white/30' : 'text-white/40')}`}>
                                 {formData.destination || "Where to go?"}
@@ -240,9 +253,10 @@ const HeroContactForm = ({ minimal = false }) => {
                         </AnimatePresence>
                     </div>
                     <ErrorMsg field="destination" />
+                    </div>
                 </div>
 
-                <div className="flex flex-col gap-2 short:gap-1">
+                <div>
                     <label style={labelStyle}>MESSAGE</label>
                     <textarea
                         name="message"
@@ -254,14 +268,15 @@ const HeroContactForm = ({ minimal = false }) => {
                             border: errors.message
                                 ? '1px solid rgba(255, 100, 100, 0.8)'
                                 : minimal ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(255, 255, 255, 0.25)',
-                            borderRadius: '15px',
-                            padding: '15px',
+                            borderRadius: '14px',
+                            padding: '12px 14px',
                             color: 'white',
                             outline: 'none',
                             resize: 'none',
-                            overflow: 'hidden'
+                            // Fluid height — shrinks on short screens, grows on tall ones.
+                            height: 'clamp(54px, 9vh, 96px)',
                         }}
-                        className={`h-[65px] short:h-[50px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
+                        className={`w-full text-[13px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
                     />
                     <ErrorMsg field="message" />
                 </div>
@@ -269,9 +284,13 @@ const HeroContactForm = ({ minimal = false }) => {
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-3 mt-2.5 short:py-2.5 short:mt-2 short:text-base rounded-full font-heading font-bold text-lg tracking-wider text-white shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+                    className="w-full rounded-full font-heading font-bold tracking-wider text-white shadow-xl transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-70 flex items-center justify-center gap-3"
                     style={{
-                        background: '#022c54'
+                        background: '#022c54',
+                        paddingTop: 'clamp(10px, 1.4vh, 14px)',
+                        paddingBottom: 'clamp(10px, 1.4vh, 14px)',
+                        marginTop: 'clamp(2px, 0.8vh, 8px)',
+                        fontSize: 'clamp(15px, 1.9vh, 18px)',
                     }}
                 >
                     {submitting ? (

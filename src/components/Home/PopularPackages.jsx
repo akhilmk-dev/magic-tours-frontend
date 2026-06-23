@@ -17,7 +17,7 @@ const PopularPackagesSkeleton = () => (
             </div>
             <div className="flex justify-center gap-6 overflow-hidden">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className="w-[320px] h-[480px] bg-gray-100 rounded-[2rem] flex flex-col">
+                    <div key={i} className="w-[320px] h-[500px] bg-gray-100 rounded-[2rem] flex flex-col">
                         <div className="h-[55%] bg-gray-200" />
                         <div className="p-6 flex-1 flex flex-col justify-between">
                             <div>
@@ -83,7 +83,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         type: parseCategories(p.category),
         price: p.price || 0,
         currency: p.currency || 'AED',
-        description: p.description || "",
+        description: p.journey_overview || "",
         image: p.image || "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800&auto=format&fit=crop",
         slug: p.slug,
         hasFlights: !!(p.flights_included || p.has_flight),
@@ -133,7 +133,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                     </p>
                 </div>
 
-                <div className="relative max-w-[1050px] mx-auto px-4 md:px-12 flex items-center justify-center min-h-[750px] overflow-visible">
+                <div className="relative max-w-[1050px] mx-auto px-4 md:px-12 flex items-center justify-center min-h-[580px] overflow-visible">
                     <div className="flex gap-6 relative items-center justify-center w-full">
                         {packageData.map((pkg, idx) => {
                             const len = packageData.length;
@@ -160,7 +160,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         scale: 1,
                                         zIndex: isHovered ? 30 : (isActive ? 20 : 10),
                                         opacity: isVisible ? 1 : 0,
-                                        height: 480,
+                                        height: 500,
                                         pointerEvents: (isVisible && mounted) ? "auto" : "none"
                                     }}
                                     transition={{
@@ -180,7 +180,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                     }}
                                 >
                                     {/* Image Section */}
-                                    <div className="relative flex-shrink-0 w-full" style={{ height: '264px' }}>
+                                    <div className="relative flex-shrink-0 w-full" style={{ height: '240px' }}>
                                         <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover" />
                                         {/* Duration badge */}
                                         <div className="absolute top-4 left-0 bg-brand-magic text-white py-2 px-4 rounded-r-2xl flex items-center gap-2">
@@ -212,14 +212,14 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[18px] font-bold text-white mb-1 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[11px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[11px] text-white/75 leading-relaxed mb-2 line-clamp-4">{pkg.description}</p>
 
-                                                <div className="flex items-center gap-2 mb-auto">
+                                                <div className="flex items-center gap-2 mb-3">
                                                     <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
                                                     <span title={pkg.type} className="text-[#FFA500] font-bold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                 </div>
 
-                                                <div className="mt-3 flex items-end justify-between">
+                                                <div className="mt-auto flex items-end justify-between">
                                                     <div>
                                                         <span className="text-[#FFA500] text-[20px] font-extrabold leading-none">{formatPrice(pkg.price)}</span>
                                                         <span className="block text-[10px] font-bold uppercase text-white/50 mt-0.5">Onwards</span>
@@ -243,7 +243,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
 
                                                 <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">
@@ -310,7 +310,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[18px] font-bold text-white mb-1 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-2 line-clamp-2">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-2 line-clamp-4">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-auto">
                                                     <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
@@ -347,7 +347,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 }}
                                             >
                                                 <h3 title={pkg.title} className="text-[16px] font-bold text-[#16243D] mb-0.5 line-clamp-1">{pkg.title}</h3>
-                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-2">{pkg.description}</p>
+                                                <p title={pkg.description} className="text-[12px] text-[#6B7280] leading-relaxed mb-4 line-clamp-4">{pkg.description}</p>
 
                                                 <div className="bg-[#F7F8FC] rounded-[1.2rem] p-2.5 mb-1 space-y-1.5">
                                                     <div className="flex items-center gap-2">

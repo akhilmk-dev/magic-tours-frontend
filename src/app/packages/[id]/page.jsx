@@ -55,6 +55,7 @@ import PackageRouteMap from '../../../components/common/PackageRouteMap';
 import GalleryLoop from '../../../components/Home/GalleryLoop';
 import AdventureSection from '../../../components/Home/AdventureSection';
 import BookingModal from '../../../components/Booking/BookingModal';
+import PackageEnquiryModal from '../../../components/common/PackageEnquiryModal';
 
 const PackageDetailsPage = () => {
     const params = useParams();
@@ -68,6 +69,7 @@ const PackageDetailsPage = () => {
     const [overviewOverflows, setOverviewOverflows] = useState(false);
     const overviewRef = useRef(null);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
     const [relatedPackages, setRelatedPackages] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(true);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -1558,10 +1560,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 })()}
                             </div>
                             <button
-                                onClick={handleOpenBooking}
+                                onClick={pkg?.is_rfq ? () => setIsEnquiryModalOpen(true) : handleOpenBooking}
                                 className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-2.5 flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg text-xs"
                             >
-                                Enquiry <ArrowRight size={13} />
+                                {pkg?.is_rfq ? 'Enquiry' : 'Book Now'} <ArrowRight size={13} />
                             </button>
                         </div>
 
@@ -1595,10 +1597,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 className="w-full bg-white text-gray-800 placeholder-black/60 text-sm rounded-full px-4 py-3 outline-none border border-white/20 focus:border-[#FFA500] transition-colors"
                             />
                             <button
-                                onClick={handleOpenBooking}
+                                onClick={pkg?.is_rfq ? () => setIsEnquiryModalOpen(true) : handleOpenBooking}
                                 className="w-full bg-[#FFA500] hover:bg-[#e69500] text-[#113A74] font-bold rounded-full py-3 flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg text-sm"
                             >
-                                Book Now <ArrowRight size={16} />
+                                {pkg?.is_rfq ? 'Enquiry' : 'Book Now'} <ArrowRight size={16} />
                             </button>
                         </div>
 
@@ -1863,6 +1865,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 onClose={() => setIsBookingModalOpen(false)}
                 pkg={pkg}
                 user={user}
+            />
+
+            {/* Enquiry Modal (RFQ packages) */}
+            <PackageEnquiryModal
+                isOpen={isEnquiryModalOpen}
+                onClose={() => setIsEnquiryModalOpen(false)}
+                pkg={pkg}
             />
         </div>
     );

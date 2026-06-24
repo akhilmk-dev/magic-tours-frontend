@@ -158,10 +158,10 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[110px] sm:pt-[120px] lg:pt-[130px] pb-36 sm:pb-40 lg:pb-24 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8 lg:gap-16">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[110px] sm:pt-[120px] lg:pt-[130px] pb-36 sm:pb-40 lg:pb-16 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8 lg:gap-16">
                     {/* Left Content */}
-                    <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left">
+                    <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left lg:flex lg:flex-col">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -187,7 +187,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                         </AnimatePresence>
 
                         {/* Search + Explore Packages */}
-                        <div className="flex justify-center lg:justify-start mt-4 sm:mt-5">
+                        <div className="flex justify-center lg:justify-start mt-4 sm:mt-5 lg:mt-auto">
                             <div
                                 onMouseEnter={() => setIsAutoPlaying(false)}
                                 onMouseLeave={() => setIsAutoPlaying(true)}

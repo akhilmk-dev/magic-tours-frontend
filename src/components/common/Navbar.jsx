@@ -237,22 +237,30 @@ export default function Navbar() {
 
                     {/* Desktop Menu */}
                     <div className="hidden lg:flex items-center gap-6 xl:gap-8 font-heading">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.path}
-                                className={clsx(
-                                    "text-[14px] font-medium transition-all flex items-center gap-1 py-1 relative",
-                                    (pathname === link.path ? "text-[#0D0D0C]" : "text-[#0D0D0C] hover:text-[#0D0D0C]/80")
-                                )}
-                            >
-                                {link.name}
-                                {link.dropdown && <ChevronDown size={12} />}
-                                {(pathname === link.path) && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0D0D0C]" />
-                                )}
-                            </Link>
-                        ))}
+                        {navLinks.map((link) => {
+                            const isActive = pathname === link.path;
+                            return (
+                                <Link
+                                    key={link.name}
+                                    href={link.path}
+                                    className={clsx(
+                                        "group text-[14px] font-medium transition-all flex items-center gap-1 py-1 relative",
+                                        isActive ? "text-[#0D0D0C]" : "text-[#0D0D0C] hover:text-[#0D0D0C]/80"
+                                    )}
+                                >
+                                    {link.name}
+                                    {link.dropdown && <ChevronDown size={12} />}
+                                    {/* Active underline */}
+                                    {isActive && (
+                                        <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0D0D0C]" />
+                                    )}
+                                    {/* Hover underline */}
+                                    {!isActive && (
+                                        <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0D0D0C] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                                    )}
+                                </Link>
+                            );
+                        })}
                     </div>
 
                     {/* Mobile: Sign In button + Toggle */}

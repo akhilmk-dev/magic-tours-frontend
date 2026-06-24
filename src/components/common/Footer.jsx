@@ -50,7 +50,7 @@ export default function Footer() {
         return links;
     };
 
-    const quickLinks = getQuickLinks();
+    const quickLinks = getQuickLinks().filter(l => !l.label.toLowerCase().includes('tour package'));
     const bottomLinks = getBottomLinks();
 
     const branding = {
@@ -60,11 +60,11 @@ export default function Footer() {
     };
 
     return (
-        <footer className="bg-white text-secondary pt-16 border-t border-gray-100">
+        <footer className="bg-white text-secondary pt-8 border-t border-gray-100">
             <div className="container mx-auto px-4 md:px-12 lg:px-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                     {/* Brand */}
-                    <div className="flex flex-col gap-8">
+                    <div className="flex flex-col gap-5">
                         <Link href="/" className="flex items-center">
                             {branding.logo && <img src={branding.logo} alt="Magic Tours Logo" className="h-16 w-auto object-contain" />}
                         </Link>
@@ -101,11 +101,11 @@ export default function Footer() {
                     {/* Say Hello */}
                     <div>
                         {footerData?.footer_say_hello_heading && (
-                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                            <h4 className="text-xl font-bold text-secondary mb-4 font-heading">
                                 {footerData.footer_say_hello_heading}
                             </h4>
                         )}
-                        <ul className="space-y-4">
+                        <ul className="space-y-2.5">
                             {footerData?.footer_email && (
                                 <li>
                                     <a href={`mailto:${footerData.footer_email}`} className="text-gray-500 hover:text-primary transition-colors text-sm font-medium">
@@ -126,11 +126,11 @@ export default function Footer() {
                     {/* Quick Links */}
                     <div>
                         {footerData?.footer_quick_links_heading && (
-                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                            <h4 className="text-xl font-bold text-secondary mb-4 font-heading">
                                 {footerData.footer_quick_links_heading}
                             </h4>
                         )}
-                        <ul className="space-y-4">
+                        <ul className="space-y-2.5">
                             {quickLinks.map((link, idx) => (
                                 <li key={idx}>
                                     <Link href={link.url} className="text-gray-500 hover:text-primary transition-colors text-sm">
@@ -143,13 +143,18 @@ export default function Footer() {
                                     Customer Registration
                                 </Link>
                             </li>
+                            <li>
+                                <Link href="/vendor-registration" className="text-gray-500 hover:text-primary transition-colors text-sm">
+                                    Become a Vendor
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
                     {/* Trust & Support */}
                     <div>
                         {footerData?.footer_trust_support_heading && (
-                            <h4 className="text-xl font-bold text-secondary mb-8 font-heading">
+                            <h4 className="text-xl font-bold text-secondary mb-4 font-heading">
                                 {footerData.footer_trust_support_heading}
                             </h4>
                         )}
@@ -176,7 +181,7 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-gray-100 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="border-t border-gray-100 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
                     {branding.copyright && (
                         <p className="text-gray-500 text-xs text-center md:text-left">{branding.copyright}</p>
                     )}

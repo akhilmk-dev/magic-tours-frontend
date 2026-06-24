@@ -2,34 +2,14 @@
 
 export const runtime = 'edge';
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { Users, Globe, Award, Star, Target, Eye, Heart, MapPin } from 'lucide-react';
+import { Target, Eye, Heart } from 'lucide-react';
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
+import { api } from '../../api/client';
 
-const stats = [
-    { value: 10, suffix: '+', label: 'Years of Excellence' },
-    { value: 15000, suffix: '+', label: 'Happy Travellers' },
-    { value: 120, suffix: '+', label: 'Tour Packages' },
-    { value: 50, suffix: '+', label: 'Destinations' },
-];
-
-const values = [
-    { icon: <Target size={24} className="text-[#FFA500]" />, title: 'Our Mission', desc: 'To make extraordinary travel accessible to everyone by delivering unforgettable experiences crafted with passion, expertise and genuine care.' },
-    { icon: <Eye size={24} className="text-[#FFA500]" />, title: 'Our Vision', desc: 'To be the most trusted travel partner in the region — a name that promises not just a holiday, but a memory that lasts a lifetime.' },
-    { icon: <Heart size={24} className="text-[#FFA500]" />, title: 'Our Values', desc: 'Integrity, excellence and a deep respect for every culture we encounter. We believe travel should broaden horizons and connect hearts.' },
-];
-
-const team = [
-    { name: 'Ahmed Al-Rashid', role: 'Founder & CEO', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=faces' },
-    { name: 'Fatima Al-Zahra', role: 'Head of Operations', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=faces' },
-    { name: 'James Morrison', role: 'Lead Travel Consultant', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces' },
-    { name: 'Priya Sharma', role: 'Visa & Documentation Lead', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces' },
-];
-
-function AnimatedCounter({ target, suffix }) {
+function AnimatedCounter({ target, suffix = '' }) {
     const [count, setCount] = useState(0);
     const ref = useRef(null);
     const started = useRef(false);
@@ -38,14 +18,15 @@ function AnimatedCounter({ target, suffix }) {
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting && !started.current) {
                 started.current = true;
-                let start = 0;
-                const end = target;
+                const end = Number(target) || 0;
                 const duration = 1800;
-                const step = Math.ceil(end / (duration / 16));
+                const step = Math.ceil(end / (duration / 16)) || 1;
                 const timer = setInterval(() => {
-                    start = Math.min(start + step, end);
-                    setCount(start);
-                    if (start >= end) clearInterval(timer);
+                    setCount(prev => {
+                        const next = Math.min(prev + step, end);
+                        if (next >= end) clearInterval(timer);
+                        return next;
+                    });
                 }, 16);
             }
         }, { threshold: 0.3 });
@@ -56,131 +37,152 @@ function AnimatedCounter({ target, suffix }) {
     return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
-export default function AboutPage() {
-    return (
-        <main className="min-h-screen bg-white font-sans overflow-hidden">
-            {/* Hero */}
-            <section className="relative min-h-[70vh] lg:min-h-[75vh] w-full overflow-hidden flex items-center justify-center bg-slate-900">
-                <div className="absolute inset-0 z-0">
-                    <img src={bannerImg.src || bannerImg} alt="About Us Banner" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-[#E9F7FF]/20 backdrop-blur-[2px]" />
-                </div>
-                <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-12 md:mt-20 flex flex-col items-center">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] mb-3 tracking-tight drop-shadow-sm font-heading">About Us</h1>
-                    <nav className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-bold text-[#113A74] uppercase tracking-widest">
-                        <Link href="/" className="hover:text-[#FFA500] transition-colors">Home</Link>
-                        <span className="opacity-50">—</span>
-                        <span>About</span>
-                    </nav>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none translate-y-1/2">
-                    <img src={gutterImg.src || gutterImg} alt="" className="w-full h-auto block border-none" />
-                </div>
-            </section>
+const FALLBACK_ICONS = { Target: <Target size={24} className="text-[#FFA500]" />, Eye: <Eye size={24} className="text-[#FFA500]" />, Heart: <Heart size={24} className="text-[#FFA500]" /> };
+const valueIcons = [
+    <Target key="t" size={24} className="text-[#FFA500]" />,
+    <Eye key="e" size={24} className="text-[#FFA500]" />,
+    <Heart key="h" size={24} className="text-[#FFA500]" />,
+];
 
-            {/* Our Story */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div className="space-y-6">
-                        <span className="inline-block px-4 py-1.5 bg-[#eff6ff] text-[#113A74] text-[10px] font-black uppercase tracking-[0.2em] rounded-full">Our Story</span>
-                        <h2 className="text-[28px] md:text-[42px] font-bold text-[#113A74] leading-tight font-heading">
-                            A Decade of <span className="text-[#FFA500]">Crafting Dreams</span>
-                        </h2>
-                        <p className="text-gray-500 text-sm leading-relaxed">
-                            Founded in 2015 in the heart of Doha, Magic Tours was born from a simple belief: that every journey should be extraordinary. What started as a boutique travel desk serving a handful of explorers has grown into one of the region's most trusted names in bespoke travel.
-                        </p>
-                        <p className="text-gray-500 text-sm leading-relaxed">
-                            Today, we curate personalised holiday packages, luxury cruises, private jet experiences, visa services, and more — all underpinned by the same warmth and attention to detail that guided us from day one.
-                        </p>
-                        <div className="flex items-center gap-3 pt-2">
-                            <div className="flex -space-x-2">
-                                {team.slice(0, 3).map((m, i) => (
-                                    <img key={i} src={m.img} alt={m.name} className="w-10 h-10 rounded-full border-2 border-white object-cover shadow" />
-                                ))}
-                            </div>
-                            <p className="text-xs font-bold text-[#113A74]">Meet our extraordinary team</p>
-                        </div>
-                        <Link href="/contact-us" className="inline-block bg-[#113A74] hover:bg-[#1c4d91] text-white font-bold px-8 py-4 rounded-full transition-all shadow-lg hover:shadow-[#113A74]/25 text-sm">
-                            Get In Touch
-                        </Link>
-                    </div>
-                    <div className="relative">
-                        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl shadow-[#113A74]/15 aspect-[4/3]">
-                            <img
-                                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80"
-                                alt="Magic Tours Team"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                        <div className="absolute -bottom-6 -left-6 bg-[#FFA500] text-white rounded-[1.5rem] px-8 py-5 shadow-xl">
-                            <p className="text-3xl font-extrabold font-heading leading-none">10+</p>
-                            <p className="text-xs font-bold uppercase tracking-wider mt-1">Years of Excellence</p>
-                        </div>
+export default function AboutPage() {
+    const [cms, setCms] = useState(null);
+
+    useEffect(() => {
+        api.get('/specialty-pages/about')
+            .then(res => { if (res.data?.data) setCms(res.data.data); })
+            .catch(() => {});
+    }, []);
+
+    const stats = cms?.highlights || [];
+    const team = cms?.items || [];
+
+    const values = [
+        { icon: valueIcons[0], title: cms?.form_title_1 || 'Our Mission', desc: cms?.items_description || '' },
+        { icon: valueIcons[1], title: cms?.form_title_2 || 'Our Vision', desc: cms?.form_description || '' },
+        { icon: valueIcons[2], title: cms?.form_card_title_1 || 'Our Values', desc: cms?.form_card_description || '' },
+    ];
+
+    const heroTitle1 = cms?.hero_title_1 || 'About';
+    const heroTitle2 = cms?.hero_title_2 || 'Magic Tours';
+    const heroDesc = cms?.hero_description || '';
+    const storyTitle1 = cms?.section_title_1 || 'Our';
+    const storyTitle2 = cms?.section_title_2 || 'Story';
+    const storyText = cms?.section_description || '';
+    const storyImg = cms?.section_image || gutterImg.src;
+    const valuesTitle1 = cms?.items_title_1 || 'Our';
+    const valuesTitle2 = cms?.items_title_2 || 'Values';
+
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Hero Banner */}
+            <section
+                className="relative min-h-[340px] md:min-h-[420px] flex items-center justify-center overflow-hidden"
+                style={{ backgroundImage: `url(${cms?.hero_image || bannerImg.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+            >
+                <div className="absolute inset-0 bg-[#113A74]/70" />
+                <div className="relative z-10 text-center px-4">
+                    <h1 className="text-4xl md:text-6xl font-heading font-black text-white leading-tight mb-4">
+                        {heroTitle1} <span className="text-[#FFA500]">{heroTitle2}</span>
+                    </h1>
+                    {heroDesc && <p className="text-white/80 text-lg max-w-2xl mx-auto">{heroDesc}</p>}
+                    <div className="flex items-center justify-center gap-2 mt-4 text-sm text-white/60">
+                        <span>Home</span>
+                        <span>›</span>
+                        <span className="text-[#FFA500]">About</span>
                     </div>
                 </div>
             </section>
 
             {/* Stats */}
-            <section className="bg-[#113A74] py-20">
-                <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                    {stats.map((s, i) => (
-                        <div key={i}>
-                            <p className="text-4xl md:text-5xl font-extrabold text-white font-heading">
-                                <AnimatedCounter target={s.value} suffix={s.suffix} />
-                            </p>
-                            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-2">{s.label}</p>
+            {stats.length > 0 && (
+                <section className="bg-[#113A74] py-12">
+                    <div className="container mx-auto px-4 md:px-12 lg:px-16">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            {stats.map((s, i) => {
+                                const numPart = parseInt(String(s.value).replace(/\D/g, '')) || 0;
+                                const suffix = String(s.value).replace(/[0-9,]/g, '');
+                                return (
+                                    <div key={i}>
+                                        <div className="text-4xl md:text-5xl font-heading font-black text-[#FFA500] mb-2">
+                                            <AnimatedCounter target={numPart} suffix={suffix} />
+                                        </div>
+                                        <p className="text-white/70 text-sm font-medium">{s.label}</p>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    ))}
-                </div>
-            </section>
+                    </div>
+                </section>
+            )}
 
-            {/* Mission, Vision, Values */}
-            <section className="max-w-6xl mx-auto px-4 sm:px-6 py-24">
-                <div className="text-center mb-14">
-                    <h2 className="text-[28px] md:text-[42px] font-bold text-[#113A74] leading-tight font-heading">
-                        What <span className="text-[#FFA500]">Drives Us</span>
-                    </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {values.map((v, i) => (
-                        <div key={i} className="bg-[#F8FBFF] rounded-[2rem] p-8 border border-[#E9F7FF] hover:shadow-xl hover:shadow-[#113A74]/10 hover:-translate-y-1 transition-all duration-300 group">
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-5 shadow-sm border border-[#E9F7FF] group-hover:scale-110 transition-transform duration-500">
-                                {v.icon}
-                            </div>
-                            <h3 className="font-bold text-[#113A74] text-lg font-heading mb-3">{v.title}</h3>
-                            <p className="text-gray-500 text-sm leading-relaxed">{v.desc}</p>
+            {/* Story Section */}
+            {(storyText || storyImg) && (
+                <section className="py-20 container mx-auto px-4 md:px-12 lg:px-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 className="text-4xl md:text-5xl font-heading font-black text-[#113A74] leading-tight mb-6">
+                                {storyTitle1} <span className="text-[#FFA500]">{storyTitle2}</span>
+                            </h2>
+                            {storyText.split('\n').filter(Boolean).map((para, i) => (
+                                <p key={i} className="text-gray-600 text-base leading-relaxed mb-4">{para}</p>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </section>
+                        <div className="relative">
+                            <img src={storyImg} alt="Our Story" className="rounded-3xl w-full object-cover shadow-2xl" />
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Values */}
+            {(values[0].title || values[1].title || values[2].title) && (
+                <section className="py-16 bg-gray-50">
+                    <div className="container mx-auto px-4 md:px-12 lg:px-16">
+                        <div className="text-center mb-12">
+                            <h2 className="text-4xl font-heading font-black text-[#113A74]">
+                                {valuesTitle1} <span className="text-[#FFA500]">{valuesTitle2}</span>
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {values.filter(v => v.title || v.desc).map((v, i) => (
+                                <div key={i} className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                                    <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-4">{v.icon}</div>
+                                    <h3 className="text-xl font-heading font-black text-[#113A74] mb-3">{v.title}</h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">{v.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Team */}
-            <section className="bg-[#E9F7FF] py-24">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-14">
-                        <span className="inline-block px-4 py-1.5 bg-white text-[#113A74] text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-4 shadow-sm">The People Behind the Magic</span>
-                        <h2 className="text-[28px] md:text-[42px] font-bold text-[#113A74] leading-tight font-heading">
+            {team.length > 0 && (
+                <section className="py-20 container mx-auto px-4 md:px-12 lg:px-16">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-heading font-black text-[#113A74]">
                             Meet Our <span className="text-[#FFA500]">Team</span>
                         </h2>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {team.map((member, i) => (
-                            <div key={i} className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-[#113A74]/10 hover:-translate-y-1 transition-all duration-300 group text-center">
-                                <div className="aspect-square overflow-hidden">
-                                    <img src={member.img} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        {team.map((m, i) => (
+                            <div key={m.id || i} className="text-center group">
+                                <div className="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:border-[#FFA500] transition-colors">
+                                    {m.img
+                                        ? <img src={m.img} alt={m.name} className="w-full h-full object-cover" />
+                                        : <div className="w-full h-full bg-[#113A74]/10 flex items-center justify-center text-[#113A74] font-black text-2xl">{(m.name || '?')[0]}</div>
+                                    }
                                 </div>
-                                <div className="p-5">
-                                    <h3 className="font-bold text-[#113A74] text-sm font-heading mb-1">{member.name}</h3>
-                                    <p className="text-[#FFA500] text-xs font-bold uppercase tracking-wider">{member.role}</p>
-                                </div>
+                                <h4 className="font-heading font-black text-[#113A74] text-sm">{m.name}</h4>
+                                <p className="text-gray-500 text-xs mt-1">{m.role}</p>
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             <AdventureSection />
             <GalleryLoop />
-        </main>
+        </div>
     );
 }

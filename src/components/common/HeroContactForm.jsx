@@ -128,13 +128,9 @@ const HeroContactForm = ({ minimal = false }) => {
             initial={minimal ? { opacity: 0, y: 20 } : { opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.8, delay: minimal ? 0 : 0.2 }}
-            className={`relative z-20 ${minimal ? 'w-full p-0 bg-transparent overflow-hidden' : 'w-full sm:w-[420px] lg:w-[430px] xl:w-[440px] max-w-full mx-auto rounded-[28px] sm:rounded-[32px] bg-white/15 backdrop-blur-[30px] border border-white/40 lg:overflow-y-auto no-scrollbar lg:max-h-[calc(100dvh-150px)]'}`}
+            className={`relative z-20 ${minimal ? 'w-full p-0 bg-transparent overflow-hidden' : 'w-full sm:w-[420px] lg:w-[430px] xl:w-[440px] max-w-full mx-auto rounded-[28px] sm:rounded-[32px] bg-white/15 backdrop-blur-[30px] border border-white/40 lg:overflow-y-auto no-scrollbar lg:max-h-[calc(100dvh-110px)]'}`}
             style={minimal ? {} : {
-                // Fluid padding that scales across laptop heights. The viewport height
-                // cap only applies on lg+ (where the form sits inside the hero); when
-                // stacked on small screens it grows naturally so the button keeps its
-                // bottom spacing.
-                padding: 'clamp(18px, 2.4vh, 26px)',
+                padding: 'clamp(26px, 4vh, 48px)',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
                 WebkitBackdropFilter: 'blur(30px)'
             }}
@@ -159,7 +155,7 @@ const HeroContactForm = ({ minimal = false }) => {
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-[clamp(8px,1.5vh,16px)]" noValidate>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-[clamp(10px,2vh,22px)]" noValidate>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="min-w-0">
                         <label style={labelStyle}>FULL NAME</label>
@@ -274,7 +270,7 @@ const HeroContactForm = ({ minimal = false }) => {
                             outline: 'none',
                             resize: 'none',
                             // Fluid height — shrinks on short screens, grows on tall ones.
-                            height: 'clamp(54px, 9vh, 96px)',
+                            height: 'clamp(100px, 18vh, 220px)',
                         }}
                         className={`w-full text-[13px] ${minimal ? 'placeholder:text-white/30 focus:border-[#FDB338]/50' : 'placeholder:text-white/40 focus:border-[#FDB338]/50'} transition-colors`}
                     />

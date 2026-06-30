@@ -361,6 +361,12 @@ const VisaServicesPage = () => {
     const [isLoadingVisas, setIsLoadingVisas] = useState(false);
 
     useEffect(() => {
+        if (isMounted && !authLoading && !user) {
+            router.replace('/login?callback=/visa');
+        }
+    }, [isMounted, authLoading, user, router]);
+
+    useEffect(() => {
         setIsMounted(true);
         const fetchCountries = async () => {
             try {
@@ -400,23 +406,7 @@ const VisaServicesPage = () => {
     }
 
     if (!user) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#F8FAFC] pt-20">
-                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-2">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <h2 className="text-2xl font-bold text-[#113A74]">Authentication Required</h2>
-                <p className="text-gray-500 max-w-md text-center">You need to be logged in to access visa services. Please sign in to continue.</p>
-                <div className="flex gap-3 mt-4">
-                    <button onClick={() => openAuthModal('login')} className="px-6 py-2.5 bg-[#113A74] hover:bg-[#1c4d91] transition-colors text-white rounded-xl font-bold text-sm">
-                        Sign In
-                    </button>
-                    <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 transition-colors text-gray-700 rounded-xl font-bold text-sm">
-                        Back to Home
-                    </button>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     const initialValues = {

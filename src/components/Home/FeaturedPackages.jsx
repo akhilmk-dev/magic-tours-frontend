@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Star, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
+import { toTitleCase } from '../../utils/textUtils';
 import { useRouter } from 'next/navigation';
 import FavoriteButton from '../common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -80,7 +81,7 @@ const FeaturedPackages = () => {
                                 <div className="flex gap-1 text-yellow-500 mb-3">
                                     {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                                 </div>
-                                <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors">{pkg.title}</h3>
+                                <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors">{toTitleCase(pkg.title)}</h3>
                                 <p className="text-gray-400 text-sm mb-6 line-clamp-2">
                                     {pkg.description || "Experience the best of travel with our curated packages designed for luxury and comfort."}
                                 </p>

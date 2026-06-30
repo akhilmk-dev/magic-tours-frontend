@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { toTitleCase } from '../../utils/textUtils';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Star, Calendar, MapPin } from 'lucide-react';
 import FavoriteButton from '../common/FavoriteButton';
@@ -77,7 +78,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
     const packageData = (apiPackages || []).map(p => ({
         id: p.id,
-        title: p.title || "Untitled Package",
+        title: toTitleCase(p.title || "Untitled Package"),
         location: p.location || "Location TBD",
         duration: (p.days > 0 || p.nights > 0) ? `${p.nights} Nights, ${p.days} Days` : (p.duration || "Contact for duration"),
         type: parseCategories(p.category),

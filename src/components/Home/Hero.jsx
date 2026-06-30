@@ -120,7 +120,7 @@ export default function Hero({ slides: apiSlides, loading }) {
     if (loading) return <HeroSkeleton />;
 
     return (
-        <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
+        <section className="relative min-h-[110vh] flex items-center overflow-hidden bg-black">
             {/* Background Slideshow */}
             <AnimatePresence initial={false}>
                 <motion.div
@@ -158,10 +158,10 @@ export default function Hero({ slides: apiSlides, loading }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[110px] sm:pt-[120px] lg:pt-[130px] pb-36 sm:pb-40 lg:pb-16 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8 lg:gap-16">
+            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10 pt-[110px] sm:pt-[120px] lg:pt-[140px] pb-36 sm:pb-40 lg:pb-24 min-h-full flex flex-col justify-start max-w-screen-2xl mx-auto">
+                <div className="flex flex-col lg:flex-row lg:items-stretch justify-between gap-6 sm:gap-8 lg:gap-16">
                     {/* Left Content */}
-                    <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left lg:flex lg:flex-col">
+                    <div className="flex-1 lg:max-w-lg xl:max-w-xl text-center lg:text-left lg:flex lg:flex-col lg:pt-10">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -170,17 +170,17 @@ export default function Hero({ slides: apiSlides, loading }) {
                                 exit={{ opacity: 0, x: 30 }}
                                 transition={{ duration: 0.8 }}
                             >
-                                <span className="text-[#FDB338] font-bold tracking-[0.25em] uppercase text-[10px] sm:text-xs mb-4 block">
+                                <span className="text-[#FDB338] font-bold tracking-[0.25em] uppercase text-xs sm:text-sm lg:text-sm mb-5 block break-all max-w-xs lg:max-w-sm">
                                     {slides[currentSlide].location}
                                 </span>
-                                <h1 className="text-[26px] sm:text-4xl md:text-[44px] xl:text-[52px] font-bold text-white leading-[1.05] mb-5 tracking-tight">
+                                <h1 className="text-[32px] sm:text-[44px] lg:text-[64px] font-bold text-white leading-[1.05] mb-6 tracking-tight">
                                     {slides[currentSlide].title}
-                                    <span className="text-[#FDB338] font-medium block mt-3">
+                                    <span className="animate-aurora font-medium block mt-3">
                                         {slides[currentSlide].subtitle}
                                     </span>
                                 </h1>
 
-                                <p className="text-white/80 text-sm sm:text-base md:text-base mb-7 max-w-sm mx-auto lg:mx-0 leading-relaxed font-medium">
+                                <p className="text-white/80 text-lg mb-8 max-w-sm mx-auto lg:mx-0 leading-relaxed font-medium">
                                     {slides[currentSlide].description}
                                 </p>
                             </motion.div>
@@ -238,7 +238,7 @@ export default function Hero({ slides: apiSlides, loading }) {
                     </div>
 
                     {/* Right Content - Contact Form */}
-                    <div className="w-full lg:w-auto shrink-0 mt-8 mb-16 lg:my-0 z-20">
+                    <div className="w-full lg:w-auto shrink-0 mt-8 mb-16 lg:my-0 z-20 lg:flex lg:items-end">
                         <HeroContactForm />
                     </div>
                 </div>

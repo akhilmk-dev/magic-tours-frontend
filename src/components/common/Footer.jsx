@@ -60,9 +60,9 @@ export default function Footer() {
     };
 
     return (
-        <footer className="bg-white text-secondary pt-8 border-t border-gray-100">
+        <footer className="bg-white text-secondary pt-5">
             <div className="container mx-auto px-4 md:px-12 lg:px-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
                     {/* Brand */}
                     <div className="flex flex-col gap-5">
                         <Link href="/" className="flex items-center">
@@ -181,7 +181,7 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-gray-100 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="border-t border-gray-100 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
                     {branding.copyright && (
                         <p className="text-gray-500 text-xs text-center md:text-left">{branding.copyright}</p>
                     )}

@@ -81,7 +81,7 @@ export default function Destinations({ content, loading }) {
                 <div className="flex flex-col xl:flex-row gap-10 xl:gap-12 items-center">
 
                     {/* ── Left: text ── */}
-                    <div className="xl:w-[420px] xl:shrink-0 text-left pr-4 xl:pr-0">
+                    <div className="xl:w-[520px] xl:shrink-0 text-left pr-4 xl:pr-0">
                         <div className="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full mb-5">
                             <svg className="text-brand-magic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(45 12 12)" />
@@ -97,7 +97,7 @@ export default function Destinations({ content, loading }) {
                             {line2 && <><br />{line2}</>}
                         </h2>
 
-                        <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-2">
+                        <p className="text-gray-500 text-base leading-relaxed mb-5 line-clamp-2">
                             {description}
                         </p>
 
@@ -139,12 +139,12 @@ export default function Destinations({ content, loading }) {
                                     */}
                                     <div
                                         className="bg-white group-hover:bg-brand-magic flex flex-col transition-colors duration-500 rounded-t-[2.2rem] rounded-bl-[2.2rem] overflow-hidden"
-                                        style={{ width: '210px', height: '295px' }}
+                                        style={{ width: '210px', height: '350px' }}
                                     >
-                                        {/* Image — fully rounded (top 2.2rem, bottom 1.8rem) */}
+                                        {/* Image — fixed height so it doesn't stretch when card grows */}
                                         <div
-                                            className="overflow-hidden relative rounded-t-[2.2rem] rounded-b-[1.8rem]"
-                                            style={{ flex: '1 1 0', minHeight: 0 }}
+                                            className="overflow-hidden relative rounded-t-[2.2rem] rounded-b-[1.8rem] shrink-0"
+                                            style={{ height: '220px' }}
                                         >
                                             <img
                                                 src={trip.image}
@@ -153,8 +153,8 @@ export default function Destinations({ content, loading }) {
                                             />
                                         </div>
 
-                                        {/* Text section — no own bg, inherits card container colour */}
-                                        <div className="pb-5 pt-[10px] px-4 text-center shrink-0">
+                                        {/* Text section — grows to fill remaining space */}
+                                        <div className="flex-1 flex flex-col items-center justify-center px-4 text-center">
                                             <h3 className="text-[17px] xl:text-[19px] font-heading font-bold mb-[2px] text-brand-heading group-hover:text-white transition-colors duration-500 leading-snug">
                                                 {trip.name}
                                             </h3>

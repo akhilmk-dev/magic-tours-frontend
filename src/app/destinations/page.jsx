@@ -194,7 +194,7 @@ export default function DestinationsPage() {
                                             className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col border border-slate-100 h-full text-[13px]"
                                         >
                                             {/* Image Header with Status and Categories */}
-                                            <div className="relative h-48 overflow-hidden shrink-0">
+                                            <div className="relative h-64 overflow-hidden shrink-0">
                                                 <img
                                                     src={dest.image}
                                                     alt={dest.name}
@@ -217,10 +217,10 @@ export default function DestinationsPage() {
                                             </div>
 
                                             {/* Card Body */}
-                                            <div className="p-4 flex flex-col flex-1 text-left">
+                                            <div className="p-3 flex flex-col flex-1 text-left">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
-                                                        <h3 title={dest.name} className="text-2xl font-bold text-[#113A74] font-display tracking-tight leading-none mb-1 group-hover:text-[#FFA500] transition-colors">
+                                                        <h3 title={dest.name} className="text-xl font-bold text-[#113A74] font-display tracking-tight leading-none mb-1 group-hover:text-[#FFA500] transition-colors">
                                                             {dest.name}
                                                         </h3>
                                                         <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
@@ -233,44 +233,37 @@ export default function DestinationsPage() {
                                                     </div>
                                                 </div>
 
-                                                {dest.overview && (
-                                                    <p title={dest.overview} className="text-gray-500 text-[13px] leading-relaxed mb-4 line-clamp-2">
-                                                        {dest.overview}
-                                                    </p>
-                                                )}
-
-                                                {/* Bottom Info Fields */}
-                                                <div className="bg-[#F8FBFF] rounded-xl p-3 flex flex-col gap-2.5 mt-auto">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF]">
-                                                            <Calendar size={14} className="text-[#113A74]" />
+                                                {/* Best Season + Key Cities in one row */}
+                                                <div className="bg-[#F8FBFF] rounded-xl p-2.5 flex items-start gap-3 mt-auto">
+                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                        <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF] shrink-0">
+                                                            <Calendar size={13} className="text-[#113A74]" />
                                                         </div>
-                                                        <div>
-                                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0">Best Season</p>
-                                                            <p className="text-xs text-[#113A74] font-bold">{dest.best_season || "Year Round"}</p>
+                                                        <div className="min-w-0">
+                                                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">Best Season</p>
+                                                            <p className="text-[11px] text-[#113A74] font-bold truncate">{dest.best_season || "Year Round"}</p>
                                                         </div>
                                                     </div>
                                                     {dest.cities && dest.cities.length > 0 && (
-                                                        <div className="flex items-start gap-2.5">
-                                                            <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF] mt-0.5">
-                                                                <Navigation size={14} className="text-[#113A74]" />
+                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                            <div className="bg-white p-1 rounded-md shadow-sm border border-[#E9F7FF] shrink-0">
+                                                                <Navigation size={13} className="text-[#113A74]" />
                                                             </div>
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0">Key Cities</p>
-                                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                                    {dest.cities.slice(0, 2).map((city, idx) => (
-                                                                        <span key={idx} className="bg-white border border-[#E9F7FF] text-[#113A74] text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">
-                                                                            {city.name}
-                                                                        </span>
-                                                                    ))}
-                                                                    {dest.cities.length > 2 && <span className="text-[11px] text-gray-400 font-bold">+{dest.cities.length - 2}</span>}
-                                                                </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">Key Cities</p>
+                                                                <p
+                                                                    className="text-[11px] text-[#113A74] font-bold truncate cursor-default"
+                                                                    title={dest.cities.map(c => c.name).join(' · ')}
+                                                                >
+                                                                    {dest.cities.slice(0, 3).map(c => c.name).join(' · ')}
+                                                                    {dest.cities.length > 3 && <span className="text-gray-400"> +{dest.cities.length - 3}</span>}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     )}
                                                 </div>
 
-                                                <Link href={`/tours?destination=${dest.slug}`} className="w-full mt-4 bg-white border border-[#113A74] text-[#113A74] py-3 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
+                                                <Link href={`/tours?destination=${dest.slug}`} className="w-full mt-3 bg-white border border-[#113A74] text-[#113A74] py-2.5 rounded-full font-heading font-bold text-sm tracking-normal hover:bg-[#113A74] hover:text-white transition-all shadow-sm text-center">
                                                     View Packages
                                                 </Link>
                                             </div>

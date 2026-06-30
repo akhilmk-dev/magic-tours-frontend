@@ -3,6 +3,7 @@ import React from 'react';
 import { MapPin, Clock, User, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Link from 'next/link';
 import FavoriteButton from '../common/FavoriteButton';
+import { toTitleCase } from '../../utils/textUtils';
 
 const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }) => {
 
@@ -85,7 +86,7 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                             </div>
 
                             <h3 className="text-xl font-bold text-secondary mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                                {pkg.title}
+                                {toTitleCase(pkg.title)}
                             </h3>
 
                             <p className="text-gray-400 text-sm mb-6 line-clamp-2">

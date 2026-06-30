@@ -15,6 +15,7 @@ import bookingImg from '../../assets/booking-img.png';
 import searchIcon from '../../assets/search.png';
 import FavoriteButton from '../../components/common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
+import { toTitleCase } from '../../utils/textUtils';
 import hotelsIcon from '../../assets/hotels_package_card.png';
 import flightIcon from '../../assets/flight_icon_package_card.png';
 import foodIcon from '../../assets/food_icon_package_card.png';
@@ -164,9 +165,11 @@ const DestinationBar = ({ filterData, filters, setFilters, onApply, search, setS
                 {/* Row 2: count (left) + search + view toggle (right) */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                     <div className="flex items-center justify-between gap-3">
-                        <p className="text-black font-sans font-bold text-[16px] sm:text-[18px] shrink-0">
-                            {totalCount} packages Found
-                        </p>
+                        {(filters.destination?.length > 0 || filters.cities.length > 0 || filters.categories.length > 0 || filters.maxNights || filters.travelers > 1 || filters.departure_date || search.trim()) && (
+                            <p className="text-black font-sans font-bold text-[16px] sm:text-[18px] shrink-0">
+                                {totalCount} packages Found
+                            </p>
+                        )}
                         {/* View toggle — inline with count on mobile */}
                         <div className="flex items-center gap-1 shrink-0 sm:hidden">
                             <button
@@ -272,7 +275,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
             >
                 {checked && <Check size={9} strokeWidth={3} className="text-white" />}
             </div>
-            <span className="text-[13px] font-sans font-semibold text-[#113A74]">{label}</span>
+            <span className="text-[15px] font-sans font-semibold text-[#113A74]">{label}</span>
         </label>
     );
 
@@ -300,8 +303,14 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
                 {/* No of Days */}
                 <FilterSection title="No of Days">
                     <div className="mt-1 px-1">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[12px] font-sans text-slate-400">Any duration</span>
+                            <span className="text-[13px] font-sans font-bold text-[#113A74]">
+                                {(localFilters.maxNights || 0) === 0 ? 'All' : `${localFilters.maxNights} days`}
+                            </span>
+                        </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-[13px] font-sans text-black shrink-0">0 days</span>
+                            <span className="text-[13px] font-sans text-black shrink-0">1</span>
                             <input
                                 type="range" min="0" max="21"
                                 value={localFilters.maxNights || 0}
@@ -311,7 +320,7 @@ const Sidebar = ({ filters, setFilters, onApply, filterData, onClose, showPromo 
                                     background: `linear-gradient(to right, #113A74 ${((localFilters.maxNights || 0) / 21) * 100}%, #e2e8f0 ${((localFilters.maxNights || 0) / 21) * 100}%)`
                                 }}
                             />
-                            <span className="text-[13px] font-sans text-black shrink-0">21 days</span>
+                            <span className="text-[13px] font-sans text-black shrink-0">21</span>
                         </div>
                     </div>
                 </FilterSection>
@@ -378,8 +387,56 @@ const SortHeader = ({ onOpenFilters }) => {
     );
 };
 
+/* ─── City list with 3-row cap + tooltip ──────────────────── */
+const CityList = ({ cityNames }) => {
+    const [showTooltip, setShowTooltip] = React.useState(false);
+    const CITIES_PER_ROW = 3;
+    const MAX_ROWS = 3;
+    const visibleCities = cityNames.slice(0, CITIES_PER_ROW * MAX_ROWS);
+    const hiddenCities  = cityNames.slice(CITIES_PER_ROW * MAX_ROWS);
+
+    const rows = Array.from({ length: Math.ceil(visibleCities.length / CITIES_PER_ROW) }, (_, row) =>
+        visibleCities.slice(row * CITIES_PER_ROW, row * CITIES_PER_ROW + CITIES_PER_ROW)
+    );
+
+    return (
+        <div className="flex flex-col gap-0.5 mb-0.5">
+            {rows.map((chunk, row) => (
+                <p key={row} className="text-slate-400 text-[13px] font-medium leading-snug">
+                    {chunk.map((city, i) => (
+                        <span key={i}>
+                            {city}
+                            {i < chunk.length - 1 && <span className="mx-1 text-slate-300">|</span>}
+                        </span>
+                    ))}
+                </p>
+            ))}
+            {hiddenCities.length > 0 && (
+                <div className="relative inline-block">
+                    <button
+                        type="button"
+                        onMouseEnter={() => setShowTooltip(true)}
+                        onMouseLeave={() => setShowTooltip(false)}
+                        onClick={e => { e.stopPropagation(); setShowTooltip(v => !v); }}
+                        className="text-[12px] font-bold text-[#113A74] bg-blue-50 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors"
+                    >
+                        +{hiddenCities.length} more
+                    </button>
+                    {showTooltip && (
+                        <div className="absolute left-0 bottom-full mb-1.5 z-50 bg-[#113A74] text-white text-[12px] rounded-xl shadow-xl px-3 py-2 w-max max-w-[220px] leading-relaxed pointer-events-none">
+                            {hiddenCities.join(' | ')}
+                            <div className="absolute left-3 top-full w-2 h-2 bg-[#113A74] rotate-45 -translate-y-1" />
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airline_name, operated_by_name, booking_type, viewMode = 'grid' }) => {
+const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, viewMode = 'grid' }) => {
+    const airlineList = airlines?.length ? airlines : (airline_name ? [{ name: airline_name }] : []);
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
     const router = useRouter();
@@ -393,31 +450,15 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
             >
                 <div className="relative w-full h-[180px] sm:w-[160px] sm:h-auto md:w-[220px] lg:w-[260px] shrink-0 overflow-hidden">
                     <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-3 left-0 bg-[#113A74] text-white px-2 sm:px-3 py-1 rounded-r-lg flex items-center gap-1 sm:gap-1.5 text-[13px] font-bold">
-                        <Calendar size={10} />
+                    <div className="absolute top-3 left-0 bg-[#113A74] text-white px-3 sm:px-4 py-1.5 rounded-r-lg flex items-center gap-1.5 sm:gap-2 text-[14px] font-bold shadow-md">
+                        <Calendar size={12} />
                         <span>{nights}N / {days}d</span>
                     </div>
                 </div>
                 <div className="flex-1 p-4 sm:p-4 md:p-5 flex flex-col justify-between min-w-0">
                     <div>
-                        <h3 className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-1 mb-1">{title || package_name}</h3>
-                        {cityNames.length > 0 && (
-                            <div className="flex flex-col gap-0.5 mb-1">
-                                {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
-                                    const chunk = cityNames.slice(row * 3, row * 3 + 3);
-                                    return (
-                                        <p key={row} className="text-slate-400 text-[13px] font-medium leading-snug">
-                                            {chunk.map((city, i) => (
-                                                <span key={i}>
-                                                    {city}
-                                                    {i < chunk.length - 1 && <span className="mx-1 text-slate-300">|</span>}
-                                                </span>
-                                            ))}
-                                        </p>
-                                    );
-                                })}
-                            </div>
-                        )}
+                        <h3 className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-1 mb-1">{toTitleCase(title || package_name)}</h3>
+                        {cityNames.length > 0 && <CityList cityNames={cityNames} />}
                         <div className="flex items-center gap-1.5 flex-wrap mb-1">
                             {slots !== undefined && <span className="text-[13px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
                         </div>
@@ -445,46 +486,30 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
             <div className="relative aspect-[4/3.6] overflow-hidden">
                 <img src={image} alt={title || package_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <FavoriteButton packageId={id} className="absolute top-4 right-4 z-20 !bg-white/20 hover:!bg-white/30 !shadow-none border border-white/60 !backdrop-blur-sm [&_svg]:text-white" />
-                <div className="absolute top-4 left-0 bg-[#113A74] text-white pl-4 pr-3 py-2 rounded-r-lg flex items-center gap-2 text-[13px] font-bold shadow-lg">
-                    <Calendar size={13} className="opacity-90" />
+                <div className="absolute top-4 left-0 bg-[#113A74] text-white pl-5 pr-4 py-2.5 rounded-r-lg flex items-center gap-2 text-[15px] font-bold shadow-lg">
+                    <Calendar size={15} className="opacity-90" />
                     <span>{nights} Nights, {days} Days</span>
                 </div>
                 {/* Airline + Operated by overlay — visible on hover (bottom-left) */}
-                {(airline_name || operated_by_name) && (
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-8 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {airline_name && (
-                            <div className="flex items-center gap-2 text-white text-[15px] font-heading leading-tight">
+                {(airlineList.length > 0 || operated_by_name) && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-4 pt-10 pb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[1px]">
+                        {airlineList.length > 0 && (
+                            <div className="flex items-center gap-2 leading-tight" style={{textShadow:'0 1px 4px rgba(0,0,0,0.7)'}}>
                                 <img src={airlineTailIcon.src || airlineTailIcon} alt="Airline" className="w-7 h-7 object-contain shrink-0 scale-150" />
-                                <span>Airline : {airline_name}</span>
+                                <span className="text-white font-extrabold text-[15px] font-heading tracking-wide">Airline : {airlineList.map(a => a.name).join(', ')}</span>
                             </div>
                         )}
                         {operated_by_name && (
-                            <p className="text-white/90 text-[15px] font-heading leading-tight">
-                                Operated by : {operated_by_name}
+                            <p className="text-[#FFA500] font-bold text-[14px] font-heading leading-tight mt-1" style={{textShadow:'0 1px 4px rgba(0,0,0,0.7)'}}>
+                                Operated by : <span className="text-white">{operated_by_name}</span>
                             </p>
                         )}
                     </div>
                 )}
             </div>
             <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-1">
-                <h3 title={title || package_name} className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-2">{title || package_name}</h3>
-                {cityNames.length > 0 && (
-                    <div className="flex flex-col gap-0.5 mb-0.5">
-                        {Array.from({ length: Math.ceil(cityNames.length / 3) }, (_, row) => {
-                            const chunk = cityNames.slice(row * 3, row * 3 + 3);
-                            return (
-                                <p key={row} className="text-slate-400 text-[13px] font-medium leading-snug">
-                                    {chunk.map((city, i) => (
-                                        <span key={i}>
-                                            {city}
-                                            {i < chunk.length - 1 && <span className="mx-1 text-slate-300">|</span>}
-                                        </span>
-                                    ))}
-                                </p>
-                            );
-                        })}
-                    </div>
-                )}
+                <h3 title={title || package_name} className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-2">{toTitleCase(title || package_name)}</h3>
+                {cityNames.length > 0 && <CityList cityNames={cityNames} />}
                 <div className="flex items-center gap-2 py-0.5 flex-wrap">
                     {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
                     {flights_included && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}

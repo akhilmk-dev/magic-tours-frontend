@@ -91,7 +91,7 @@ const HotelCard = ({ name, country, city_name, overview, facilities, categories:
 
                 {/* Logo Overlay - Only on Hover */}
                 {hotel_logo_image && (
-                    <div className="absolute top-3 left-3 w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md p-1 shadow-lg border border-white/50 z-10 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute top-3 left-3 w-10 h-10 z-10 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <img src={hotel_logo_image} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                 )}

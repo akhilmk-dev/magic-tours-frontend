@@ -8,6 +8,16 @@ import React from 'react';
  * @param {string} highlightClass - The CSS class to apply to highlighted parts.
  * @returns {React.ReactNode} - Rendered React elements.
  */
+export const toTitleCase = (str) => {
+    if (!str) return str;
+    const minors = new Set(['a','an','the','and','but','or','for','nor','on','at','to','by','in','of','up','as','is']);
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map((word, i) => (i === 0 || !minors.has(word)) ? word.charAt(0).toUpperCase() + word.slice(1) : word)
+        .join(' ');
+};
+
 export const renderDynamicTitle = (text, highlightClass = "text-brand-magic italic") => {
     if (!text) return null;
     

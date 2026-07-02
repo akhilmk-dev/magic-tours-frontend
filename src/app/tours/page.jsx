@@ -435,12 +435,14 @@ const CityList = ({ cityNames }) => {
 };
 
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, days, nights, slots, cities, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, viewMode = 'grid' }) => {
+const TourCard = ({ id, slug, image, title, package_name, description, price, currency, days, nights, slots, cities, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, is_rfq, viewMode = 'grid' }) => {
     const airlineList = airlines?.length ? airlines : (airline_name ? [{ name: airline_name }] : []);
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
     const router = useRouter();
     const { formatPrice } = useCurrency();
+    const btnLabel = is_rfq ? 'Enquiry' : 'Book Now';
+    const hasPrice = price > 0;
 
     if (viewMode === 'list') {
         return (
@@ -467,10 +469,16 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                         <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/packages/${slug || id}?book=true`); }}
                             className="px-4 py-1.5 sm:px-5 sm:py-2 border border-[#113A74] text-[#113A74] rounded-full text-[13px] font-sans font-bold hover:bg-[#113A74] hover:text-white transition-all shrink-0"
-                        >Book Now</button>
+                        >{btnLabel}</button>
                         <div className="text-right">
-                            <span className="text-[#FFA500] text-xl font-black">{formatPrice(price)}</span>
-                            <p className="text-[#113A74] text-[13px] font-bold tracking-wider opacity-70">Onwards</p>
+                            {hasPrice ? (
+                                <>
+                                    <span className="text-[#FFA500] text-xl font-black">{formatPrice(price)}</span>
+                                    <p className="text-[#113A74] text-[13px] font-bold tracking-wider opacity-70">Onwards</p>
+                                </>
+                            ) : (
+                                <span className="text-[#113A74] text-sm font-bold italic opacity-70">Price on Request</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -519,10 +527,16 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, da
                     <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/packages/${slug || id}?book=true`); }}
                         className="px-4 sm:px-6 py-2 sm:py-2.5 border border-[#113A74] text-[#113A74] rounded-full text-[13px] font-sans-force font-bold hover:bg-[#113A74] hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
-                    >Book Now</button>
+                    >{btnLabel}</button>
                     <div className="text-right">
-                        <span className="text-[#FFA500] text-xl font-black leading-none">{formatPrice(price)}</span>
-                        <p className="text-[#113A74] text-[13px] font-bold tracking-wider mt-0.5 opacity-90">Onwards</p>
+                        {hasPrice ? (
+                            <>
+                                <span className="text-[#FFA500] text-xl font-black leading-none">{formatPrice(price)}</span>
+                                <p className="text-[#113A74] text-[13px] font-bold tracking-wider mt-0.5 opacity-90">Onwards</p>
+                            </>
+                        ) : (
+                            <span className="text-[#113A74] text-sm font-bold italic opacity-70">Price on Request</span>
+                        )}
                     </div>
                 </div>
             </div>

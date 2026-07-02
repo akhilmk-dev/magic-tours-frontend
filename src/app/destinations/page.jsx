@@ -196,7 +196,7 @@ export default function DestinationsPage() {
                                             {/* Image Header with Status and Categories */}
                                             <div className="relative h-64 overflow-hidden shrink-0">
                                                 <img
-                                                    src={dest.image}
+                                                    src={dest.image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800&auto=format&fit=crop'}
                                                     alt={dest.name}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />

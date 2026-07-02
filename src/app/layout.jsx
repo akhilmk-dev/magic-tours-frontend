@@ -1,5 +1,5 @@
 import { Inter, Philosopher, El_Messiri, Plus_Jakarta_Sans, Figtree, Montserrat } from 'next/font/google';
-import '../index.css';
+import './globals.css';
 import { ToastProvider } from '../context/ToastContext';
 import { CustomerAuthProvider } from '../context/CustomerAuthContext';
 import { CurrencyProvider } from '../context/CurrencyContext';

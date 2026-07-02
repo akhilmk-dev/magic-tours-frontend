@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-secondary-light antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-bold text-secondary;
+  }
+
+  button,
+  .btn,
+  [role="button"],
+  .button-primary,
+  .button-secondary {
+    @apply font-heading normal-case !important;
+  }
+
+  /* Opt-out: force the body sans (Inter) font on specific elements,
+     overriding the global font-heading rules for buttons and headings above. */
+  button.font-sans-force,
+  h1.font-sans-force,
+  h2.font-sans-force,
+  h3.font-sans-force,
+  h4.font-sans-force,
+  h5.font-sans-force,
+  h6.font-sans-force,
+  .font-sans-force {
+    font-family: var(--font-inter), Inter, sans-serif !important;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+  }
+
+  .slide-in-from-top-2 {
+    animation-name: slideInFromTop;
+  }
+
+  /* Moving Light Border Animation */
+  .moving-light-border {
+    @apply relative overflow-hidden isolate shadow-lg;
+  }
+
+  .moving-light-border::before {
+    content: "";
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] pointer-events-none;
+    background: conic-gradient(
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      white,
+      rgba(255, 255, 255, 0.3),
+      transparent 25%
+    );
+    animation: border-rotate 2s linear infinite;
+    z-index: -2;
+  }
+
+  .moving-light-border::after {
+    content: "";
+    @apply absolute inset-[3px] pointer-events-none;
+    background: inherit;
+    border-radius: inherit;
+    z-index: -1;
+  }
+}
+
+@keyframes border-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hide scrollbar while keeping scroll (used by the hero form on very short screens) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Anniversary badge — 3D horizontal sway (stays readable, never mirrored) */
+@keyframes annivSway {
+  0%   { transform: rotateY(-30deg); }
+  50%  { transform: rotateY(30deg); }
+  100% { transform: rotateY(-30deg); }
+}
+/* Aurora Highlight Animation */
+.animate-aurora {
+  animation: aurora 15s linear infinite;
+  background: linear-gradient(to right,
+    #113A74 0%,
+    #FFA500 20%,
+    #0ea5e9 40%,
+    #113A74 60%,
+    #FFA500 80%,
+    #0ea5e9 100%);
+  background-size: 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+@keyframes aurora {
+  from { background-position: 50% 50%; }
+  to   { background-position: 350% 50%; }
+}
+
+.anniv-spin {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  animation: annivSway 3.5s ease-in-out infinite;
+}

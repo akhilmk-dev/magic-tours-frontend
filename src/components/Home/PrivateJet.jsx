@@ -173,9 +173,9 @@ const PrivateJet = ({ jets: apiJets, content, loading }) => {
                                 </AnimatePresence>
 
                                 {/* Arrow icon top-right */}
-                                <div className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full border-2 border-white/60 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer">
+                                <Link href="/private-jets" className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full border-2 border-white/60 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
                                     <ArrowUpRight size={22} />
-                                </div>
+                                </Link>
 
                                 {/* Bottom overlay with title */}
                                 <div className="absolute bottom-4 left-4 z-10">

@@ -394,7 +394,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
         const attractionImages = pkg?.attractions?.flatMap(a =>
             (a.images || []).map(img => ({
                 src: img?.url || img?.src || img,
-                description: a.short_description || a.description || ''
+                description: a.overview || a.short_description || ''
             }))
         ).filter(item => item.src) || [];
         if (attractionImages.length > 0) return attractionImages;
@@ -953,7 +953,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                 {attrs.map((attr, i) => (
                                                                     <li key={attr.id || i} className="flex items-start gap-2 text-gray-500 text-sm">
                                                                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                                                                        <span className="flex-1 min-w-0">
+                                                                        <span className="flex-1 min-w-0 relative group">
                                                                             {attr.url ? (
                                                                                 <a
                                                                                     href={attr.url}
@@ -964,12 +964,21 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                                     {attr.name}
                                                                                 </a>
                                                                             ) : (
-                                                                                <span className="text-slate-700 font-medium">{attr.name}</span>
+                                                                                <span className="text-slate-700 font-medium cursor-default">{attr.name}</span>
                                                                             )}
                                                                             {attr.entry_fee !== null && attr.entry_fee !== undefined && attr.entry_fee !== '' && (
                                                                                 <span className="text-[#113A74] font-semibold text-xs ml-1.5">
                                                                                     (Entry: {formatEntryFee(attr.entry_fee)})
                                                                                 </span>
+                                                                            )}
+                                                                            {attr.overview && (
+                                                                                <div className="absolute left-0 bottom-full mb-2 z-50 hidden group-hover:block w-64 pointer-events-none">
+                                                                                    <div className="bg-[#113A74] text-white text-xs rounded-xl p-3 shadow-xl leading-relaxed">
+                                                                                        <p className="font-semibold text-white/90 mb-1">{attr.name}</p>
+                                                                                        <p className="text-white/75 line-clamp-4">{attr.overview}</p>
+                                                                                    </div>
+                                                                                    <div className="w-3 h-3 bg-[#113A74] rotate-45 ml-3 -mt-1.5" />
+                                                                                </div>
                                                                             )}
                                                                         </span>
                                                                     </li>
@@ -1509,7 +1518,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     </div>{/* end center main content */}
 
                     {/* ── RIGHT SIDEBAR ── */}
-                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
+                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
 
                         {/* Airlines + Operated By — single combined box */}
                         {(() => {
@@ -1567,7 +1576,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             <div className="space-y-3 border-t border-white/10 pt-4">
                                 {(() => {
                                     const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
-                                    if (!p) return <p className="text-white/50 text-sm italic">No pricing available</p>;
+                                    if (!p) return <p className="text-white/50 text-sm italic">Price on Request</p>;
                                     const rows = [
                                         { label: 'Single Traveler', value: p.adult_single    },
                                         { label: 'Twin Sharing',    value: p.adult_double    },
@@ -1577,7 +1586,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         { label: 'Child No Bed',    value: p.child_no_bed    },
                                         { label: 'Infant',          value: p.infant          },
                                     ].filter(r => r.value != null && r.value !== 0);
-                                    if (!rows.length) return <p className="text-white/50 text-sm italic">No pricing available</p>;
+                                    if (!rows.length) return <p className="text-white/50 text-sm italic">Price on Request</p>;
                                     return rows.map(row => (
                                         <div key={row.label} className="flex items-center justify-between gap-2">
                                             <span className="text-white/70 text-base font-medium">{row.label}</span>

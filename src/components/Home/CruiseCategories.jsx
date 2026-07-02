@@ -95,7 +95,7 @@ const CruiseCard = ({ cruise }) => {
             <div className="bg-white rounded-b-[16px] rounded-t-none p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] flex-1 flex flex-col justify-between">
                 <div>
                     {/* Cruise Name */}
-                    <h3 className="text-left text-black text-[15px] font-medium leading-tight mb-0 font-sans line-clamp-2">
+                    <h3 className="text-left text-black text-[15px] font-bold leading-tight mb-0 font-heading line-clamp-2">
                         {name}
                     </h3>
 
@@ -122,12 +122,12 @@ const CruiseCard = ({ cruise }) => {
                 </div>
 
                 {/* Details list */}
-                <div className="space-y-3 pt-1.5 font-sans">
+                <div className="space-y-3 pt-1.5 font-heading">
                     {/* Ship row */}
                     {shipName && (
                         <div className="flex items-start gap-3">
                             <Ship size={17} style={{ color: iconColor, fill: iconColor }} className="shrink-0 mt-0.5" />
-                            <span className="text-black text-[13px] font-medium font-sans leading-tight">{shipName}</span>
+                            <span className="text-black text-[13px] font-medium font-heading leading-tight">{shipName}</span>
                         </div>
                     )}
 
@@ -135,7 +135,7 @@ const CruiseCard = ({ cruise }) => {
                     {departs && (
                         <div className="flex items-start gap-3">
                             <MapPin size={17} style={{ color: iconColor, fill: iconColor }} className="shrink-0 mt-0.5" />
-                            <span className="text-black text-[13px] font-medium font-sans leading-snug">
+                            <span className="text-black text-[13px] font-medium font-heading leading-snug">
                                 {formatLocation(departs)}
                             </span>
                         </div>

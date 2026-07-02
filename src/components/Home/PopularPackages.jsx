@@ -216,8 +216,8 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 <p title={pkg.description} className="text-[11px] text-white/75 leading-relaxed mb-2 line-clamp-4">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-3">
-                                                    <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
-                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    <MapPin size={14} className="text-white/70 flex-shrink-0" />
+                                                    <span title={pkg.location} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.location}</span>
                                                 </div>
 
                                                 <div className="mt-auto flex items-end justify-between">
@@ -277,11 +277,6 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                             )}
                                                         </div>
                                                     )}
-                                                    <div>
-                                                        <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider line-clamp-1">
-                                                            {pkg.type}
-                                                        </span>
-                                                    </div>
                                                 </div>
 
                                                 <div className="mt-auto flex items-end justify-between">
@@ -314,8 +309,8 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                 <p title={pkg.description} className="text-[12px] text-white/75 leading-relaxed mb-2 line-clamp-4">{pkg.description}</p>
 
                                                 <div className="flex items-center gap-2 mb-auto">
-                                                    <Star size={14} fill="#FFA500" className="text-[#FFA500] flex-shrink-0" />
-                                                    <span title={pkg.type} className="text-[#FFA500] font-bold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
+                                                    <MapPin size={14} className="text-white/70 flex-shrink-0" />
+                                                    <span title={pkg.location} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.location}</span>
                                                 </div>
 
                                                 <div className="mt-3 flex items-end justify-between">
@@ -381,11 +376,6 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                             )}
                                                         </div>
                                                     )}
-                                                    <div>
-                                                        <span title={pkg.type} className="inline-block bg-[#FFA500] text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider line-clamp-1">
-                                                            {pkg.type}
-                                                        </span>
-                                                    </div>
                                                 </div>
 
                                                 <div className="mt-auto flex items-end justify-between">

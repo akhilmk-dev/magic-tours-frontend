@@ -103,14 +103,21 @@ export default function Packages() {
                                     </div>
                                 </div>
 
-                                {/* Row 2: Book Now (Left) and Price (Right) -> Now Stacked */}
+                                {/* Row 2: Book Now / Enquiry + Price */}
                                 <div className="flex flex-col gap-3 pt-4 border-t border-gray-50">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-2xl font-black text-[#FFA500]">${pkg.price || '59'}</span>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter self-end mb-1">Per day</span>
-                                    </div>
-                                    <button className="w-full px-5 py-2.5 rounded-full bg-secondary text-white font-heading font-bold text-[13px] hover:bg-[#1a3355] transition-all shadow-lg">
-                                        Book Now
+                                    {pkg.price > 0 ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-2xl font-black text-[#FFA500]">{pkg.currency || 'QAR'} {pkg.price?.toLocaleString()}</span>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter self-end mb-1">Onwards</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm font-bold text-gray-400 italic">Price on Request</span>
+                                    )}
+                                    <button
+                                        onClick={e => { e.stopPropagation(); router.push(`/packages/${pkg.slug || pkg.id}`); }}
+                                        className="w-full px-5 py-2.5 rounded-full bg-secondary text-white font-heading font-bold text-[13px] hover:bg-[#1a3355] transition-all shadow-lg"
+                                    >
+                                        {pkg.is_rfq ? 'Enquiry' : 'Book Now'}
                                     </button>
                                 </div>
                             </div>

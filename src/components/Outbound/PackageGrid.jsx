@@ -75,7 +75,10 @@ const PackageGrid = ({ packages, page, setPage, totalPages, sort, onSortChange }
                             </span>
                             {/* Price Badge on Image */}
                             <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <span className="text-secondary font-bold text-sm">From AED {pkg.price?.toLocaleString()}</span>
+                                {pkg.price > 0
+                                    ? <span className="text-secondary font-bold text-sm">From {pkg.currency || 'QAR'} {pkg.price?.toLocaleString()}</span>
+                                    : <span className="text-secondary font-bold text-sm italic">Price on Request</span>
+                                }
                             </div>
                         </div>
 

@@ -3,9 +3,9 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    X, User, Calendar, Users, Camera, FileText,
+    X, User, Calendar, Users,
     CheckCircle, Loader2, Plus, Minus,
-    ArrowRight, Info, Globe, AlertCircle
+    ArrowRight, Info, Globe, AlertCircle, Building2, Mail, Phone
 } from 'lucide-react';
 import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -15,20 +15,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-const uploadFile = async (file) => {
-    if (!file) return null;
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-        const data = await api.post('/upload/image', formData);
-        return data.url;
-    } catch (err) {
-        const msg = err.response?.data?.message || err.message || 'Failed to upload file';
-        throw new Error(msg);
-    }
-};
+const SALUTATIONS = ['Mr', 'Mrs', 'Miss', 'Ms', 'Dr', 'Prof'];
 
 // ─── Guest Types ──────────────────────────────────────────────────────────────
 
@@ -42,15 +29,15 @@ const GUEST_TYPES = [
     { id: 'infant', label: 'Infant', apiKey: 'infant', roomSize: 1, passengerType: 'Infant' },
 ];
 
+const CHILD_INFANT_TYPES = ['childBed', 'childNoBed', 'infant'];
+
 let _guestKeyCounter = 0;
 const makeGuest = (type = 'adultDouble') => ({
     _key: ++_guestKeyCounter,
+    salutation: '',
     fullName: '',
     dob: '',
-    passportNo: '',
     passportExpiry: '',
-    photo: '',
-    passportCopy: '',
     type,
 });
 
@@ -58,77 +45,9 @@ const buildGuestCounts = (guests) => {
     const result = {};
     GUEST_TYPES.forEach(t => {
         const persons = guests.filter(g => g.type === t.id).length;
-        // Sharing types (double/triple/quad): send number of ROOMS, not persons
         result[t.apiKey] = t.roomSize > 1 ? Math.ceil(persons / t.roomSize) : persons;
     });
     return result;
-};
-
-// ─── FileUpload Sub-component ─────────────────────────────────────────────────
-
-const FileUpload = ({ label, name, setFieldValue, value, icon: Icon, required = true }) => {
-    const [preview, setPreview] = useState(null);
-
-    const handleChange = (e) => {
-        const file = e.currentTarget.files[0];
-        if (file) {
-            setFieldValue(name, file);
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onloadend = () => setPreview(reader.result);
-                reader.readAsDataURL(file);
-            } else {
-                setPreview(null);
-            }
-        }
-    };
-
-    return (
-        <div className="space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">
-                {label}{' '}
-                {required
-                    ? <span className="text-red-400">*</span>
-                    : <span className="text-slate-300 normal-case font-normal">(optional)</span>
-                }
-            </label>
-            <div className="relative h-32 w-full">
-                <input
-                    type="file"
-                    onChange={handleChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    accept="image/*,application/pdf"
-                />
-                <div className={`w-full h-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 text-center ${value
-                    ? 'border-green-200 bg-green-50/40'
-                    : 'border-slate-100 bg-slate-50/50 hover:border-[#FFA500]/30 hover:bg-white'
-                    }`}>
-                    {value ? (
-                        <div className="flex flex-col items-center gap-1">
-                            {preview ? (
-                                <img src={preview} alt="preview" className="w-12 h-12 rounded-lg object-cover border border-green-100 shadow-sm" />
-                            ) : (
-                                <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                                    <CheckCircle size={20} />
-                                </div>
-                            )}
-                            <span className="text-xs font-bold text-slate-600 max-w-[120px] truncate">{value.name}</span>
-                            <span className="text-[10px] text-green-600 font-black uppercase tracking-wide">Uploaded ✓</span>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
-                                <Icon size={17} />
-                            </div>
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Click to upload</span>
-                            <span className="text-[10px] text-slate-300">Image or PDF (Max 5MB)</span>
-                        </>
-                    )}
-                </div>
-            </div>
-            <ErrorMessage name={name} component="div" className="text-red-500 text-xs font-bold uppercase pl-1" />
-        </div>
-    );
 };
 
 // ─── Confirmation Screen ──────────────────────────────────────────────────────
@@ -185,13 +104,13 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
     const [quoteLoading, setQuoteLoading] = useState(false);
     const [confirmation, setConfirmation] = useState(null);
     const [departureDatesKey, setDepartureDatesKey] = useState(0);
+    const [showAllCities, setShowAllCities] = useState(false);
 
     const bookingType = pkg?.booking_type || 'fixed_departure';
     const isFixed = bookingType === 'fixed_departure';
 
     const quoteTimerRef = useRef(null);
 
-    // ── Valid date range for normal packages ──────────────────────────────────
     const toDateStr = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0]; };
     const validFrom = toDateStr(pkg?.valid_from);
     const validTo = toDateStr(pkg?.valid_to);
@@ -217,7 +136,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
         return blackoutDates.find(b => dateStr >= b.start && dateStr <= b.end) || null;
     };
 
-    // ── Filtered departure dates for fixed packages ───────────────────────────
     const availableDepartureDates = useMemo(() => {
         if (!pkg?.departure_dates) return [];
         const today = new Date().toISOString().split('T')[0];
@@ -261,15 +179,28 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
     // ── Validation schema ─────────────────────────────────────────────────────
     const validationSchema = useMemo(() => {
         const guestShape = Yup.object().shape({
+            salutation: Yup.string().required('Salutation is required'),
             fullName: Yup.string().required('Full name is required'),
-            dob: Yup.date().required('Date of Birth is required').max(new Date(), 'DOB cannot be in the future'),
-            passportNo: Yup.string().required('Passport number is required'),
-            passportExpiry: Yup.date().required('Passport expiry is required').min(new Date(), 'Passport has expired'),
-            photo: Yup.mixed()
-                .required('Profile photo is required')
-                .test('fileSize', 'Photo must be less than 5MB', v => !v || v.size <= MAX_FILE_SIZE),
-            passportCopy: Yup.mixed()
-                .test('fileSize', 'Passport copy must be less than 5MB', v => !v || v.size <= MAX_FILE_SIZE),
+            dob: Yup.string().when('type', {
+                is: (type) => CHILD_INFANT_TYPES.includes(type),
+                then: (schema) => schema.required('Date of birth is required'),
+                otherwise: (schema) => schema.optional().test('adult-18+', 'Adult must be 18 years or older', (value) => {
+                    if (!value) return true;
+                    const dob = new Date(value);
+                    const cutoff = new Date();
+                    cutoff.setFullYear(cutoff.getFullYear() - 18);
+                    return dob <= cutoff;
+                }),
+            }),
+            passportExpiry: Yup.string()
+                .required('Passport expiry date is required')
+                .test('min-6-months', 'Passport must be valid for at least 6 months from today', (value) => {
+                    if (!value) return false;
+                    const expiry = new Date(value);
+                    const sixMonths = new Date();
+                    sixMonths.setMonth(sixMonths.getMonth() + 6);
+                    return expiry >= sixMonths;
+                }),
         });
 
         if (isFixed) {
@@ -298,7 +229,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }), [pkg?.id, isFixed]);
 
-    // ── Room label & passenger type ───────────────────────────────────────────
     const getRoomLabel = (guestType, positionWithinType) => {
         const gt = GUEST_TYPES.find(t => t.id === guestType);
         const size = gt?.roomSize || 1;
@@ -312,29 +242,20 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
         if (!user) { toastError('Please login to continue booking.'); return; }
         setSubmitting(true);
         try {
-            const guestsWithUrls = await Promise.all(
-                values.guests.map(async (g, i) => {
-                    setProgress(`Uploading documents for Guest ${i + 1}…`);
-                    const [photoUrl, passportCopyUrl] = await Promise.all([
-                        uploadFile(g.photo),
-                        g.passportCopy ? uploadFile(g.passportCopy) : Promise.resolve(null),
-                    ]);
-                    return { ...g, photoUrl, passportCopyUrl };
-                })
-            );
+            setProgress('Finalising submission…');
 
             const typeCounters = {};
-            const passengers = guestsWithUrls.map(g => {
+            const passengers = values.guests.map(g => {
                 typeCounters[g.type] = typeCounters[g.type] ?? 0;
                 const pos = typeCounters[g.type]++;
                 const gt = GUEST_TYPES.find(t => t.id === g.type);
                 return {
+                    salutation: g.salutation,
                     name: g.fullName,
-                    dob: g.dob,
-                    passport_number: g.passportNo,
+                    dob: g.dob || null,
                     passport_expiry: g.passportExpiry,
-                    photo_url: g.photoUrl || '',
-                    passport_copy_url: g.passportCopyUrl || '',
+                    photo_url: '',
+                    passport_copy_url: '',
                     passenger_type: gt?.passengerType || 'Adult',
                     room_label: getRoomLabel(g.type, pos),
                 };
@@ -345,7 +266,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                 const persons = values.guests.filter(g => g.type === id).length;
                 return (t?.roomSize ?? 1) > 1 ? Math.ceil(persons / (t?.roomSize ?? 1)) : persons;
             };
-            setProgress('Finalising submission…');
 
             const payload = {
                 package_id: pkg.id,
@@ -392,7 +312,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
         );
     }
 
-    // ── Derived display values ────────────────────────────────────────────────
     const quoteTotal = quoteResult?.total ?? quoteResult?.price ?? null;
     const showPrice = quoteResult?.priced !== false && quoteTotal !== null;
     const isOutsideValidity = quoteResult?.priced === false;
@@ -408,7 +327,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                 {({ values, setFieldValue, errors }) => {
                     const totalGuests = values.guests.length;
 
-                    // Button label
                     let buttonLabel;
                     if (isFixed) {
                         buttonLabel = showPrice ? `Confirm & Pay — ${formatPrice(quoteTotal)}` : 'Confirm Booking';
@@ -461,17 +379,35 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                         </p>
                                     </div>
 
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-2xl bg-[#FFA500] flex items-center justify-center shadow-md shadow-[#FFA500]/30 shrink-0">
+                                    <div className="flex items-start gap-3 mb-4">
+                                        <div className="w-10 h-10 rounded-2xl bg-[#FFA500] flex items-center justify-center shadow-md shadow-[#FFA500]/30 shrink-0 mt-0.5">
                                             <Globe size={18} />
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-black text-white/40 uppercase tracking-wide">Destination</p>
-                                            <p className="text-sm font-bold">{pkg.location || 'International'}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-black text-white/40 uppercase tracking-wide mb-1">Destination</p>
+                                            {pkg.cities?.length > 0 ? (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(showAllCities ? pkg.cities : pkg.cities.slice(0, 2)).map((c, i) => (
+                                                        <span key={i} className="text-xs font-semibold bg-white/10 text-white px-2 py-0.5 rounded-full">
+                                                            {c.name || c}
+                                                        </span>
+                                                    ))}
+                                                    {pkg.cities.length > 2 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowAllCities(v => !v)}
+                                                            className="text-[10px] font-black text-[#FFA500] hover:text-[#FFA500]/80 transition-colors px-1.5 py-0.5 rounded-full bg-white/5 hover:bg-white/10"
+                                                        >
+                                                            {showAllCities ? 'less' : `+${pkg.cities.length - 2} more`}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm font-bold">{pkg.location || 'International'}</p>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Package type badge */}
                                     <div className="mb-5">
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${isFixed ? 'bg-[#FFA500]/20 text-[#FFA500]' : 'bg-white/10 text-white/60'}`}>
                                             <Calendar size={10} />
@@ -535,9 +471,32 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                             <span className="text-xs font-black uppercase tracking-wide text-white/60">Note</span>
                                         </div>
                                         <p className="text-xs leading-relaxed text-white/40 italic">
-                                            Passport copies are required to process visa &amp; travel arrangements.
+                                            Passport expiry must be valid for at least 6 months from travel date.
                                         </p>
                                     </div>
+
+                                    {/* Vendor / Tour Operator */}
+                                    {pkg.vendor && (
+                                        <div className="mt-4 bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Building2 size={13} className="text-[#FFA500]" />
+                                                <span className="text-xs font-black uppercase tracking-wide text-white/60">Tour Operator</span>
+                                            </div>
+                                            <p className="text-sm font-black text-white truncate">{pkg.vendor.name}</p>
+                                            {pkg.vendor.email && (
+                                                <div className="flex items-center gap-2 text-xs text-white/50">
+                                                    <Mail size={11} className="shrink-0" />
+                                                    <span className="truncate">{pkg.vendor.email}</span>
+                                                </div>
+                                            )}
+                                            {pkg.vendor.phone && (
+                                                <div className="flex items-center gap-2 text-xs text-white/50">
+                                                    <Phone size={11} className="shrink-0" />
+                                                    <span>{pkg.vendor.phone}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="mt-5 pt-5 border-t border-white/10 flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -590,7 +549,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                             </h4>
 
                                             {isFixed ? (
-                                                // ── Fixed departure: date chips
                                                 <div className="flex flex-wrap gap-3">
                                                     {availableDepartureDates.length > 0 ? (
                                                         availableDepartureDates.map(d => {
@@ -648,7 +606,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                     )}
                                                 </div>
                                             ) : (
-                                                // ── Normal package: date picker
                                                 <div className="space-y-3">
                                                     {validFrom && validTo && (
                                                         <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 flex items-center gap-2">
@@ -662,7 +619,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                         </div>
                                                     )}
 
-                                                    {/* Blackout ranges summary */}
                                                     {blackoutDates.length > 0 && (
                                                         <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                                                             <div className="flex items-center gap-2 mb-2">
@@ -707,7 +663,6 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                                                                 : 'border-transparent focus:border-[#FFA500]/40 focus:bg-white'
                                                                         }`}
                                                                     />
-                                                                    {/* Per-date blackout warning */}
                                                                     {blackedOut && (
                                                                         <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-start gap-2">
                                                                             <AlertCircle size={13} className="text-red-500 shrink-0 mt-0.5" />
@@ -740,157 +695,201 @@ const BookingModal = ({ isOpen, onClose, pkg, user }) => {
                                             {isFixed && <ErrorMessage name="departureDateId" component="div" className="text-red-500 text-xs font-bold uppercase" />}
                                         </section>
 
-                                        {/* ② Traveler Counts + ③ Guest Forms */}
+                                        {/* ② Travelers & Passenger Forms */}
                                         <FieldArray name="guests">
-                                            {() => (
-                                                <div className="space-y-10">
+                                            {() => {
+                                                const _mcp = pkg?.pricing_info?.current_pricing;
+                                                const _mdp = pkg?.pricing_info?.default_pricing;
+                                                const mergedPricing = {};
+                                                GUEST_TYPES.forEach(t => {
+                                                    const fromInfo = (_mcp?.[t.apiKey] || 0) || (_mdp?.[t.apiKey] || 0);
+                                                    const fromDirect = Number(pkg?.[`default_price_${t.apiKey}`]) || 0;
+                                                    mergedPricing[t.apiKey] = fromInfo || fromDirect;
+                                                });
+                                                const anyPriceSet = GUEST_TYPES.some(t => mergedPricing[t.apiKey] > 0);
+                                                const visibleGuestTypes = anyPriceSet
+                                                    ? GUEST_TYPES.filter(t => mergedPricing[t.apiKey] > 0)
+                                                    : GUEST_TYPES;
 
-                                                    {/* ② Traveler Counters */}
-                                                    <section className="space-y-3">
-                                                        <h4 className="text-xs font-black text-[#113A74] uppercase tracking-[0.2em]">
-                                                            <span className="text-[#FFA500] mr-2">02</span>Add Travelers
-                                                        </h4>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                            {GUEST_TYPES.map(t => {
-                                                                const guestCount = values.guests.filter(g => g.type === t.id).length;
-                                                                const roomCount = Math.ceil(guestCount / t.roomSize);
-                                                                return (
-                                                                    <div
-                                                                        key={t.id}
-                                                                        className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all"
-                                                                    >
-                                                                        <span className="text-sm font-bold text-[#113A74]">{t.label}</span>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <button
-                                                                                type="button"
-                                                                                disabled={roomCount === 0}
-                                                                                onClick={() => {
-                                                                                    const newGuests = [...values.guests];
-                                                                                    for (let i = 0; i < t.roomSize; i++) {
-                                                                                        const idx = newGuests.findLastIndex(g => g.type === t.id);
-                                                                                        if (idx !== -1) newGuests.splice(idx, 1);
-                                                                                    }
-                                                                                    setFieldValue('guests', newGuests);
-                                                                                    scheduleQuote({
-                                                                                        departureDateId: values.departureDateId,
-                                                                                        travelDate: values.travelDate,
-                                                                                        guestCounts: buildGuestCounts(newGuests),
-                                                                                    });
-                                                                                }}
-                                                                                className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-red-200 hover:text-red-500 transition-all disabled:opacity-20"
-                                                                            >
-                                                                                <Minus size={12} strokeWidth={3} />
-                                                                            </button>
-                                                                            <span className="w-5 text-center text-sm font-black text-[#113A74]">{roomCount}</span>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => {
-                                                                                    const newGuests = [...values.guests];
-                                                                                    for (let i = 0; i < t.roomSize; i++) {
-                                                                                        newGuests.push(makeGuest(t.id));
-                                                                                    }
-                                                                                    setFieldValue('guests', newGuests);
-                                                                                    scheduleQuote({
-                                                                                        departureDateId: values.departureDateId,
-                                                                                        travelDate: values.travelDate,
-                                                                                        guestCounts: buildGuestCounts(newGuests),
-                                                                                    });
-                                                                                }}
-                                                                                className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#FFA500] hover:text-[#FFA500] transition-all"
-                                                                            >
-                                                                                <Plus size={12} strokeWidth={3} />
-                                                                            </button>
+                                                return (
+                                                    <div className="space-y-8">
+                                                        {/* Counter grid — compact 2-column */}
+                                                        <section className="space-y-3">
+                                                            <h4 className="text-xs font-black text-[#113A74] uppercase tracking-[0.2em]">
+                                                                <span className="text-[#FFA500] mr-2">02</span>Add Travelers
+                                                            </h4>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {visibleGuestTypes.map(t => {
+                                                                    const guestCount = values.guests.filter(g => g.type === t.id).length;
+                                                                    const roomCount = Math.ceil(guestCount / t.roomSize);
+                                                                    return (
+                                                                        <div
+                                                                            key={t.id}
+                                                                            className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all"
+                                                                        >
+                                                                            <span className="text-xs font-bold text-[#113A74] whitespace-nowrap">{t.label}</span>
+                                                                            <div className="flex items-center gap-1 shrink-0">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    disabled={roomCount === 0}
+                                                                                    onClick={() => {
+                                                                                        const newGuests = [...values.guests];
+                                                                                        for (let i = 0; i < t.roomSize; i++) {
+                                                                                            const idx = newGuests.findLastIndex(g => g.type === t.id);
+                                                                                            if (idx !== -1) newGuests.splice(idx, 1);
+                                                                                        }
+                                                                                        setFieldValue('guests', newGuests);
+                                                                                        scheduleQuote({
+                                                                                            departureDateId: values.departureDateId,
+                                                                                            travelDate: values.travelDate,
+                                                                                            guestCounts: buildGuestCounts(newGuests),
+                                                                                        });
+                                                                                    }}
+                                                                                    className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-red-200 hover:text-red-500 transition-all disabled:opacity-20"
+                                                                                >
+                                                                                    <Minus size={9} strokeWidth={3} />
+                                                                                </button>
+                                                                                <span className="w-5 text-center text-xs font-black text-[#113A74]">{roomCount}</span>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => {
+                                                                                        const newGuests = [...values.guests];
+                                                                                        for (let i = 0; i < t.roomSize; i++) {
+                                                                                            newGuests.push(makeGuest(t.id));
+                                                                                        }
+                                                                                        setFieldValue('guests', newGuests);
+                                                                                        scheduleQuote({
+                                                                                            departureDateId: values.departureDateId,
+                                                                                            travelDate: values.travelDate,
+                                                                                            guestCounts: buildGuestCounts(newGuests),
+                                                                                        });
+                                                                                    }}
+                                                                                    className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#FFA500] hover:text-[#FFA500] transition-all"
+                                                                                >
+                                                                                    <Plus size={9} strokeWidth={3} />
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                        {errors.guests && typeof errors.guests === 'string' && (
-                                                            <div className="text-red-500 text-xs font-black uppercase tracking-wider mt-3 pl-4">
-                                                                {errors.guests}
+                                                                    );
+                                                                })}
                                                             </div>
-                                                        )}
-                                                    </section>
+                                                            {errors.guests && typeof errors.guests === 'string' && (
+                                                                <div className="text-red-500 text-xs font-black uppercase tracking-wider mt-2 pl-1">
+                                                                    {errors.guests}
+                                                                </div>
+                                                            )}
+                                                        </section>
 
-                                                    {/* ③ Passenger Detail Forms */}
-                                                    <section className="space-y-4">
-                                                        <h4 className="text-xs font-black text-[#113A74] uppercase tracking-[0.2em]">
-                                                            <span className="text-[#FFA500] mr-2">03</span>Passenger Information
-                                                        </h4>
-                                                        <div className="space-y-8">
-                                                            <AnimatePresence initial={false}>
-                                                                {values.guests.map((guest, index) => (
-                                                                    <motion.div
-                                                                        key={guest._key}
-                                                                        initial={{ opacity: 0, y: 16 }}
-                                                                        animate={{ opacity: 1, y: 0 }}
-                                                                        exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
-                                                                        transition={{ duration: 0.2 }}
-                                                                        className="p-7 rounded-3xl border border-slate-100 bg-white shadow-sm space-y-6"
-                                                                    >
-                                                                        <div className="flex items-center gap-4">
-                                                                            <div className="w-10 h-10 rounded-xl bg-[#113A74] text-white flex items-center justify-center font-black text-base shrink-0">
-                                                                                {index + 1}
-                                                                            </div>
-                                                                            <div>
-                                                                                <p className="font-black text-[#113A74] text-base leading-tight">
-                                                                                    {GUEST_TYPES.find(t => t.id === guest.type)?.label}
-                                                                                </p>
-                                                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">Passenger {index + 1}</p>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                                            {[
-                                                                                { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'As per passport' },
-                                                                                { name: 'dob', label: 'Date of Birth', type: 'date', placeholder: '' },
-                                                                                { name: 'passportNo', label: 'Passport No.', type: 'text', placeholder: 'e.g. A1234567' },
-                                                                                { name: 'passportExpiry', label: 'Passport Expiry', type: 'date', placeholder: '' },
-                                                                            ].map(f => (
-                                                                                <div key={f.name} className="space-y-2">
-                                                                                    <label className="text-xs font-black text-slate-500 uppercase tracking-wider pl-1">{f.label}</label>
-                                                                                    <Field
-                                                                                        type={f.type}
-                                                                                        name={`guests.${index}.${f.name}`}
-                                                                                        placeholder={f.placeholder}
-                                                                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-[#FFA500]/40 focus:bg-white rounded-2xl py-4 px-5 outline-none transition-all text-base font-semibold text-[#113A74] placeholder:text-slate-300"
-                                                                                    />
-                                                                                    <ErrorMessage name={`guests.${index}.${f.name}`} component="div" className="text-red-500 text-xs font-bold uppercase pl-1" />
+                                                        {/* Passenger forms — grouped per type, appear when count > 0 */}
+                                                        {visibleGuestTypes.map(t => {
+                                                            const typeGuests = values.guests
+                                                                .map((g, idx) => ({ g, idx }))
+                                                                .filter(({ g }) => g.type === t.id);
+                                                            if (!typeGuests.length) return null;
+                                                            const requiresDob = CHILD_INFANT_TYPES.includes(t.id);
+                                                            return (
+                                                                <section key={t.id} className="space-y-3">
+                                                                    <h4 className="text-xs font-black text-[#113A74] uppercase tracking-[0.2em]">
+                                                                        {t.label} Details
+                                                                    </h4>
+                                                                    <AnimatePresence initial={false}>
+                                                                        {typeGuests.map(({ g: guest, idx: index }, posWithinType) => (
+                                                                            <motion.div
+                                                                                key={guest._key}
+                                                                                initial={{ opacity: 0, y: 12 }}
+                                                                                animate={{ opacity: 1, y: 0 }}
+                                                                                exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
+                                                                                transition={{ duration: 0.18 }}
+                                                                                className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 space-y-3"
+                                                                            >
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <div className="w-8 h-8 rounded-xl bg-[#113A74] text-white flex items-center justify-center font-black text-sm shrink-0">
+                                                                                        {posWithinType + 1}
+                                                                                    </div>
+                                                                                    <p className="text-sm font-black text-[#113A74]">
+                                                                                        Passenger
+                                                                                    </p>
                                                                                 </div>
-                                                                            ))}
-                                                                        </div>
 
-                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
-                                                                            <FileUpload
-                                                                                label="Profile Photo"
-                                                                                name={`guests.${index}.photo`}
-                                                                                setFieldValue={setFieldValue}
-                                                                                value={guest.photo}
-                                                                                icon={Camera}
-                                                                                required={true}
-                                                                            />
-                                                                            <FileUpload
-                                                                                label="Passport Copy"
-                                                                                name={`guests.${index}.passportCopy`}
-                                                                                setFieldValue={setFieldValue}
-                                                                                value={guest.passportCopy}
-                                                                                icon={FileText}
-                                                                                required={false}
-                                                                            />
-                                                                        </div>
-                                                                    </motion.div>
-                                                                ))}
-                                                            </AnimatePresence>
-                                                        </div>
-                                                    </section>
-                                                </div>
-                                            )}
+                                                                                <div className="flex flex-wrap gap-3">
+                                                                                    {/* Salutation */}
+                                                                                    <div className="space-y-1 w-24 shrink-0">
+                                                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider pl-1">
+                                                                                            Salutation <span className="text-red-400">*</span>
+                                                                                        </label>
+                                                                                        <Field
+                                                                                            as="select"
+                                                                                            name={`guests.${index}.salutation`}
+                                                                                            className="w-full bg-white border border-slate-200 focus:border-[#FFA500]/60 rounded-lg py-2 px-2 outline-none transition-all text-sm font-semibold text-[#113A74]"
+                                                                                        >
+                                                                                            <option value="">—</option>
+                                                                                            {SALUTATIONS.map(s => (
+                                                                                                <option key={s} value={s}>{s}</option>
+                                                                                            ))}
+                                                                                        </Field>
+                                                                                        <ErrorMessage name={`guests.${index}.salutation`} component="div" className="text-red-500 text-[10px] font-bold pl-1" />
+                                                                                    </div>
+
+                                                                                    {/* Full Name */}
+                                                                                    <div className="space-y-1 flex-1 min-w-[140px]">
+                                                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider pl-1">
+                                                                                            Full Name <span className="text-red-400">*</span>
+                                                                                        </label>
+                                                                                        <Field
+                                                                                            type="text"
+                                                                                            name={`guests.${index}.fullName`}
+                                                                                            placeholder={t.label}
+                                                                                            autoComplete="name"
+                                                                                            className="w-full bg-white border border-slate-200 focus:border-[#FFA500]/60 rounded-lg py-2 px-3 outline-none transition-all text-sm font-semibold text-[#113A74] placeholder:text-slate-300"
+                                                                                        />
+                                                                                        <ErrorMessage name={`guests.${index}.fullName`} component="div" className="text-red-500 text-[10px] font-bold pl-1" />
+                                                                                    </div>
+
+                                                                                    {/* DOB */}
+                                                                                    <div className="space-y-1 w-36 shrink-0">
+                                                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider pl-1">
+                                                                                            DOB{' '}
+                                                                                            {requiresDob
+                                                                                                ? <span className="text-red-400">*</span>
+                                                                                                : <span className="text-slate-300 normal-case font-normal">(opt.)</span>
+                                                                                            }
+                                                                                        </label>
+                                                                                        <Field
+                                                                                            type="date"
+                                                                                            name={`guests.${index}.dob`}
+                                                                                            className="w-full bg-white border border-slate-200 focus:border-[#FFA500]/60 rounded-lg py-2 px-2 outline-none transition-all text-sm font-semibold text-[#113A74]"
+                                                                                        />
+                                                                                        <ErrorMessage name={`guests.${index}.dob`} component="div" className="text-red-500 text-[10px] font-bold pl-1" />
+                                                                                    </div>
+
+                                                                                    {/* Passport Expiry */}
+                                                                                    <div className="space-y-1 w-36 shrink-0">
+                                                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider pl-1">
+                                                                                            Passport Expiry <span className="text-red-400">*</span>
+                                                                                        </label>
+                                                                                        <Field
+                                                                                            type="date"
+                                                                                            name={`guests.${index}.passportExpiry`}
+                                                                                            className="w-full bg-white border border-slate-200 focus:border-[#FFA500]/60 rounded-lg py-2 px-2 outline-none transition-all text-sm font-semibold text-[#113A74]"
+                                                                                        />
+                                                                                        <ErrorMessage name={`guests.${index}.passportExpiry`} component="div" className="text-red-500 text-[10px] font-bold pl-1" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        ))}
+                                                                    </AnimatePresence>
+                                                                </section>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                );
+                                            }}
                                         </FieldArray>
 
                                         {/* Submit section */}
                                         <div className="pt-6 pb-8 border-t border-slate-50 flex flex-col items-center gap-6 text-center">
                                             <p className="text-xs font-medium text-slate-400 max-w-sm mx-auto">
-                                                By submitting you agree to the booking terms. All documents are securely handled.
+                                                By submitting you agree to the booking terms. All information is securely handled.
                                             </p>
 
                                             <button

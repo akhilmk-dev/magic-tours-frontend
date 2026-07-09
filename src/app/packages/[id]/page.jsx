@@ -14,7 +14,7 @@ import {
     Calendar, Users, MapPin, Check, X, Clock,
     ChevronRight, ChevronLeft, Loader2, Star, Shield, Info,
     Plane, Utensils, Hotel, Camera, ChevronDown, ChevronUp, Car,
-    ArrowRight, Globe, Map, CalendarCheck, QrCode, Train, BedDouble, LogIn, LogOut, Phone
+    ArrowRight, Globe, Map, CalendarCheck, QrCode, Train, BedDouble, LogIn, LogOut, Phone, Tag
 } from 'lucide-react';
 import bannerImg from '../../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../../assets/gutter.png';
@@ -76,6 +76,7 @@ const PackageDetailsPage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [visibleCards, setVisibleCards] = useState(3);
     const [promos, setPromos] = useState([]);
+    const [showOperator, setShowOperator] = useState(true);
     const relatedScrollRef = useRef(null);
 
     const formatPackageDate = (date) => {
@@ -95,7 +96,8 @@ const PackageDetailsPage = () => {
     
     const downloadPDF = () => {
         if (!pkg) return;
-        const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
+        const _cp = pkg.pricing_info?.current_pricing; const _dp = pkg.pricing_info?.default_pricing;
+        const p = (_cp || _dp) ? { adult_single: (_cp?.adult_single||0)||(_dp?.adult_single||0), adult_double: (_cp?.adult_double||0)||(_dp?.adult_double||0), adult_triple: (_cp?.adult_triple||0)||(_dp?.adult_triple||0), adult_quad: (_cp?.adult_quad||0)||(_dp?.adult_quad||0), child_with_bed: (_cp?.child_with_bed||0)||(_dp?.child_with_bed||0), child_no_bed: (_cp?.child_no_bed||0)||(_dp?.child_no_bed||0), infant: (_cp?.infant||0)||(_dp?.infant||0) } : null;
         const pricingRows = p ? [
             { label: 'Single Traveler', value: p.adult_single },
             { label: 'Twin Sharing',    value: p.adult_double },
@@ -122,15 +124,28 @@ const PackageDetailsPage = () => {
             ? arr.map(item => `<li>${typeof item === 'string' ? item : item.name || item.title || ''}</li>`).join('')
             : '<li style="color:#999">Not specified</li>';
 
-        // Transport/meal badges per day
+        // Transport/meal badges per day (supports both new arrays and legacy booleans)
+        const ICON_EMOJI = {
+            'Flight':'✈️','Helicopter':'🚁','Train':'🚆','Bus':'🚌','Car':'🚗',
+            'Private Transfer':'🚘','SIC Transfer':'🚐','Cruise':'🚢','Boat':'⛵',
+            'Ferry':'⛴️','Yacht':'🛥️','Private Jet':'✈️',
+            'Breakfast':'🍳','Lunch':'🥗','Dinner':'🍽️','Tea':'🍵',
+            'Coffee':'☕','Snacks':'🍿','Drinks':'🥤','Gala Dinner':'🥂',
+        };
         const dayBadges = (day) => {
             const badges = [];
-            if (day.has_flight)    badges.push('✈ Flight');
-            if (day.has_train)     badges.push('🚂 Train');
-            if (day.has_bus)       badges.push('🚌 Bus');
-            if (day.has_breakfast) badges.push('🍳 Breakfast');
-            if (day.has_lunch)     badges.push('🥗 Lunch');
-            if (day.has_dinner)    badges.push('🍽 Dinner');
+            // New arrays
+            (day.transport_icons || []).forEach(n => badges.push(`${ICON_EMOJI[n] || '🚗'} ${n}`));
+            (day.meal_icons || []).forEach(n => badges.push(`${ICON_EMOJI[n] || '🍽️'} ${n}`));
+            // Legacy booleans (fallback)
+            if (!badges.length) {
+                if (day.has_flight)    badges.push('✈ Flight');
+                if (day.has_train)     badges.push('🚂 Train');
+                if (day.has_bus)       badges.push('🚌 Bus');
+                if (day.has_breakfast) badges.push('🍳 Breakfast');
+                if (day.has_lunch)     badges.push('🥗 Lunch');
+                if (day.has_dinner)    badges.push('🍽 Dinner');
+            }
             return badges.length
                 ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${badges.map(b => `<span style="background:#eef3fb;color:#113A74;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;">${b}</span>`).join('')}</div>`
                 : '';
@@ -512,11 +527,16 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
         fetchPackageDetail();
     }, [id]);
 
+    useEffect(() => {
+        if (pkg) setShowOperator(pkg.show_operator_on_frontend !== false);
+    }, [pkg]);
+
     // Redundant fetchRelated removed
 
     const totalPrice = useMemo(() => {
         if (!pkg) return 0;
-        const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
+        const _cp2 = pkg.pricing_info?.current_pricing; const _dp2 = pkg.pricing_info?.default_pricing;
+        const p = (_cp2 || _dp2) ? { adult_single: (_cp2?.adult_single||0)||(_dp2?.adult_single||0), adult_double: (_cp2?.adult_double||0)||(_dp2?.adult_double||0), adult_triple: (_cp2?.adult_triple||0)||(_dp2?.adult_triple||0), adult_quad: (_cp2?.adult_quad||0)||(_dp2?.adult_quad||0), child_with_bed: (_cp2?.child_with_bed||0)||(_dp2?.child_with_bed||0), child_no_bed: (_cp2?.child_no_bed||0)||(_dp2?.child_no_bed||0), infant: (_cp2?.infant||0)||(_dp2?.infant||0) } : null;
         if (!p) return (pkg.price || 0) * (counts.adultDouble + counts.adultSingle + counts.adultTriple + counts.adultQuad + counts.childBed + counts.childNoBed);
 
         return (
@@ -670,7 +690,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             On mobile it sits in flow below the title (no overlap); on md+ it
                             floats beside the title. */}
                         {(() => {
-                            const firstAirline = pkg.airlines?.length ? pkg.airlines[0] : (pkg.airline_name ? { name: pkg.airline_name, logo: pkg.airline_logo } : null);
+                            const firstAirline = pkg.show_airline_on_frontend !== false ? (pkg.airlines?.length ? pkg.airlines[0] : (pkg.airline_name ? { name: pkg.airline_name, logo: pkg.airline_logo } : null)) : null;
                             return firstAirline && (
                                 <div className="order-1 md:order-none flex justify-center mb-4 md:mb-0 md:block md:absolute md:-top-14 md:left-[calc(100%+2rem)] pointer-events-none">
                                     <div className="inline-flex items-center gap-2.5 bg-white rounded-full shadow-lg border border-slate-100 pl-2 pr-5 py-2">
@@ -826,9 +846,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Info rows grouped tightly */}
                         <div className="space-y-1">
-                        <div className="flex flex-wrap gap-y-2">
+                        <div className="flex flex-col gap-y-1.5">
                             {(pkg.continent || pkg.country) && (
-                                <div className="flex items-start gap-2 pr-4 py-1 text-sm text-gray-600 border-r border-gray-200">
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={flagDetailIcon.src || flagDetailIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">
                                         {[pkg.continent, pkg.country].filter(Boolean).join('. ')}
@@ -836,15 +856,26 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 </div>
                             )}
                             {pkg.cities?.length > 0 && (
-                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600 border-r border-gray-200">
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={locationIcon.src || locationIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">
                                         {pkg.cities.map(c => c.name).join(', ')}
                                     </span>
                                 </div>
                             )}
+                            {(() => {
+                                const cats = pkg.categories?.length > 0
+                                    ? pkg.categories.map(c => c.name || c)
+                                    : (() => { try { const p = JSON.parse(pkg.category || '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })();
+                                return cats.length > 0 ? (
+                                    <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
+                                        <Tag size={16} className="shrink-0 mt-0.5 text-gray-500" />
+                                        <span className="font-medium font-montserrat leading-snug">{cats.join(', ')}</span>
+                                    </div>
+                                ) : null;
+                            })()}
                             {(pkg.valid_from || pkg.valid_to) && (
-                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600 border-r border-gray-200">
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={dateIcon.src || dateIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">
                                         {pkg.valid_from ? new Date(pkg.valid_from).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
@@ -853,8 +884,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     </span>
                                 </div>
                             )}
-                            {pkg.operated_by_name && (
-                                <div className="flex items-start gap-2 px-4 py-1 text-sm text-gray-600">
+                            {showOperator && pkg.operated_by_name && (
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={headIcon.src || headIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">{pkg.operated_by_name}</span>
                                 </div>
@@ -863,14 +894,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Departure row — only shown when departure dates exist */}
                         {pkg.departure_dates?.length > 0 && (
-                            <div className="flex flex-wrap gap-y-1">
-                                <div className="flex items-center gap-2 pr-4 py-1.5 text-sm text-gray-600 border-r border-gray-200">
+                            <div className="flex flex-col gap-y-1.5">
+                                <div className="flex items-center gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={trainIcon.src || trainIcon} alt="" className="w-4 h-4 shrink-0" />
                                     <span className="font-montserrat">Customized Holidays, Fixed Departure</span>
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-600 min-w-0 max-w-full overflow-hidden">
-                                    <img src={plainIcon.src || plainIcon} alt="" className="w-4 h-4 shrink-0" />
-                                    <span className="truncate font-montserrat">
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
+                                    <img src={plainIcon.src || plainIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span className="font-montserrat leading-snug">
                                         {Object.entries(
                                             pkg.departure_dates.reduce((acc, d) => {
                                                 const yr = new Date(d.departure_date).getFullYear();
@@ -895,7 +926,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="border-t border-gray-200 pt-4">
                                         <h2 className="text-xl md:text-2xl font-bold text-black font-heading">Journey Overview :</h2>
                                     </div>
-                                    <p ref={overviewRef} className={`text-gray-500 text-base leading-relaxed whitespace-pre-line ${showFullOverview ? '' : 'line-clamp-4'}`}>
+                                    <p ref={overviewRef} className={`text-gray-400 text-base leading-relaxed whitespace-pre-line ${showFullOverview ? '' : 'line-clamp-4'}`}>
                                         {overviewText}
                                     </p>
                                     {(overviewOverflows || showFullOverview) && (
@@ -927,23 +958,20 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         <h2 className="text-xl md:text-2xl font-bold text-black font-heading">
                                             Journey Highlights :
                                         </h2>
-                                        <p className="text-gray-400 text-sm mt-1">
+                                        <p className="text-gray-400 text-base leading-relaxed mt-1">
                                             Explore the must-see attractions and unforgettable experiences included in your journey.
                                         </p>
                                     </div>
                                     <div className="bg-[#EBF3FF] rounded-2xl p-4 sm:p-6">
                                         {(() => {
-                                            // Columns adapt to the number of cities so space is shared evenly:
-                                            //  1 city → 1 col, 2 → 2 cols, 3+ → 3 cols (wraps to new rows).
-                                            // Responsive: 1 col (mobile) → 2 cols (sm) → N cols (lg).
                                             const colsLg = Math.min(groups.length, 2);
-                                            const lgColClass = colsLg === 1 ? 'lg:grid-cols-1' : 'lg:grid-cols-2';
+                                            const colClass = colsLg === 1 ? 'columns-1' : 'columns-1 lg:columns-2';
                                             return (
-                                                <div className={`grid grid-cols-1 ${lgColClass} gap-x-6 gap-y-8`}>
-                                                    {groups.map(([cityName, attrs], idx) => (
+                                                <div className={`${colClass} gap-x-6 overflow-visible`}>
+                                                    {groups.map(([cityName, attrs]) => (
                                                         <div
                                                             key={cityName}
-                                                            className={`space-y-3 ${idx % 2 === 1 ? 'lg:border-l lg:border-gray-200 lg:pl-6' : ''}`}
+                                                            className="break-inside-avoid mb-4 space-y-2"
                                                         >
                                                             <div className="flex items-center gap-2">
                                                                 <MapPin size={15} className="text-[#113A74] shrink-0" />
@@ -972,10 +1000,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                                 </span>
                                                                             )}
                                                                             {attr.overview && (
-                                                                                <div className="absolute left-0 bottom-full mb-2 z-50 hidden group-hover:block w-64 pointer-events-none">
-                                                                                    <div className="bg-[#113A74] text-white text-xs rounded-xl p-3 shadow-xl leading-relaxed">
+                                                                                <div className="absolute left-0 bottom-full mb-2 z-[9999] hidden group-hover:block w-64 pointer-events-none">
+                                                                                    <div className="bg-[#113A74] text-white text-xs rounded-xl p-3 shadow-2xl leading-relaxed">
                                                                                         <p className="font-semibold text-white/90 mb-1">{attr.name}</p>
-                                                                                        <p className="text-white/75 line-clamp-4">{attr.overview}</p>
+                                                                                        <p className="text-white/75 line-clamp-3">{attr.overview}</p>
                                                                                     </div>
                                                                                     <div className="w-3 h-3 bg-[#113A74] rotate-45 ml-3 -mt-1.5" />
                                                                                 </div>
@@ -1050,32 +1078,43 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                     <p key={di} className="text-sm text-black leading-relaxed mb-3 pr-4 whitespace-pre-line">{desc}</p>
                                                 ))}
 
-                                                {/* Transport & Meal Icons — bottom right corner, below description */}
-                                                {(item.has_flight || item.has_train || item.has_bus || item.has_breakfast || item.has_lunch || item.has_dinner) && (
-                                                    <div className="flex flex-wrap justify-end gap-3 mt-3">
-                                                        {item.has_flight && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Plane size={15} className="text-[#113A74]" /> Flight</div>}
-                                                        {item.has_train && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Train size={15} className="text-[#113A74]" /> Train</div>}
-                                                        {item.has_bus && <div className="flex items-center gap-1.5 text-gray-500 text-sm"><Car size={15} className="text-[#113A74]" /> Bus</div>}
-                                                        {item.has_breakfast && (
-                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
-                                                                Breakfast
-                                                            </div>
-                                                        )}
-                                                        {item.has_lunch && (
-                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 21H17"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 3a6 6 0 0 1 4.94.96"/><path d="M20.97 8c-.472-3.195-3.395-5.12-6.97-5"/></svg>
-                                                                Lunch
-                                                            </div>
-                                                        )}
-                                                        {item.has_dinner && (
-                                                            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#113A74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-                                                                Dinner
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                {/* Transport & Meal Icons */}
+                                                {(() => {
+                                                    const EMOJI = {
+                                                        'Flight':'✈️','Helicopter':'🚁','Train':'🚆','Bus':'🚌','Car':'🚗',
+                                                        'Private Transfer':'🚘','SIC Transfer':'🚐','Cruise':'🚢','Boat':'⛵',
+                                                        'Ferry':'⛴️','Yacht':'🛥️','Private Jet':'✈️',
+                                                        'Breakfast':'🍳','Lunch':'🥗','Dinner':'🍽️','Tea':'🍵',
+                                                        'Coffee':'☕','Snacks':'🍿','Drinks':'🥤','Gala Dinner':'🥂',
+                                                    };
+                                                    const transport = item.transport_icons?.length ? item.transport_icons
+                                                        : [item.has_flight && 'Flight', item.has_train && 'Train', item.has_bus && 'Bus'].filter(Boolean);
+                                                    const meals = item.meal_icons?.length ? item.meal_icons
+                                                        : [item.has_breakfast && 'Breakfast', item.has_lunch && 'Lunch', item.has_dinner && 'Dinner'].filter(Boolean);
+                                                    if (!transport.length && !meals.length) return null;
+                                                    return (
+                                                        <div className="flex flex-col gap-1.5 mt-3 items-end">
+                                                            {transport.length > 0 && (
+                                                                <div className="flex flex-wrap justify-end gap-3">
+                                                                    {transport.map(n => (
+                                                                        <div key={n} className="flex items-center gap-1 text-gray-500 text-sm">
+                                                                            <span>{EMOJI[n] || '🚗'}</span> {n}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                            {meals.length > 0 && (
+                                                                <div className="flex flex-wrap justify-end gap-3">
+                                                                    {meals.map(n => (
+                                                                        <div key={n} className="flex items-center gap-1 text-gray-500 text-sm">
+                                                                            <span>{EMOJI[n] || '🍽️'}</span> {n}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
 
                                             {!isExpanded && <div className="border-b border-gray-100 mr-4"></div>}
@@ -1092,7 +1131,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <h2 className="text-xl md:text-2xl font-bold text-black font-heading">
                                         Hotels Used :
                                     </h2>
-                                    <p className="text-gray-400 text-sm mt-1">
+                                    <p className="text-gray-400 text-base mt-1">
                                         Comfortable stays handpicked to make your journey relaxing and memorable.
                                     </p>
                                 </div>
@@ -1135,7 +1174,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                     className="text-[#113A74] hover:text-[#FFA500] transition-colors truncate"
                                                                     onClick={e => e.stopPropagation()}
                                                                 >
-                                                                    Website
+                                                                    View Website
                                                                 </a>
                                                             </div>
                                                         )}
@@ -1314,7 +1353,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             <img src={offerIcon.src || offerIcon} alt="" className="w-5 h-5 shrink-0" />
                                             <h4 className="text-[20px] font-bold text-black font-heading">Offer Validity</h4>
                                         </div>
-                                        <p className="text-gray-500 text-sm leading-relaxed">
+                                        <p className="text-gray-400 text-base leading-relaxed">
                                             {(() => {
                                                 const date = new Date(pkg.offer_validity);
                                                 if (isNaN(date.getTime())) return pkg.offer_validity;
@@ -1342,14 +1381,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             {Array.isArray(bp) ? (
                                                 <ul className="space-y-1.5 pl-1">
                                                     {bp.map((item, i) => (
-                                                        <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                        <li key={i} className="flex items-start gap-2 text-gray-400 text-base leading-relaxed">
                                                             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
                                                             {typeof item === 'string' ? item : item.name || item.title || ''}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <p className="text-gray-500 text-sm leading-relaxed">{bp}</p>
+                                                <p className="text-gray-400 text-base leading-relaxed">{bp}</p>
                                             )}
                                         </div>
                                     );
@@ -1367,14 +1406,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             {Array.isArray(cp) ? (
                                                 <ul className="space-y-1.5 pl-1">
                                                     {cp.map((item, i) => (
-                                                        <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                        <li key={i} className="flex items-start gap-2 text-gray-400 text-base leading-relaxed">
                                                             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
                                                             {typeof item === 'string' ? item : item.name || item.title || ''}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <p className="text-gray-500 text-sm leading-relaxed">{cp}</p>
+                                                <p className="text-gray-400 text-base leading-relaxed">{cp}</p>
                                             )}
                                         </div>
                                     );
@@ -1390,14 +1429,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         {Array.isArray(termsConditions) ? (
                                             <ul className="space-y-1.5 pl-1">
                                                 {termsConditions.map((item, i) => (
-                                                    <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                    <li key={i} className="flex items-start gap-2 text-gray-400 text-base leading-relaxed">
                                                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
                                                         {typeof item === 'string' ? item : item.name || item.title || ''}
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="text-gray-500 text-sm leading-relaxed">{termsConditions}</p>
+                                            <p className="text-gray-400 text-base leading-relaxed">{termsConditions}</p>
                                         )}
                                     </div>
                                 )}
@@ -1412,14 +1451,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         {Array.isArray(servicePolicy) ? (
                                             <ul className="space-y-1.5 pl-1">
                                                 {servicePolicy.map((item, i) => (
-                                                    <li key={i} className="flex items-start gap-2 text-gray-500 text-sm leading-relaxed">
+                                                    <li key={i} className="flex items-start gap-2 text-gray-400 text-base leading-relaxed">
                                                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
                                                         {typeof item === 'string' ? item : item.name || item.title || ''}
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="text-gray-500 text-sm leading-relaxed">{servicePolicy}</p>
+                                            <p className="text-gray-400 text-base leading-relaxed">{servicePolicy}</p>
                                         )}
                                     </div>
                                 )}
@@ -1503,8 +1542,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         <div className="max-w-[450px] pl-5 sm:pl-8">
                                             <div className="divide-y divide-gray-200">
                                                 {pkg.contacts.map((contact, idx) => (
-                                                    <div key={idx} className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-y-1 sm:gap-y-0 gap-x-4 py-3 sm:py-3.5 first:pt-0 last:pb-0 text-sm sm:text-base items-start sm:items-center">
-                                                        <span className="text-[#4B5872] font-medium">{contact.name}</span>
+                                                    <div key={idx} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 text-sm sm:text-base">
+                                                        <span className="text-[#4B5872] font-medium min-w-[160px] sm:min-w-[220px]">
+                                                            {contact.mobile ? contact.name?.replace(contact.mobile, '').replace(/[,\s]+$/, '').trim() : contact.name}
+                                                        </span>
                                                         <span className="text-[#1D2A44] font-normal">{contact.mobile}</span>
                                                     </div>
                                                 ))}
@@ -1522,8 +1563,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Airlines + Operated By — single combined box */}
                         {(() => {
-                            const airlineList = pkg.airlines?.length ? pkg.airlines : (pkg.airline_name ? [{ name: pkg.airline_name, logo: pkg.airline_logo }] : []);
-                            if (airlineList.length === 0 && !pkg.operated_by_name) return null;
+                            const airlineList = pkg.show_airline_on_frontend !== false ? (pkg.airlines?.length ? pkg.airlines : (pkg.airline_name ? [{ name: pkg.airline_name, logo: pkg.airline_logo }] : [])) : [];
+                            if (airlineList.length === 0 && !(showOperator && pkg.operated_by_name)) return null;
                             return (
                                 <div
                                     className="rounded-2xl overflow-hidden relative mb-3 px-4 py-3 flex flex-col gap-3"
@@ -1549,7 +1590,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             </div>
                                         </div>
                                     ))}
-                                    {pkg.operated_by_name && (
+                                    {showOperator && pkg.operated_by_name && (
                                         <>
                                             {airlineList.length > 0 && <div className="border-t border-white/10" />}
                                             <div className="flex items-center gap-3">
@@ -1575,8 +1616,14 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             <h4 className="text-white font-bold text-xl font-heading tracking-wide">Package Cost</h4>
                             <div className="space-y-3 border-t border-white/10 pt-4">
                                 {(() => {
-                                    const p = pkg.pricing_info?.current_pricing || pkg.pricing_info?.default_pricing || null;
-                                    if (!p) return <p className="text-white/50 text-sm italic">Price on Request</p>;
+                                    const cp = pkg.pricing_info?.current_pricing;
+                                    const dp = pkg.pricing_info?.default_pricing;
+                                    const keys = ['adult_single','adult_double','adult_triple','adult_quad','child_with_bed','child_no_bed','infant'];
+                                    const merged = {};
+                                    keys.forEach(k => {
+                                        merged[k] = (cp?.[k] || 0) || (dp?.[k] || 0) || Number(pkg?.[`default_price_${k}`]) || 0;
+                                    });
+                                    const p = merged;
                                     const rows = [
                                         { label: 'Single Traveler', value: p.adult_single    },
                                         { label: 'Twin Sharing',    value: p.adult_double    },
@@ -1805,8 +1852,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                         </div>
                                                         {/* Airline + Operated by overlay — visible on hover (bottom-left) */}
                                                         {(() => {
-                                                            const rpAirlines = rp.airlines?.length ? rp.airlines : (rp.airline_name ? [{ name: rp.airline_name }] : []);
-                                                            return (rpAirlines.length > 0 || rp.operated_by_name) && (
+                                                            const rpAirlines = rp.show_airline_on_frontend !== false ? (rp.airlines?.length ? rp.airlines : (rp.airline_name ? [{ name: rp.airline_name }] : [])) : [];
+                                                            return (rpAirlines.length > 0 || (showOperator && rp.operated_by_name)) && (
                                                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-8 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                                 {rpAirlines.length > 0 && (
                                                                     <div className="flex items-center gap-2 text-white text-[15px] font-heading leading-tight">
@@ -1814,7 +1861,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                                         <span>Airline : {rpAirlines.map(a => a.name).join(', ')}</span>
                                                                     </div>
                                                                 )}
-                                                                {rp.operated_by_name && (
+                                                                {showOperator && rp.operated_by_name && (
                                                                     <p className="text-white/90 text-[15px] font-heading leading-tight">
                                                                         Operated by : {rp.operated_by_name}
                                                                     </p>

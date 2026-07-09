@@ -435,14 +435,19 @@ const CityList = ({ cityNames }) => {
 };
 
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, currency, days, nights, slots, cities, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, is_rfq, viewMode = 'grid' }) => {
-    const airlineList = airlines?.length ? airlines : (airline_name ? [{ name: airline_name }] : []);
+const TourCard = ({ id, slug, image, title, package_name, description, price, currency, days, nights, slots, cities, categories, category, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, is_rfq, viewMode = 'grid', show_operator_on_frontend = true, show_airline_on_frontend = true }) => {
+    const showOperator = show_operator_on_frontend !== false;
+    const airlineList = show_airline_on_frontend ? (airlines?.length ? airlines : (airline_name ? [{ name: airline_name }] : [])) : [];
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
+    // Normalise categories: may be an array of objects, or a JSON string
+    const categoryList = categories?.length > 0
+        ? categories.map(c => c.name || c)
+        : (() => { try { const p = JSON.parse(category || '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })();
     const router = useRouter();
     const { formatPrice } = useCurrency();
     const btnLabel = is_rfq ? 'Enquiry' : 'Book Now';
-    const hasPrice = price > 0;
+    const hasPrice = price != null && Number(price) > 0;
 
     if (viewMode === 'list') {
         return (
@@ -461,6 +466,15 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, cu
                     <div>
                         <h3 className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-1 mb-1">{toTitleCase(title || package_name)}</h3>
                         {cityNames.length > 0 && <CityList cityNames={cityNames} />}
+                        {categoryList.length > 0 && (
+                            <div className="flex items-center gap-1 flex-wrap mb-1">
+                                {categoryList.map((cat, i) => (
+                                    <span key={i} className="text-[11px] font-semibold text-[#113A74] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                        {cat}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                         <div className="flex items-center gap-1.5 flex-wrap mb-1">
                             {slots !== undefined && <span className="text-[13px] font-bold text-[#FFA500] bg-orange-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md inline-block">{slots} Slots</span>}
                         </div>
@@ -499,7 +513,7 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, cu
                     <span>{nights} Nights, {days} Days</span>
                 </div>
                 {/* Airline + Operated by overlay — visible on hover (bottom-left) */}
-                {(airlineList.length > 0 || operated_by_name) && (
+                {(airlineList.length > 0 || (showOperator && operated_by_name)) && (
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-4 pt-10 pb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[1px]">
                         {airlineList.length > 0 && (
                             <div className="flex items-center gap-2 leading-tight" style={{textShadow:'0 1px 4px rgba(0,0,0,0.7)'}}>
@@ -507,7 +521,7 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, cu
                                 <span className="text-white font-extrabold text-[15px] font-heading tracking-wide">Airline : {airlineList.map(a => a.name).join(', ')}</span>
                             </div>
                         )}
-                        {operated_by_name && (
+                        {showOperator && operated_by_name && (
                             <p className="text-[#FFA500] font-bold text-[14px] font-heading leading-tight mt-1" style={{textShadow:'0 1px 4px rgba(0,0,0,0.7)'}}>
                                 Operated by : <span className="text-white">{operated_by_name}</span>
                             </p>
@@ -518,6 +532,15 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, cu
             <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-1">
                 <h3 title={title || package_name} className="text-[17px] sm:text-[20px] font-bold text-black font-heading tracking-tight leading-tight line-clamp-2">{toTitleCase(title || package_name)}</h3>
                 {cityNames.length > 0 && <CityList cityNames={cityNames} />}
+                {categoryList.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                        {categoryList.map((cat, i) => (
+                            <span key={i} className="text-[11px] font-semibold text-[#113A74] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                {cat}
+                            </span>
+                        ))}
+                    </div>
+                )}
                 <div className="flex items-center gap-2 py-0.5 flex-wrap">
                     {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
                     {flights_included && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}

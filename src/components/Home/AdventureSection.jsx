@@ -27,9 +27,11 @@ export default function AdventureSection({ content, loading }) {
     const adventureTitle    = content?.adventure_title    || slider.title_1      || '';
     const adventureSubtitle = content?.adventure_subtitle || slider.title_2      || '';
     const button1Text       = content?.adventure_button1_text || slider.button_1_text || '';
-    const button1Link       = content?.adventure_button1_link || slider.button_1_link || '';
+    const rawButton1Link    = content?.adventure_button1_link || slider.button_1_link || '';
+    const button1Link       = rawButton1Link === '/packages' ? '/tours' : rawButton1Link;
     const button2Text       = content?.adventure_button2_text || slider.button_2_text || '';
-    const button2Link       = content?.adventure_button2_link || slider.button_2_link || '';
+    const rawButton2Link    = content?.adventure_button2_link || slider.button_2_link || '';
+    const button2Link       = rawButton2Link === '/packages' ? '/tours' : rawButton2Link;
 
     // Nothing to show if no content from API
     if (!adventureTitle && !adventureSubtitle && !button1Text && !button2Text) return null;

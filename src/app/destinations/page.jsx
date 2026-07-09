@@ -157,9 +157,9 @@ export default function DestinationsPage() {
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-                    {/* Left Promotion Sidebar */}
+                    {/* Left Promotion Sidebar — desktop only */}
                     {promos.length > 0 && (
-                        <div className="w-full lg:w-[260px] xl:w-[280px] flex-shrink-0 lg:sticky lg:top-24 self-start flex flex-col gap-4">
+                        <div className="hidden lg:flex w-full lg:w-[260px] xl:w-[280px] flex-shrink-0 lg:sticky lg:top-24 self-start flex-col gap-4">
                             {promos.map((promo, i) => (
                                 <Link
                                     key={i}
@@ -275,6 +275,25 @@ export default function DestinationsPage() {
 
                         {!loading && (
                             <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+                        )}
+
+                        {/* Promotion Banners — mobile only (shown after destination list) */}
+                        {promos.length > 0 && (
+                            <div className="flex flex-col gap-4 mt-6 lg:hidden">
+                                {promos.map((promo, i) => (
+                                    <Link
+                                        key={i}
+                                        href="/tours"
+                                        className="block w-full rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                                    >
+                                        <img
+                                            src={promo.image_url}
+                                            alt={`Promotion ${i + 1}`}
+                                            className="w-full h-auto object-cover"
+                                        />
+                                    </Link>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>

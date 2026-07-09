@@ -4,7 +4,7 @@ export const runtime = 'edge';
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { MapPin, Globe, Wifi, Coffee, Wind, Tv, ChevronLeft, ChevronRight, Search as SearchIcon, Check } from 'lucide-react';
+import { MapPin, Globe, Wifi, Coffee, Wind, Tv, ChevronLeft, ChevronRight, ChevronDown, Search as SearchIcon, Check } from 'lucide-react';
 import { api } from '../../api/client';
 import bannerImg from '../../assets/INNER PAGE BANNER.png';
 import gutterImg from '../../assets/gutter.png';
@@ -13,15 +13,25 @@ import gutterImg from '../../assets/gutter.png';
 import AdventureSection from '../../components/Home/AdventureSection';
 import GalleryLoop from '../../components/Home/GalleryLoop';
 
-const FilterSection = ({ title, children }) => (
-    <div className="flex flex-col gap-3">
-        <div className="flex items-center">
-            <div className="w-1 h-5 bg-[#FFA500]" />
-            <h3 className="text-[#113A74] font-bold text-[11px] bg-[#eff6ff] px-2.5 py-1 ml-2 uppercase tracking-wider">{title}</h3>
+const FilterSection = ({ title, children, defaultOpen = false }) => {
+    const [open, setOpen] = useState(defaultOpen);
+    return (
+        <div className="flex flex-col gap-3">
+            <button
+                type="button"
+                onClick={() => setOpen(v => !v)}
+                className="flex items-center justify-between w-full text-left"
+            >
+                <div className="flex items-center">
+                    <div className="w-1 h-5 bg-[#FFA500]" />
+                    <h3 className="text-[#113A74] font-bold text-[11px] bg-[#eff6ff] px-2.5 py-1 ml-2 uppercase tracking-wider">{title}</h3>
+                </div>
+                <ChevronDown size={14} strokeWidth={3} className={`text-[#113A74] transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && children}
         </div>
-        {children}
-    </div>
-);
+    );
+};
 
 const CheckItem = ({ label, checked, onChange }) => (
     <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -377,12 +387,12 @@ function HotelsContent() {
                             </form>
                         </div>
 
-                        {/* Promotion Banners from API */}
+                        {/* Promotion Banners — desktop only (shown in sidebar) */}
                         {promos.map((promo, i) => (
                             <Link
                                 key={i}
                                 href="/tours"
-                                className="block rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                                className="hidden lg:block rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                             >
                                 <img
                                     src={promo.image_url}
@@ -413,6 +423,25 @@ function HotelsContent() {
                                 <SearchIcon size={48} className="mx-auto text-slate-300 mb-4" />
                                 <h3 className="text-xl font-bold text-[#113A74] mb-2">No Hotels Found</h3>
                                 <p className="text-slate-400">Try adjusting your search criteria</p>
+                            </div>
+                        )}
+
+                        {/* Promotion Banners — mobile only (shown after hotel list) */}
+                        {promos.length > 0 && (
+                            <div className="flex flex-col gap-6 mt-6 lg:hidden">
+                                {promos.map((promo, i) => (
+                                    <Link
+                                        key={i}
+                                        href="/tours"
+                                        className="block rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                                    >
+                                        <img
+                                            src={promo.image_url}
+                                            alt={`Promotion ${i + 1}`}
+                                            className="w-full h-auto object-cover"
+                                        />
+                                    </Link>
+                                ))}
                             </div>
                         )}
                     </div>

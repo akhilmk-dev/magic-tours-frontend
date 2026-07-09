@@ -738,8 +738,8 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                     {/* ── LEFT SIDEBAR ── */}
                     <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
-                        {/* Promo image */}
-                        <div className="rounded-[1.5rem] overflow-hidden shadow-sm border border-slate-100">
+                        {/* Promo image — desktop only */}
+                        <div className="hidden lg:block rounded-[1.5rem] overflow-hidden shadow-sm border border-slate-100">
                             <img src={bookingImg.src || bookingImg} alt="Special Offer" className="w-full h-auto object-cover" />
                         </div>
 
@@ -1719,6 +1719,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     </div>
                 </div>{/* end flex row */}
 
+                {/* Promo image — mobile only (shown after main content) */}
+                <div className="lg:hidden mt-6 rounded-[1.5rem] overflow-hidden shadow-sm border border-slate-100">
+                    <img src={bookingImg.src || bookingImg} alt="Special Offer" className="w-full h-auto object-cover" />
+                </div>
 
                 {/* Location Map Section */}
                 {(pkg.location_map || pkg.destination?.name || pkg.location) ? (

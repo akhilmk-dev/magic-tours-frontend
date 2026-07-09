@@ -58,9 +58,9 @@ export default function LaunchCountdownModal() {
     ];
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 py-6 overflow-y-auto"
             style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(2px)' }}>
-            <div className="relative w-full max-w-[500px] rounded-2xl overflow-hidden"
+            <div className="relative w-full max-w-[500px] rounded-2xl overflow-hidden my-auto"
                 style={{
                     background: 'rgba(30,30,40,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
@@ -69,24 +69,24 @@ export default function LaunchCountdownModal() {
 
                 {/* Close button */}
                 <button onClick={dismiss}
-                    className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
                     style={{ background: 'rgba(255,255,255,0.15)' }}
                     aria-label="Close">
                     <X size={16} className="text-white" />
                 </button>
 
-                <div className="px-10 py-12 text-center">
+                <div className="px-5 sm:px-10 py-8 sm:py-12 text-center">
                     {/* Tag line */}
-                    <p className="text-sm font-black uppercase tracking-[0.2em] mb-4"
+                    <p className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] mb-3 sm:mb-4"
                         style={{ color: '#FFA500' }}>
                         WE&apos;RE LAUNCHING SOON ✨
                     </p>
 
                     {/* Heading */}
-                    <h2 className="text-4xl font-heading font-bold text-white mb-1" style={{ lineHeight: 1.15 }}>
+                    <h2 className="text-2xl sm:text-4xl font-heading font-bold text-white mb-1" style={{ lineHeight: 1.15 }}>
                         Something Magical
                     </h2>
-                    <h2 className="text-4xl font-heading font-bold mb-10" style={{ lineHeight: 1.15 }}>
+                    <h2 className="text-2xl sm:text-4xl font-heading font-bold mb-6 sm:mb-10" style={{ lineHeight: 1.15 }}>
                         <span style={{ color: '#4fc3f7' }}>is </span>
                         <span style={{ color: '#4fc3f7' }}>on </span>
                         <span style={{ color: '#FFA500' }}>the </span>
@@ -94,26 +94,26 @@ export default function LaunchCountdownModal() {
                     </h2>
 
                     {/* Countdown */}
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                         {units.map((u, i) => (
                             <React.Fragment key={u.label}>
                                 <div className="flex flex-col items-center">
-                                    <div className="w-[80px] h-[70px] rounded-xl flex items-center justify-center"
+                                    <div className="w-[62px] h-[56px] sm:w-[80px] sm:h-[70px] rounded-xl flex items-center justify-center"
                                         style={{
                                             background: 'rgba(255,255,255,0.07)',
                                             border: '1px solid rgba(255,255,255,0.12)',
                                         }}>
-                                        <span className="text-4xl font-black text-white tabular-nums">
+                                        <span className="text-2xl sm:text-4xl font-black text-white tabular-nums">
                                             {u.value}
                                         </span>
                                     </div>
-                                    <span className="text-[10px] font-black tracking-widest mt-2"
+                                    <span className="text-[9px] sm:text-[10px] font-black tracking-widest mt-2"
                                         style={{ color: 'rgba(255,255,255,0.45)' }}>
                                         {u.label}
                                     </span>
                                 </div>
                                 {i < units.length - 1 && (
-                                    <span className="text-3xl font-black text-white mb-5 select-none"
+                                    <span className="text-2xl sm:text-3xl font-black mb-5 select-none"
                                         style={{ color: 'rgba(255,255,255,0.5)' }}>
                                         :
                                     </span>

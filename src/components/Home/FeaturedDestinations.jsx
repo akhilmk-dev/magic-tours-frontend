@@ -124,8 +124,9 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
     // Use default destinations if none are provided or fetched
     const activeDestinations = destinations.length > 0 ? destinations : DEFAULT_DESTINATIONS;
 
-    // Dynamic clone offset based on available items (max 4)
-    const cloneOffset = Math.min(4, activeDestinations.length);
+    // Only clone for infinite scroll when there are enough items to fill the visible slots
+    const canLoop = activeDestinations.length > Math.ceil(itemsToShow);
+    const cloneOffset = canLoop ? Math.min(4, activeDestinations.length) : 0;
 
     useEffect(() => {
         // When the homepage manages this section's data (propLoading provided),
@@ -151,7 +152,9 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
     }, [initialDestinations, propLoading]);
 
     const displayItems = activeDestinations.length > 0
-        ? [...activeDestinations.slice(-cloneOffset), ...activeDestinations, ...activeDestinations.slice(0, cloneOffset)]
+        ? (canLoop
+            ? [...activeDestinations.slice(-cloneOffset), ...activeDestinations, ...activeDestinations.slice(0, cloneOffset)]
+            : [...activeDestinations])
         : [];
 
     const colWidth = 100 / itemsToShow;
@@ -274,23 +277,27 @@ export default function FeaturedDestinations({ initialDestinations, allPackages 
                         </div>
                     </div>
 
-                    {/* Navigation Buttons */}
-                    <div className="absolute top-[40%] -left-2 sm:-left-3 md:-left-5 -translate-y-1/2 z-50">
-                        <button
-                            onClick={handlePrev}
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
-                        >
-                            <ArrowLeft size={20} className="md:w-6 md:h-6" strokeWidth={3} />
-                        </button>
-                    </div>
-                    <div className="absolute top-[40%] -right-2 sm:-right-3 md:-right-5 -translate-y-1/2 z-50">
-                        <button
-                            onClick={handleNext}
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
-                        >
-                            <ArrowRight size={20} className="md:w-6 md:h-6" strokeWidth={3} />
-                        </button>
-                    </div>
+                    {/* Navigation Buttons — only shown when there are enough items to loop */}
+                    {canLoop && (
+                        <>
+                            <div className="absolute top-[40%] -left-2 sm:-left-3 md:-left-5 -translate-y-1/2 z-50">
+                                <button
+                                    onClick={handlePrev}
+                                    className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
+                                >
+                                    <ArrowLeft size={20} className="md:w-6 md:h-6" strokeWidth={3} />
+                                </button>
+                            </div>
+                            <div className="absolute top-[40%] -right-2 sm:-right-3 md:-right-5 -translate-y-1/2 z-50">
+                                <button
+                                    onClick={handleNext}
+                                    className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FFA500] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:bg-white hover:text-[#FFA500] transition-all transform hover:scale-110"
+                                >
+                                    <ArrowRight size={20} className="md:w-6 md:h-6" strokeWidth={3} />
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 

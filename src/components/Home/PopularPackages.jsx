@@ -193,20 +193,20 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                         <FavoriteButton packageId={pkg.id} className="absolute top-4 right-4 z-20" />
                                         {/* Location overlay at the bottom of the image */}
                                         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-                                        {/* Countries row */}
-                                        {pkg.countryNames.length > 0 && (
-                                            <div className="absolute bottom-10 left-4 right-4 flex flex-wrap gap-x-1 z-10">
-                                                {pkg.countryNames.map((c, i) => (
-                                                    <span key={i} className="text-[11px] font-semibold text-white/80">
-                                                        {c}{i < pkg.countryNames.length - 1 && <span className="mx-1 text-white/50">·</span>}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                        {/* Cities / location row */}
-                                        <div className="absolute bottom-3 left-4 flex items-center gap-2 text-white z-10">
-                                            <MapPin size={16} fill="white" className="text-white flex-shrink-0" />
-                                            <span className="text-[13px] font-medium line-clamp-1">{pkg.location}</span>
+                                        {/* Countries / location row */}
+                                        <div className="absolute bottom-3 left-4 right-4 flex items-center gap-1.5 z-10">
+                                            <MapPin size={14} fill="white" className="text-white flex-shrink-0" />
+                                            {pkg.countryNames.length > 0 ? (
+                                                <div className="flex flex-wrap gap-x-1">
+                                                    {pkg.countryNames.map((c, i) => (
+                                                        <span key={i} className="text-[12px] font-semibold text-white">
+                                                            {c}{i < pkg.countryNames.length - 1 && <span className="mx-1 text-white/60">·</span>}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-[13px] font-medium text-white line-clamp-1">{pkg.location}</span>
+                                            )}
                                         </div>
                                     </div>
 
@@ -264,19 +264,23 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                         <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5 items-center">
-                                                        {pkg.countryNames.length > 0 ? (
-                                                            pkg.countryNames.map((country, i) => (
+                                                        {(() => {
+                                                            const countrySet = new Set(pkg.countryNames.map(c => c.toLowerCase()));
+                                                            const cities = pkg.location
+                                                                ? pkg.location.split(',').map(s => s.trim()).filter(s => s && !countrySet.has(s.toLowerCase()))
+                                                                : [];
+                                                            const pairs = cities.length > 0
+                                                                ? cities.map((city, i) => {
+                                                                    const country = pkg.countryNames[i] || pkg.countryNames[0] || '';
+                                                                    return country ? `${city}, ${country}` : city;
+                                                                })
+                                                                : pkg.countryNames;
+                                                            return pairs.map((pair, i) => (
                                                                 <span key={i} className="text-gray-400 font-semibold text-[12px]">
-                                                                    {pkg.location && i === 0 ? `${pkg.location}, ` : ''}{country}{i < pkg.countryNames.length - 1 && <span className="mx-1 text-gray-300">|</span>}
+                                                                    {pair}{i < pairs.length - 1 && <span className="mx-1 text-gray-300">|</span>}
                                                                 </span>
-                                                            ))
-                                                        ) : (
-                                                            pkg.location.split(',').map((loc, i, arr) => (
-                                                                <span key={i} className="text-gray-400 font-semibold text-[12px]">
-                                                                    {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
-                                                                </span>
-                                                            ))
-                                                        )}
+                                                            ));
+                                                        })()}
                                                     </div>
                                                     {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
                                                         <div className="flex items-center gap-3 flex-wrap">
@@ -371,19 +375,23 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                         <span title={pkg.type} className="text-[#16243D] font-semibold text-[12px] line-clamp-1">Tour Type : {pkg.type}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-y-0.5 items-center">
-                                                        {pkg.countryNames.length > 0 ? (
-                                                            pkg.countryNames.map((country, i) => (
+                                                        {(() => {
+                                                            const countrySet = new Set(pkg.countryNames.map(c => c.toLowerCase()));
+                                                            const cities = pkg.location
+                                                                ? pkg.location.split(',').map(s => s.trim()).filter(s => s && !countrySet.has(s.toLowerCase()))
+                                                                : [];
+                                                            const pairs = cities.length > 0
+                                                                ? cities.map((city, i) => {
+                                                                    const country = pkg.countryNames[i] || pkg.countryNames[0] || '';
+                                                                    return country ? `${city}, ${country}` : city;
+                                                                })
+                                                                : pkg.countryNames;
+                                                            return pairs.map((pair, i) => (
                                                                 <span key={i} className="text-gray-400 font-semibold text-[12px]">
-                                                                    {pkg.location && i === 0 ? `${pkg.location}, ` : ''}{country}{i < pkg.countryNames.length - 1 && <span className="mx-1 text-gray-300">|</span>}
+                                                                    {pair}{i < pairs.length - 1 && <span className="mx-1 text-gray-300">|</span>}
                                                                 </span>
-                                                            ))
-                                                        ) : (
-                                                            pkg.location.split(',').map((loc, i, arr) => (
-                                                                <span key={i} className="text-gray-400 font-semibold text-[12px]">
-                                                                    {loc.trim()}{i < arr.length - 1 && <span className="mx-1">|</span>}
-                                                                </span>
-                                                            ))
-                                                        )}
+                                                            ));
+                                                        })()}
                                                     </div>
                                                     {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
                                                         <div className="flex items-center gap-3 flex-wrap">

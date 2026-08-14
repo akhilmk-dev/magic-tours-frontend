@@ -16,9 +16,6 @@ import searchIcon from '../../assets/search.png';
 import FavoriteButton from '../../components/common/FavoriteButton';
 import { useCurrency } from '../../context/CurrencyContext';
 import { toTitleCase } from '../../utils/textUtils';
-import hotelsIcon from '../../assets/hotels_package_card.png';
-import flightIcon from '../../assets/flight_icon_package_card.png';
-import foodIcon from '../../assets/food_icon_package_card.png';
 import airlineTailIcon from '../../assets/airline_tail_icon.png';
 
 /* ─── Destination Filter Bar ──────────────────────────────── */
@@ -435,8 +432,15 @@ const CityList = ({ cityNames }) => {
 };
 
 /* ─── Tour Card ───────────────────────────────────────────── */
-const TourCard = ({ id, slug, image, title, package_name, description, price, currency, days, nights, slots, cities, categories, category, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, is_rfq, viewMode = 'grid', show_operator_on_frontend = true, show_airline_on_frontend = true }) => {
+const TourCard = ({ id, slug, image, title, package_name, description, price, currency, days, nights, slots, cities, categories, category, hotels_included, flights_included, has_food, airlines, airline_name, operated_by_name, booking_type, is_rfq, viewMode = 'grid', show_operator_on_frontend = true, show_airline_on_frontend = true, iconMasters = [] }) => {
     const showOperator = show_operator_on_frontend !== false;
+    const renderIcon = (name, category) => {
+        const m = iconMasters.find(i => i.name === name && i.category === category);
+        if (!m) return null;
+        return m.icon_url
+            ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-5 h-5 object-contain flex-shrink-0" />
+            : m.emoji ? <span key={name} title={name} className="text-[20px] leading-none flex-shrink-0">{m.emoji}</span> : null;
+    };
     const airlineList = show_airline_on_frontend ? (airlines?.length ? airlines : (airline_name ? [{ name: airline_name }] : [])) : [];
     // Normalise cities: production API returns [{id,name}], future backend returns strings
     const cityNames = (cities || []).map(c => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
@@ -542,9 +546,9 @@ const TourCard = ({ id, slug, image, title, package_name, description, price, cu
                     </div>
                 )}
                 <div className="flex items-center gap-2 py-0.5 flex-wrap">
-                    {hotels_included  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
-                    {flights_included && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}
-                    {has_food         && <img src={foodIcon.src  || foodIcon}   alt="Food included"   className="w-5 h-5 object-contain" />}
+                    {hotels_included  && (renderIcon('Hotel', 'transport') || <span title="Hotel" className="text-[20px] leading-none flex-shrink-0">🏨</span>)}
+                    {flights_included && renderIcon('Flight', 'transport')}
+                    {has_food         && (renderIcon('Dinner', 'meal') || <span title="Food" className="text-[20px] leading-none flex-shrink-0">🍽️</span>)}
                 </div>
                 <div className="flex items-center justify-between gap-3 mt-auto pt-2">
                     <button
@@ -671,6 +675,14 @@ const ToursContent = () => {
     const [search,      setSearch]      = useState(urlSearch);
     const [viewMode,    setViewMode]    = useState('grid');
     const [tourListingSettings, setTourListingSettings] = useState({ heading: '', description: '' });
+    const [iconMasters, setIconMasters] = useState([]);
+
+    useEffect(() => {
+        fetch('https://api.magictours.qa/icon-masters/public')
+            .then(r => r.json())
+            .then(d => setIconMasters(Array.isArray(d) ? d : []))
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         api.get('/settings/public')
@@ -849,7 +861,7 @@ const ToursContent = () => {
                                 {loading
                                     ? [...Array(6)].map((_, i) => <TourCardSkeleton key={i} viewMode={viewMode} />)
                                     : filteredPackages.length > 0
-                                        ? filteredPackages.map(pkg => <TourCard key={pkg.id} {...pkg} viewMode={viewMode} />)
+                                        ? filteredPackages.map(pkg => <TourCard key={pkg.id} {...pkg} viewMode={viewMode} iconMasters={iconMasters} />)
                                         : <div className="col-span-full py-20 text-center font-bold text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">No packages found.</div>
                                 }
                             </div>

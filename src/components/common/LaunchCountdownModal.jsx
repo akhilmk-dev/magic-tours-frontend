@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const LAUNCH_DATE = new Date('2026-07-19T00:00:00');
+const LAUNCH_DATE = new Date('2026-08-03T00:00:00');
 const SESSION_KEY = 'launch_modal_dismissed';
 
 function getTimeLeft() {

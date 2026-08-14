@@ -77,6 +77,7 @@ const PackageDetailsPage = () => {
     const [visibleCards, setVisibleCards] = useState(3);
     const [promos, setPromos] = useState([]);
     const [showOperator, setShowOperator] = useState(true);
+    const [iconMasters, setIconMasters] = useState([]);
     const relatedScrollRef = useRef(null);
 
     const formatPackageDate = (date) => {
@@ -531,6 +532,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
         if (pkg) setShowOperator(pkg.show_operator_on_frontend !== false);
     }, [pkg]);
 
+    useEffect(() => {
+        fetch('https://api.magictours.qa/icon-masters/public')
+            .then(r => r.json())
+            .then(d => setIconMasters(Array.isArray(d) ? d : (d.data || [])))
+            .catch(() => {});
+    }, []);
+
     // Redundant fetchRelated removed
 
     const totalPrice = useMemo(() => {
@@ -659,9 +667,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
 
     return (
-        <div className="bg-white min-h-screen pb-20">
+        <div className="bg-white min-h-screen pb-20" style={{overflowX: 'clip'}}>
             {/* Banner Section - Acting like Home Hero */}
-            <section className="relative min-h-[80vh] lg:min-h-[85vh] w-full overflow-hidden flex items-center justify-center bg-slate-900 m-0 p-0 font-sans border-none">
+            <section className="relative min-h-[45vh] sm:min-h-[60vh] lg:min-h-[85vh] w-full overflow-hidden flex items-center justify-center bg-slate-900 m-0 p-0 font-sans border-none">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <img
@@ -672,11 +680,11 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 </div>
 
                 {/* Content - Centered like Hero */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-12 md:mt-20">
+                <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center mt-8 md:mt-20">
 
                     {/* Title with flight route icon + collab frame */}
                     <div className="relative flex flex-col items-center md:inline-block">
-                        <h1 className="order-2 md:order-none text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] tracking-tight drop-shadow-sm font-heading">
+                        <h1 className="order-2 md:order-none text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-[#113A74] tracking-tight drop-shadow-sm font-heading">
                             {toTitleCase(pkg.title)}
                         </h1>
                         {/* Flight route icon — decorative, top-right of title (desktop only) */}
@@ -733,11 +741,11 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
 
             {/* Main Content & Sidebar */}
-            <div className="px-6 sm:px-10 py-8 sm:py-10 lg:py-12">
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+            <div className="px-3 sm:px-6 lg:px-10 py-8 sm:py-10 lg:py-12">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
 
                     {/* ── LEFT SIDEBAR ── */}
-                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
+                    <div className="order-3 lg:order-1 lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
                         {/* Promo image — desktop only */}
                         <div className="hidden lg:block rounded-[1.5rem] overflow-hidden shadow-sm border border-slate-100">
                             <img src={bookingImg.src || bookingImg} alt="Special Offer" className="w-full h-auto object-cover" />
@@ -745,7 +753,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Related Images */}
                         {relatedImages.length > 0 && (
-                            <div className="space-y-3">
+                            <div className="hidden lg:block space-y-3 p-2 overflow-hidden w-full">
                                 <h4 className="text-[#113A74] font-bold font-heading text-lg text-center">Related Images</h4>
 
                                 {/* Description — animates with the active slide */}
@@ -761,7 +769,29 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     </motion.p>
                                 )}
 
-                                <div className="relative overflow-hidden h-[160px]">
+                                {/* Mobile: 1 image at a time */}
+                                <div className="block lg:hidden px-2">
+                                    {mounted && (() => {
+                                        const image = relatedImages[currentImageIndex];
+                                        return (
+                                            <motion.div
+                                                key={currentImageIndex}
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.5 }}
+                                                className="w-full rounded-2xl overflow-hidden shadow-sm h-[200px] sm:h-[240px]"
+                                            >
+                                                <img
+                                                    src={image?.src || image}
+                                                    className="w-full h-full object-cover"
+                                                    alt={`Related Image ${currentImageIndex}`}
+                                                />
+                                            </motion.div>
+                                        );
+                                    })()}
+                                </div>
+                                {/* Desktop: 2 images side by side */}
+                                <div className="hidden lg:block relative overflow-hidden h-[160px]">
                                     {mounted && (
                                         <div className="flex gap-2 h-full">
                                             {[0, 1].map((offset) => {
@@ -786,12 +816,20 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         </div>
                                     )}
                                 </div>
+                                {/* Dots — mobile: per image, desktop: per pair */}
                                 <div className="flex justify-center gap-1.5 pt-1">
+                                    {Array.from({ length: relatedImages.length }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            onClick={() => setCurrentImageIndex(i)}
+                                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer lg:hidden ${currentImageIndex === i ? 'bg-[#113A74] w-4' : 'bg-gray-300 w-1.5'}`}
+                                        />
+                                    ))}
                                     {Array.from({ length: Math.ceil(relatedImages.length / 2) }).map((_, i) => (
                                         <div
                                             key={i}
                                             onClick={() => setCurrentImageIndex(i * 2)}
-                                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${Math.floor(currentImageIndex / 2) === i ? 'bg-[#113A74] w-4' : 'bg-gray-300 w-1.5'}`}
+                                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer hidden lg:block ${Math.floor(currentImageIndex / 2) === i ? 'bg-[#113A74] w-4' : 'bg-gray-300 w-1.5'}`}
                                         />
                                     ))}
                                 </div>
@@ -801,7 +839,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     </div>
 
                     {/* ── CENTER MAIN CONTENT ── */}
-                    <div className="flex-1 min-w-0 space-y-6 border border-gray-200 rounded-2xl p-1.5 sm:p-2.5">
+                    <div className="order-1 lg:order-2 flex-1 min-w-0 space-y-6 border border-gray-200 rounded-2xl p-2.5 sm:p-3">
 
                         {/* Gallery carousel + Title grouped with tight spacing */}
                         <div className="space-y-3">
@@ -811,7 +849,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             if (!imgs.length) return null;
                             return (
                                 <div className="space-y-3">
-                                    <div className="rounded-2xl overflow-hidden h-[260px] sm:h-[340px]">
+                                    <div className="rounded-2xl overflow-hidden h-[200px] sm:h-[280px] md:h-[340px]">
                                         <img src={imgs[galleryIndex]} alt={`Gallery ${galleryIndex + 1}`} className="w-full h-full object-cover" />
                                     </div>
                                     {imgs.length > 1 && (
@@ -846,12 +884,20 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
 
                         {/* Info rows grouped tightly */}
                         <div className="space-y-1">
-                        <div className="flex flex-col gap-y-1.5">
+                        <div className="flex flex-col gap-y-0.5">
                             {(pkg.continent || pkg.country) && (
-                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
+                                <div className="flex items-start gap-2 py-1.5 text-sm text-gray-600 border-b border-gray-100">
                                     <img src={flagDetailIcon.src || flagDetailIcon} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span className="font-medium font-montserrat leading-snug">
                                         {[pkg.continent, pkg.country].filter(Boolean).join('. ')}
+                                    </span>
+                                </div>
+                            )}
+                            {pkg.countries?.length > 0 && (
+                                <div className="flex items-start gap-2 py-1 text-sm text-gray-600 border-b border-gray-100">
+                                    <Globe size={16} className="shrink-0 mt-0.5 text-gray-500" />
+                                    <span className="font-medium font-montserrat leading-snug">
+                                        {pkg.countries.map(c => c.name).join(', ')}
                                     </span>
                                 </div>
                             )}
@@ -926,10 +972,12 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="border-t border-gray-200 pt-4">
                                         <h2 className="text-xl md:text-2xl font-bold text-black font-heading">Journey Overview :</h2>
                                     </div>
-                                    <p ref={overviewRef} className={`text-gray-400 text-base leading-relaxed whitespace-pre-line ${showFullOverview ? '' : 'line-clamp-4'}`}>
-                                        {overviewText}
-                                    </p>
-                                    {(overviewOverflows || showFullOverview) && (
+                                    <div ref={overviewRef} className={`text-gray-400 text-base leading-relaxed space-y-3 ${showFullOverview ? '' : 'line-clamp-4'}`}>
+                                        {overviewText.split(/\n\n+/).map((para, i) => (
+                                            <p key={i} className="whitespace-pre-line">{para.trim()}</p>
+                                        ))}
+                                    </div>
+                                    {(overviewOverflows || showFullOverview || overviewText.length > 300) && (
                                         <button
                                             type="button"
                                             onClick={() => setShowFullOverview(v => !v)}
@@ -962,58 +1010,54 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             Explore the must-see attractions and unforgettable experiences included in your journey.
                                         </p>
                                     </div>
-                                    <div className="bg-[#EBF3FF] rounded-2xl p-4 sm:p-6">
+                                    <div className="bg-[#EBF3FF] rounded-2xl p-3 sm:p-5 overflow-visible">
                                         {(() => {
-                                            const colsLg = Math.min(groups.length, 2);
-                                            const colClass = colsLg === 1 ? 'columns-1' : 'columns-1 lg:columns-2';
+                                            const renderCity = ([cityName, attrs]) => (
+                                                <div key={cityName} className="mb-4 space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin size={15} className="text-[#113A74] shrink-0" />
+                                                        <h4 className="text-[#113A74] font-bold text-base">{cityName}</h4>
+                                                    </div>
+                                                    <ul className="space-y-1.5 pl-1">
+                                                        {attrs.map((attr, i) => (
+                                                            <li key={attr.id || i} className="flex items-start gap-2 text-gray-500 text-sm">
+                                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                                                <span className="flex-1 min-w-0 relative group">
+                                                                    {attr.url ? (
+                                                                        <a href={attr.url} target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 hover:underline transition-colors cursor-pointer text-slate-700 font-medium">
+                                                                            {attr.name}
+                                                                        </a>
+                                                                    ) : (
+                                                                        <span className="text-slate-700 font-medium cursor-default">{attr.name}</span>
+                                                                    )}
+                                                                    {attr.entry_fee !== null && attr.entry_fee !== undefined && attr.entry_fee !== '' && (
+                                                                        <span className="text-[#113A74] font-semibold text-xs ml-1.5">(Entry: {formatEntryFee(attr.entry_fee)})</span>
+                                                                    )}
+                                                                    {attr.overview && (
+                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-[9999] hidden group-hover:block w-48 sm:w-64 pointer-events-none">
+                                                                            <div className="bg-[#113A74] text-white text-xs rounded-xl p-3 shadow-2xl leading-relaxed">
+                                                                                <p className="font-semibold text-white/90 mb-1">{attr.name}</p>
+                                                                                <p className="text-white/75 line-clamp-3">{attr.overview}</p>
+                                                                            </div>
+                                                                            <div className="w-3 h-3 bg-[#113A74] rotate-45 mx-auto -mt-1.5" />
+                                                                        </div>
+                                                                    )}
+                                                                </span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            );
+                                            if (groups.length <= 1) {
+                                                return <div>{groups.map(renderCity)}</div>;
+                                            }
+                                            const mid = Math.ceil(groups.length / 2);
+                                            const leftCol = groups.slice(0, mid);
+                                            const rightCol = groups.slice(mid);
                                             return (
-                                                <div className={`${colClass} gap-x-6 overflow-visible`}>
-                                                    {groups.map(([cityName, attrs]) => (
-                                                        <div
-                                                            key={cityName}
-                                                            className="break-inside-avoid mb-4 space-y-2"
-                                                        >
-                                                            <div className="flex items-center gap-2">
-                                                                <MapPin size={15} className="text-[#113A74] shrink-0" />
-                                                                <h4 className="text-[#113A74] font-bold text-base">{cityName}</h4>
-                                                            </div>
-                                                            <ul className="space-y-1.5 pl-1">
-                                                                {attrs.map((attr, i) => (
-                                                                    <li key={attr.id || i} className="flex items-start gap-2 text-gray-500 text-sm">
-                                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                                                                        <span className="flex-1 min-w-0 relative group">
-                                                                            {attr.url ? (
-                                                                                <a
-                                                                                    href={attr.url}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                    className="hover:text-orange-500 hover:underline transition-colors cursor-pointer text-slate-700 font-medium"
-                                                                                >
-                                                                                    {attr.name}
-                                                                                </a>
-                                                                            ) : (
-                                                                                <span className="text-slate-700 font-medium cursor-default">{attr.name}</span>
-                                                                            )}
-                                                                            {attr.entry_fee !== null && attr.entry_fee !== undefined && attr.entry_fee !== '' && (
-                                                                                <span className="text-[#113A74] font-semibold text-xs ml-1.5">
-                                                                                    (Entry: {formatEntryFee(attr.entry_fee)})
-                                                                                </span>
-                                                                            )}
-                                                                            {attr.overview && (
-                                                                                <div className="absolute left-0 bottom-full mb-2 z-[9999] hidden group-hover:block w-64 pointer-events-none">
-                                                                                    <div className="bg-[#113A74] text-white text-xs rounded-xl p-3 shadow-2xl leading-relaxed">
-                                                                                        <p className="font-semibold text-white/90 mb-1">{attr.name}</p>
-                                                                                        <p className="text-white/75 line-clamp-3">{attr.overview}</p>
-                                                                                    </div>
-                                                                                    <div className="w-3 h-3 bg-[#113A74] rotate-45 ml-3 -mt-1.5" />
-                                                                                </div>
-                                                                            )}
-                                                                        </span>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                    ))}
+                                                <div className="flex flex-col lg:flex-row gap-x-6">
+                                                    <div className="flex-1">{leftCol.map(renderCity)}</div>
+                                                    <div className="flex-1">{rightCol.map(renderCity)}</div>
                                                 </div>
                                             );
                                         })()}
@@ -1043,7 +1087,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 {pkg.itinerary && pkg.itinerary.map((item) => {
                                     const isExpanded = expandedDays.includes(item.day);
                                     return (
-                                        <div key={item.day} className="relative pl-14 pt-2">
+                                        <div key={item.day} className="relative pl-12 sm:pl-14 pt-2">
                                             {/* Timeline Node */}
                                             <div className="absolute left-0 top-[18px] w-10 h-10 flex items-center justify-center">
                                                 {isExpanded ? (
@@ -1060,7 +1104,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                 onClick={() => toggleDay(item.day)}
                                                 className="w-full flex justify-between items-center py-4 text-left group"
                                             >
-                                                <h4 className="font-bold font-heading text-lg text-black">
+                                                <h4 className="font-bold font-heading text-base sm:text-lg text-black pr-2">
                                                     <span>Day {item.day < 10 ? `0${item.day}` : item.day} : </span>
                                                     <span>{cleanItineraryTitle(item.title)}</span>
                                                 </h4>
@@ -1143,7 +1187,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         return (
                                         <div key={hotel.id || idx} className="flex items-center gap-3 rounded-2xl border border-gray-100 shadow-sm p-3 bg-[#F4F4F4] w-full">
                                             {/* Image */}
-                                            <div className="w-20 h-20 sm:w-[160px] sm:h-[100px] md:w-[200px] md:h-[115px] shrink-0 rounded-xl overflow-hidden">
+                                            <div className="w-16 h-16 sm:w-[130px] sm:h-[85px] md:w-[180px] md:h-[110px] shrink-0 rounded-xl overflow-hidden">
                                                 <img
                                                     src={hotel.images?.[0] || hotel1.src}
                                                     alt={hotel.name}
@@ -1152,7 +1196,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             </div>
                                             {/* Details */}
                                             <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-                                                <h3 className="text-[#113A74] font-bold text-[20px] leading-tight line-clamp-1">
+                                                <h3 className="text-[#113A74] font-bold text-base sm:text-[20px] leading-tight line-clamp-1">
                                                     {toTitleCase(hotel.name)}
                                                 </h3>
                                                 {displayAddress && (
@@ -1251,9 +1295,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 <div className="rounded-2xl border border-gray-100 overflow-hidden overflow-x-auto">
                                     <div className="min-w-[560px]">
                                     {/* Table header */}
-                                    <div className="grid grid-cols-6 px-5 py-3 bg-[#EEF5FF] border-b border-[#E1EEFF]">
+                                    <div className="grid px-5 py-3 bg-blue-50 border-b border-blue-100" style={{gridTemplateColumns: '1fr 1.5fr 1fr 1fr 1fr 1fr'}}>
                                         {['DATE', 'TRAIN', 'FROM', 'TO', 'DEPARTURE', 'ARRIVAL'].map(h => (
-                                            <span key={h} className="text-[12px] font-bold text-[#1D2A44] uppercase tracking-wider">{h}</span>
+                                            <span key={h} className="text-[12px] font-bold text-gray-400 uppercase tracking-wider">{h}</span>
                                         ))}
                                     </div>
                                     {/* Rows */}
@@ -1264,13 +1308,16 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                             : '—';
                                         const trainLabel = [train.operator, train.train_number].filter(Boolean).join(' ') || '—';
                                         return (
-                                            <div key={train.id || idx} className={`grid grid-cols-6 px-5 py-3 items-center text-xs text-gray-600 ${idx < pkg.trains.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                                                <span>{formattedDate}</span>
-                                                <span>{trainLabel}</span>
-                                                <span>{train.from_station || '—'}</span>
-                                                <span>{train.to_station || '—'}</span>
-                                                <span>{train.departure_time || '—'}</span>
-                                                <span>{train.arrival_time || '—'}</span>
+                                            <div key={train.id || idx} className={`grid grid-cols-6 px-5 py-4 items-start text-sm ${idx < pkg.trains.length - 1 ? 'border-b border-gray-50' : ''}`} style={{gridTemplateColumns: '1fr 1.5fr 1fr 1fr 1fr 1fr'}}>
+                                                <span className="text-gray-600 font-medium min-w-0">{formattedDate}</span>
+                                                <div className="flex items-start gap-1.5 min-w-0">
+                                                    <Train size={11} className="text-[#113A74] shrink-0 mt-1" />
+                                                    <span className="break-all">{trainLabel}</span>
+                                                </div>
+                                                <span className="min-w-0 break-words">{train.from_station || '—'}</span>
+                                                <span className="min-w-0 break-words">{train.to_station || '—'}</span>
+                                                <span className="text-gray-600 min-w-0">{train.departure_time || '—'}</span>
+                                                <span className="text-gray-600 min-w-0">{train.arrival_time || '—'}</span>
                                             </div>
                                         );
                                     })}
@@ -1282,7 +1329,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                         {/* Inclusion / Exclusion */}
                         <div className="space-y-4">
                             <h3 className="text-xl md:text-2xl font-bold text-black font-heading">Inclusion/Exclusion</h3>
-                            <div className="bg-[#EBF3FF] rounded-2xl p-6">
+                            <div className="bg-[#EBF3FF] rounded-2xl p-3 sm:p-6">
                                 <div className="flex flex-col sm:flex-row">
                                     {/* Inclusions */}
                                     <ul className="flex-1 space-y-3 pr-0 sm:pr-6">
@@ -1328,7 +1375,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         Black Out Days
                                     </h3>
                                 </div>
-                                <div className="rounded-[1.5rem] border border-slate-100 bg-[#FBFBFB] p-6 sm:p-8 shadow-sm">
+                                <div className="rounded-[1.5rem] border border-slate-100 bg-[#FBFBFB] p-4 sm:p-8 shadow-sm">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-3">
                                         {blackoutDates.map((range, index) => (
                                             <div key={range.id || index} className="flex items-center gap-2.5 text-xs sm:text-sm text-[#4B5872] font-medium">
@@ -1348,10 +1395,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                             <div className="space-y-3">
                                 {/* Offer Validity — separate section */}
                                 {pkg.offer_validity && (
-                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-2">
+                                    <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-4 sm:px-6 py-4 sm:py-5 space-y-2">
                                         <div className="flex items-center gap-3">
                                             <img src={offerIcon.src || offerIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-[20px] font-bold text-black font-heading">Offer Validity</h4>
+                                            <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Offer Validity</h4>
                                         </div>
                                         <p className="text-gray-400 text-base leading-relaxed">
                                             {(() => {
@@ -1373,10 +1420,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 {(() => {
                                     const bp = pkg.booking_policy ? (typeof pkg.booking_policy === 'string' ? JSON.parse(pkg.booking_policy) : pkg.booking_policy) : null;
                                     return (Array.isArray(bp) ? bp.length > 0 : !!bp) && (
-                                        <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
+                                        <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-4 sm:px-6 py-4 sm:py-5 space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                                <h4 className="text-[20px] font-bold text-black font-heading">Booking Policy</h4>
+                                                <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Booking Policy</h4>
                                             </div>
                                             {Array.isArray(bp) ? (
                                                 <ul className="space-y-1.5 pl-1">
@@ -1398,10 +1445,10 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                 {(() => {
                                     const cp = pkg.cancellation_policy ? (typeof pkg.cancellation_policy === 'string' ? JSON.parse(pkg.cancellation_policy) : pkg.cancellation_policy) : null;
                                     return (Array.isArray(cp) ? cp.length > 0 : !!cp) && (
-                                        <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
+                                        <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-4 sm:px-6 py-4 sm:py-5 space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <img src={cancellationPolicyIcon.src || cancellationPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                                <h4 className="text-[20px] font-bold text-black font-heading">Cancellation Policy</h4>
+                                                <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Cancellation Policy</h4>
                                             </div>
                                             {Array.isArray(cp) ? (
                                                 <ul className="space-y-1.5 pl-1">
@@ -1424,7 +1471,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
                                         <div className="flex items-center gap-3">
                                             <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-[20px] font-bold text-black font-heading">Terms &amp; Conditions</h4>
+                                            <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Terms &amp; Conditions</h4>
                                         </div>
                                         {Array.isArray(termsConditions) ? (
                                             <ul className="space-y-1.5 pl-1">
@@ -1446,7 +1493,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="border border-gray-100 rounded-2xl bg-[#FBFBFB] px-6 py-5 space-y-3">
                                         <div className="flex items-center gap-3">
                                             <img src={bookingPolicyIcon.src || bookingPolicyIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-[20px] font-bold text-black font-heading">Service Policy</h4>
+                                            <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Service Policy</h4>
                                         </div>
                                         {Array.isArray(servicePolicy) ? (
                                             <ul className="space-y-1.5 pl-1">
@@ -1509,7 +1556,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
                                             <img src={linkIcon.src || linkIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-[20px] font-bold text-black font-heading">Links</h4>
+                                            <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Links</h4>
                                         </div>
                                         <div className="space-y-1.5 pl-5 sm:pl-8">
                                             {pkg.links.map((link, idx) => (
@@ -1537,13 +1584,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
                                             <img src={callIcon.src || callIcon} alt="" className="w-5 h-5 shrink-0" />
-                                            <h4 className="text-[20px] font-bold text-black font-heading">Important Contact</h4>
+                                            <h4 className="text-base sm:text-[20px] font-bold text-black font-heading">Important Contact</h4>
                                         </div>
                                         <div className="max-w-[450px] pl-5 sm:pl-8">
                                             <div className="divide-y divide-gray-200">
                                                 {pkg.contacts.map((contact, idx) => (
                                                     <div key={idx} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 text-sm sm:text-base">
-                                                        <span className="text-[#4B5872] font-medium min-w-[160px] sm:min-w-[220px]">
+                                                        <span className="text-[#4B5872] font-medium min-w-[120px] sm:min-w-[160px]">
                                                             {contact.mobile ? contact.name?.replace(contact.mobile, '').replace(/[,\s]+$/, '').trim() : contact.name}
                                                         </span>
                                                         <span className="text-[#1D2A44] font-normal">{contact.mobile}</span>
@@ -1559,7 +1606,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                     </div>{/* end center main content */}
 
                     {/* ── RIGHT SIDEBAR ── */}
-                    <div className="lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
+                    <div className="order-2 lg:order-3 lg:w-[270px] xl:w-[300px] shrink-0 space-y-5 lg:sticky lg:top-24 self-start border border-gray-200 rounded-2xl p-1.5">
 
                         {/* Airlines + Operated By — single combined box */}
                         {(() => {
@@ -1727,7 +1774,7 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                 {/* Location Map Section */}
                 {(pkg.location_map || pkg.destination?.name || pkg.location) ? (
                     <div className="mt-4 sm:mt-6 lg:mt-8">
-                        <div className="rounded-[2rem] overflow-hidden shadow-md border border-gray-100 h-[300px] sm:h-[380px] lg:h-[450px] relative">
+                        <div className="rounded-[2rem] overflow-hidden shadow-md border border-gray-100 h-[220px] sm:h-[320px] lg:h-[450px] relative">
                             {(() => {
                                 // Multi-stop route: parse location_map into coordinate stops (array | single object).
                                 let routeStops = [];
@@ -1836,6 +1883,13 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                         const hotelsIncluded = rp.hotels_included ?? rp.has_hotel;
                                         const flightsIncluded = rp.flights_included ?? rp.has_flight;
                                         const hasFood = rp.has_food;
+                                        const renderRpIcon = (name, category) => {
+                                            const m = iconMasters.find(i => i.name === name && i.category === category);
+                                            if (!m) return null;
+                                            return m.icon_url
+                                                ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-5 h-5 object-contain" />
+                                                : <span key={name} title={name} className="text-[18px] leading-none">{m.emoji}</span>;
+                                        };
                                         return (
                                             <div
                                                 key={rp.id}
@@ -1898,9 +1952,9 @@ ${pkg.image ? `<img class="hero-img" src="${pkg.image}" alt="${pkg.title}" />` :
                                                         <div className="space-y-2.5 mt-auto pt-2">
                                                             {/* Amenity icons */}
                                                             <div className="flex items-center gap-2 py-0.5 flex-wrap">
-                                                                {hotelsIncluded  && <img src={hotelsIcon.src || hotelsIcon} alt="Hotel included"  className="w-5 h-5 object-contain" />}
-                                                                {flightsIncluded && <img src={flightIcon.src || flightIcon} alt="Flight included" className="w-5 h-5 object-contain" />}
-                                                                {hasFood         && <img src={foodIcon.src  || foodIcon}   alt="Food included"   className="w-5 h-5 object-contain" />}
+                                                                {hotelsIncluded  && (renderRpIcon('Hotel', 'transport')   || <span title="Hotel"  className="text-[18px] leading-none">🏨</span>)}
+                                                                {flightsIncluded && (renderRpIcon('Flight', 'transport')  || <span title="Flight" className="text-[18px] leading-none">✈️</span>)}
+                                                                {hasFood         && (renderRpIcon('Dinner', 'meal')       || <span title="Food"   className="text-[18px] leading-none">🍽️</span>)}
                                                             </div>
 
                                                             {/* Book Now + Price */}

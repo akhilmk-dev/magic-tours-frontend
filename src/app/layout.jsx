@@ -135,6 +135,12 @@ export default async function RootLayout({ children }) {
                                 ) : null;
                             })()}
                         </CustomerAuthProvider>
+                <Script
+                    id="visitor-call-widget"
+                    src="https://beekon.in/visitor-call-widget.js"
+                    data-site="a7bec872-a30b-4dab-ac8d-de5e0c4a46e6"
+                    strategy="lazyOnload"
+                />
                     </CurrencyProvider>
                 </ToastProvider>
             </body>

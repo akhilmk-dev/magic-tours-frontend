@@ -39,6 +39,14 @@ const PopularPackagesSkeleton = () => (
 );
 
 export default function PopularPackages({ packages: apiPackages, content, loading }) {
+    const [iconMasters, setIconMasters] = useState([]);
+    useEffect(() => {
+        fetch('https://api.magictours.qa/icon-masters/public')
+            .then(r => r.json())
+            .then(d => setIconMasters(Array.isArray(d) ? d : []))
+            .catch(() => {});
+    }, []);
+
     const defaultContent = {
         subtitle: "Packages",
         heading: "Popular Travel",
@@ -76,11 +84,18 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         return String(cat);
     };
 
-    const packageData = (apiPackages || []).map(p => ({
+    const packageData = (apiPackages || []).map(p => {
+        const countryNames = Array.isArray(p.country_names) ? p.country_names : [];
+        const location = p.location || "Location TBD";
+        const countrySet = new Set(countryNames.map(c => c.toLowerCase()));
+        const cities = location.split(',').map(s => s.trim()).filter(s => s && !countrySet.has(s.toLowerCase()));
+        const citiesLabel = cities.length > 0 ? cities.join(', ') : location;
+        return ({
         id: p.id,
         title: toTitleCase(p.title || "Untitled Package"),
-        location: p.location || "Location TBD",
-        countryNames: Array.isArray(p.country_names) ? p.country_names : [],
+        location,
+        citiesLabel,
+        countryNames,
         duration: (p.days > 0 || p.nights > 0) ? `${p.nights} Nights, ${p.days} Days` : (p.duration || "Contact for duration"),
         type: parseCategories(p.category),
         price: p.price || 0,
@@ -90,8 +105,10 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
         slug: p.slug,
         hasFlights: !!(p.flights_included || p.has_flight),
         hasMeals: !!(p.has_food),
-        hasHotel: !!(p.hotels_included || p.has_hotel)
-    }));
+        hasHotel: !!(p.hotels_included || p.has_hotel),
+        transportIcons: Array.isArray(p.transport_icons) ? p.transport_icons : [],
+        mealIcons: Array.isArray(p.meal_icons) ? p.meal_icons : [],
+    });});
 
     const [activeIndex, setActiveIndex] = useState(0);
     const isSmallSet = isMobile ? (packageData.length <= 1) : (packageData.length < 3);
@@ -229,7 +246,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <MapPin size={14} className="text-white/70 flex-shrink-0" />
-                                                    <span title={pkg.location} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.location}</span>
+                                                    <span title={pkg.citiesLabel} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.citiesLabel}</span>
                                                 </div>
 
                                                 <div className="mt-auto flex items-end justify-between">
@@ -282,23 +299,22 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                             ));
                                                         })()}
                                                     </div>
-                                                    {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
-                                                        <div className="flex items-center gap-3 flex-wrap">
-                                                            {pkg.hasFlights && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
-                                                            {pkg.hasMeals && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
-                                                            {pkg.hasHotel && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
+                                                    {(pkg.transportIcons.length > 0 || pkg.mealIcons.length > 0) && (
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            {pkg.transportIcons.map(name => {
+                                                                const m = iconMasters.find(i => i.category === 'transport' && i.name === name);
+                                                                if (!m) return null;
+                                                                return m.icon_url
+                                                                    ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+                                                                    : <span key={name} title={name} className="text-[18px] leading-none flex-shrink-0">{m.emoji}</span>;
+                                                            })}
+                                                            {pkg.mealIcons.map(name => {
+                                                                const m = iconMasters.find(i => i.category === 'meal' && i.name === name);
+                                                                if (!m) return null;
+                                                                return m.icon_url
+                                                                    ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+                                                                    : <span key={name} title={name} className="text-[18px] leading-none flex-shrink-0">{m.emoji}</span>;
+                                                            })}
                                                         </div>
                                                     )}
                                                 </div>
@@ -334,7 +350,7 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
 
                                                 <div className="flex items-center gap-2 mb-auto">
                                                     <MapPin size={14} className="text-white/70 flex-shrink-0" />
-                                                    <span title={pkg.location} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.location}</span>
+                                                    <span title={pkg.citiesLabel} className="text-white/80 font-bold text-[12px] line-clamp-1">{pkg.citiesLabel}</span>
                                                 </div>
 
                                                 <div className="mt-3 flex items-end justify-between">
@@ -393,23 +409,22 @@ export default function PopularPackages({ packages: apiPackages, content, loadin
                                                             ));
                                                         })()}
                                                     </div>
-                                                    {(pkg.hasFlights || pkg.hasMeals || pkg.hasHotel) && (
-                                                        <div className="flex items-center gap-3 flex-wrap">
-                                                            {pkg.hasFlights && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/plane.png" alt="Flight" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
-                                                            {pkg.hasMeals && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/meals.png" alt="Meals" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
-                                                            {pkg.hasHotel && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <img src="/icons/hotel.png" alt="Hotel" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-                                                                </div>
-                                                            )}
+                                                    {(pkg.transportIcons.length > 0 || pkg.mealIcons.length > 0) && (
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            {pkg.transportIcons.map(name => {
+                                                                const m = iconMasters.find(i => i.category === 'transport' && i.name === name);
+                                                                if (!m) return null;
+                                                                return m.icon_url
+                                                                    ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+                                                                    : <span key={name} title={name} className="text-[18px] leading-none flex-shrink-0">{m.emoji}</span>;
+                                                            })}
+                                                            {pkg.mealIcons.map(name => {
+                                                                const m = iconMasters.find(i => i.category === 'meal' && i.name === name);
+                                                                if (!m) return null;
+                                                                return m.icon_url
+                                                                    ? <img key={name} src={m.icon_url} alt={name} title={name} className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+                                                                    : <span key={name} title={name} className="text-[18px] leading-none flex-shrink-0">{m.emoji}</span>;
+                                                            })}
                                                         </div>
                                                     )}
                                                 </div>
